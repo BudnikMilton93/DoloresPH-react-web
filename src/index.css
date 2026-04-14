@@ -1,0 +1,44 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@400;500;600&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #7C5CBF;
+  --color-accent: #B08AD9;
+  --color-background: #EDE3F5;
+  --color-text: #2D1B4E;
+  --color-surface: #F5F0FA;
+
+  --font-family-heading: "Playfair Display", serif;
+  --font-family-body: "DM Sans", sans-serif;
+}
+
+:root {
+  --color-primary: #7C5CBF;
+  --color-accent: #B08AD9;
+  --color-background: #EDE3F5;
+  --color-text: #2D1B4E;
+  --color-surface: #F5F0FA;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-text);
+  margin: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Playfair Display', serif;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #e0d6f0 25%, #f0eaf7 50%, #e0d6f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
