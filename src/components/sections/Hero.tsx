@@ -20,7 +20,7 @@ export function Hero({ isVisible, content }: HeroProps) {
   return (
     <section
       id="hero"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16"
       style={{
         background: 'linear-gradient(135deg, var(--color-background) 0%, var(--color-surface) 50%, var(--color-accent) 100%)',
       }}
@@ -41,8 +41,8 @@ export function Hero({ isVisible, content }: HeroProps) {
         </motion.p>
 
         <motion.h1
-          className="text-5xl md:text-7xl text-[var(--color-text)] leading-tight mb-8"
-          style={{ fontFamily: 'Playfair Display, serif' }}
+          className="text-4xl sm:text-5xl md:text-7xl text-[var(--color-text)] leading-tight mb-8"
+          style={{ fontFamily: 'var(--font-heading)' }}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: 'easeOut', delay: 0.15 }}

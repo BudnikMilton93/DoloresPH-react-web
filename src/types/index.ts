@@ -36,6 +36,8 @@ export interface ThemeConfig {
   background: string;
   textColor: string;
   surface: string;
+  fontHeading: string;
+  fontBody: string;
   updatedAt: string;
 }
 

@@ -48,3 +48,15 @@ export async function patchContent(key: string, value: string, token: string): P
   });
   return response.data;
 }
+
+export async function deletePhoto(id: number, token: string): Promise<void> {
+  await axios.delete(`${API_URL}/api/photos/${id}`, {
+    headers: authHeader(token),
+  });
+}
+
+export async function deleteEssay(id: number, token: string): Promise<void> {
+  await axios.delete(`${API_URL}/api/essays/${id}`, {
+    headers: authHeader(token),
+  });
+}

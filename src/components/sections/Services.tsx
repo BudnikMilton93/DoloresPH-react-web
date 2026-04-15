@@ -19,7 +19,7 @@ export function Services({ isVisible, content }: ServicesProps) {
       {isVisible && (
         <motion.section
           id="services"
-          className="py-24 bg-[var(--color-background)]"
+          className="py-16 md:py-24 bg-[var(--color-background)]"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -34,7 +34,7 @@ export function Services({ isVisible, content }: ServicesProps) {
               transition={{ duration: 0.6 }}
             >
               <p className="text-sm uppercase tracking-[0.3em] text-[var(--color-primary)] mb-4">What I Offer</p>
-              <h2 className="text-4xl md:text-5xl text-[var(--color-text)]" style={{ fontFamily: 'Playfair Display, serif' }}>Services</h2>
+              <h2 className="text-4xl md:text-5xl text-[var(--color-text)]" style={{ fontFamily: 'var(--font-heading)' }}>Services</h2>
             </motion.div>
 
             <div className="max-w-2xl mx-auto">
@@ -47,10 +47,10 @@ export function Services({ isVisible, content }: ServicesProps) {
                   viewport={{ once: true }}
                   transition={{ duration: 0.6, delay: index * 0.1 }}
                 >
-                  <span className="text-2xl text-[var(--color-primary)]/30 group-hover:text-[var(--color-primary)] transition-colors" style={{ fontFamily: 'Playfair Display, serif' }}>
+                  <span className="text-2xl text-[var(--color-primary)]/30 group-hover:text-[var(--color-primary)] transition-colors" style={{ fontFamily: 'var(--font-heading)' }}>
                     {String(index + 1).padStart(2, '0')}
                   </span>
-                  <span className="text-xl text-[var(--color-text)] group-hover:text-[var(--color-primary)] transition-colors" style={{ fontFamily: 'Playfair Display, serif' }}>
+                  <span className="text-xl text-[var(--color-text)] group-hover:text-[var(--color-primary)] transition-colors" style={{ fontFamily: 'var(--font-heading)' }}>
                     {service}
                   </span>
                 </motion.div>

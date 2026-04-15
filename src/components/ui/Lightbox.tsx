@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+﻿import { useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Photo } from '../../types';
 
@@ -11,6 +11,8 @@ interface LightboxProps {
 }
 
 export function Lightbox({ photos, currentIndex, onClose, onNext, onPrev }: LightboxProps) {
+  const touchStartX = useRef<number | null>(null);
+
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (e.key === 'Escape') onClose();
     if (e.key === 'ArrowRight') onNext();
@@ -26,6 +28,19 @@ export function Lightbox({ photos, currentIndex, onClose, onNext, onPrev }: Ligh
     };
   }, [handleKeyDown]);
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const diff = touchStartX.current - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) {
+      diff > 0 ? onNext() : onPrev();
+    }
+    touchStartX.current = null;
+  };
+
   const photo = photos[currentIndex];
   if (!photo) return null;
 
@@ -37,30 +52,33 @@ export function Lightbox({ photos, currentIndex, onClose, onNext, onPrev }: Ligh
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
       >
+        {/* Close */}
         <button
-          className="absolute top-4 right-4 text-white text-3xl font-light leading-none z-10 hover:text-[var(--color-accent)] transition-colors"
+          className="absolute top-4 right-4 text-white text-3xl font-light leading-none z-10 hover:text-[var(--color-accent)] transition-colors w-10 h-10 flex items-center justify-center"
           onClick={onClose}
           aria-label="Close lightbox"
         >
-          ×
+          Ã—
         </button>
 
         {photos.length > 1 && (
           <>
             <button
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-white text-4xl font-light z-10 hover:text-[var(--color-accent)] transition-colors px-2"
+              className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 text-white text-4xl font-light z-10 hover:text-[var(--color-accent)] transition-colors w-10 h-10 flex items-center justify-center rounded-full bg-black/30"
               onClick={(e) => { e.stopPropagation(); onPrev(); }}
               aria-label="Previous photo"
             >
-              ‹
+              â€¹
             </button>
             <button
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-white text-4xl font-light z-10 hover:text-[var(--color-accent)] transition-colors px-2"
+              className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 text-white text-4xl font-light z-10 hover:text-[var(--color-accent)] transition-colors w-10 h-10 flex items-center justify-center rounded-full bg-black/30"
               onClick={(e) => { e.stopPropagation(); onNext(); }}
               aria-label="Next photo"
             >
-              ›
+              â€º
             </button>
           </>
         )}
@@ -69,7 +87,7 @@ export function Lightbox({ photos, currentIndex, onClose, onNext, onPrev }: Ligh
           key={photo.id}
           src={photo.url}
           alt={photo.alt}
-          className="max-w-[90vw] max-h-[90vh] object-contain rounded-lg"
+          className="max-w-[90vw] max-h-[85vh] object-contain rounded-lg"
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
@@ -84,3 +102,4 @@ export function Lightbox({ photos, currentIndex, onClose, onNext, onPrev }: Ligh
     </AnimatePresence>
   );
 }
+

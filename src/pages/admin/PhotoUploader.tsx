@@ -1,21 +1,32 @@
-import { useState, useRef } from 'react';
-import { uploadPhoto } from '../../api/admin';
+﻿import { useState, useRef } from 'react';
+import type { Photo } from '../../types';
+import { uploadPhoto, patchPhoto, deletePhoto } from '../../api/admin';
+import { Toggle } from '../../components/ui/Toggle';
 import { Button } from '../../components/ui/Button';
 
 interface PhotoUploaderProps {
   token: string;
+  photos: Photo[];
   onUpload: () => void;
 }
 
-export function PhotoUploader({ token, onUpload }: PhotoUploaderProps) {
+const CATEGORIES = ['Portrait', 'Wedding', 'Landscape', 'Editorial', 'Other'];
+
+export function PhotoUploader({ token, photos, onUpload }: PhotoUploaderProps) {
+  // Upload state
   const [dragging, setDragging] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const [category, setCategory] = useState('Portrait');
   const [alt, setAlt] = useState('');
   const [uploading, setUploading] = useState(false);
-  const [message, setMessage] = useState('');
+  const [uploadMessage, setUploadMessage] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  // Per-photo action state
+  const [toggling, setToggling] = useState<number | null>(null);
+  const [deleting, setDeleting] = useState<number | null>(null);
+  const [actionError, setActionError] = useState('');
 
   const handleFile = (file: File) => {
     setSelectedFile(file);
@@ -31,82 +42,176 @@ export function PhotoUploader({ token, onUpload }: PhotoUploaderProps) {
     if (file && file.type.startsWith('image/')) handleFile(file);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleUploadSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedFile) return;
     setUploading(true);
-    setMessage('');
+    setUploadMessage('');
     try {
       const formData = new FormData();
       formData.append('file', selectedFile);
       formData.append('alt', alt);
       formData.append('category', category);
       await uploadPhoto(formData, token);
-      setMessage('Photo uploaded successfully!');
+      setUploadMessage('Foto subida correctamente.');
       setPreview(null);
       setSelectedFile(null);
       setAlt('');
       onUpload();
     } catch {
-      setMessage('Upload failed. API may be unavailable.');
+      setUploadMessage('Error al subir. La API puede no estar disponible.');
     } finally {
       setUploading(false);
     }
   };
 
+  const handleToggleVisibility = async (photo: Photo, visible: boolean) => {
+    setToggling(photo.id);
+    setActionError('');
+    try {
+      await patchPhoto(photo.id, { isVisible: visible }, token);
+      onUpload();
+    } catch {
+      setActionError(`No se pudo cambiar la visibilidad de "${photo.alt}".`);
+    } finally {
+      setToggling(null);
+    }
+  };
+
+  const handleDelete = async (photo: Photo) => {
+    if (!window.confirm(`Â¿Eliminar la foto "${photo.alt}"? Esta acciÃ³n no se puede deshacer.`)) return;
+    setDeleting(photo.id);
+    setActionError('');
+    try {
+      await deletePhoto(photo.id, token);
+      onUpload();
+    } catch {
+      setActionError(`No se pudo eliminar "${photo.alt}". La API puede no estar disponible.`);
+    } finally {
+      setDeleting(null);
+    }
+  };
+
+  const sortedPhotos = [...photos].sort((a, b) => a.sortOrder - b.sortOrder);
+
   return (
     <div>
-      <h2 className="text-2xl text-[var(--color-text)] mb-6" style={{ fontFamily: 'Playfair Display, serif' }}>Upload Photo</h2>
+      <h2 className="text-2xl text-[var(--color-text)] mb-8" style={{ fontFamily: 'var(--font-heading)' }}>
+        GestiÃ³n de Fotos
+      </h2>
 
-      <div
-        className={`border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer transition-colors mb-6 ${
-          dragging ? 'border-[var(--color-primary)] bg-[var(--color-primary)]/5' : 'border-[var(--color-accent)]/40 hover:border-[var(--color-primary)]'
-        }`}
-        onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
-        onDragLeave={() => setDragging(false)}
-        onDrop={handleDrop}
-        onClick={() => fileRef.current?.click()}
-      >
-        <input
-          ref={fileRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
-        />
-        {preview ? (
-          <img src={preview} alt="Preview" className="max-h-48 mx-auto rounded-lg object-contain" />
+      {/* --- Existing photos --- */}
+      <div className="mb-10">
+        <p className="text-xs uppercase tracking-[0.2em] text-[var(--color-primary)] mb-4">
+          Fotos existentes ({photos.length})
+        </p>
+
+        {actionError && (
+          <p className="text-sm text-red-500 mb-3">{actionError}</p>
+        )}
+
+        {sortedPhotos.length === 0 ? (
+          <p className="text-sm text-[var(--color-text)]/50 py-4">No hay fotos cargadas aún.</p>
         ) : (
-          <div>
-            <p className="text-[var(--color-text)]/60 mb-2">Drag & drop an image here</p>
-            <p className="text-sm text-[var(--color-text)]/40">or click to browse</p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {sortedPhotos.map((photo) => (
+              <div
+                key={photo.id}
+                className={`relative rounded-xl overflow-hidden border transition-all ${
+                  photo.isVisible
+                    ? 'border-[var(--color-accent)]/30'
+                    : 'border-transparent opacity-50'
+                }`}
+              >
+                <img
+                  src={photo.url}
+                  alt={photo.alt}
+                  className="w-full h-32 object-cover"
+                />
+                <div className="p-2 bg-[var(--color-background)]">
+                  <p className="text-xs text-[var(--color-text)] truncate mb-1">{photo.alt || '—'}</p>
+                  <span className="text-[10px] text-[var(--color-primary)] bg-[var(--color-primary)]/10 px-1.5 py-0.5 rounded-full">
+                    {photo.category}
+                  </span>
+                  <div className="flex items-center justify-between mt-2">
+                    <Toggle
+                      checked={photo.isVisible}
+                      onChange={(checked) => handleToggleVisibility(photo, checked)}
+                      disabled={toggling === photo.id}
+                    />
+                    <button
+                      onClick={() => handleDelete(photo)}
+                      disabled={deleting === photo.id}
+                      className="text-xs text-red-400 hover:text-red-600 transition-colors disabled:opacity-40"
+                    >
+                      {deleting === photo.id ? '...' : 'Eliminar'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="text"
-          placeholder="Alt text / description"
-          value={alt}
-          onChange={(e) => setAlt(e.target.value)}
-          className="w-full px-4 py-3 rounded-xl border border-[var(--color-accent)]/30 bg-[var(--color-background)] text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/50"
-          required
-        />
-        <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className="w-full px-4 py-3 rounded-xl border border-[var(--color-accent)]/30 bg-[var(--color-background)] text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/50"
+      {/* --- Upload new photo --- */}
+      <div>
+        <p className="text-xs uppercase tracking-[0.2em] text-[var(--color-primary)] mb-4">Subir nueva foto</p>
+
+        <div
+          className={`border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer transition-colors mb-6 ${
+            dragging
+              ? 'border-[var(--color-primary)] bg-[var(--color-primary)]/5'
+              : 'border-[var(--color-accent)]/40 hover:border-[var(--color-primary)]'
+          }`}
+          onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+          onDragLeave={() => setDragging(false)}
+          onDrop={handleDrop}
+          onClick={() => fileRef.current?.click()}
         >
-          {['Portrait', 'Wedding', 'Landscape', 'Editorial', 'Other'].map((c) => (
-            <option key={c} value={c}>{c}</option>
-          ))}
-        </select>
-        <Button type="submit" variant="primary" disabled={!selectedFile || uploading}>
-          {uploading ? 'Uploading...' : 'Upload Photo'}
-        </Button>
-        {message && <p className="text-sm text-[var(--color-text)]/60">{message}</p>}
-      </form>
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
+          />
+          {preview ? (
+            <img src={preview} alt="Preview" className="max-h-48 mx-auto rounded-lg object-contain" />
+          ) : (
+            <div>
+              <p className="text-[var(--color-text)]/60 mb-2">ArrastrÃ¡ una imagen aquÃ­</p>
+              <p className="text-sm text-[var(--color-text)]/40">o hacÃ© click para elegir</p>
+            </div>
+          )}
+        </div>
+
+        <form onSubmit={handleUploadSubmit} className="space-y-4">
+          <input
+            type="text"
+            placeholder="Texto alternativo / descripciÃ³n"
+            value={alt}
+            onChange={(e) => setAlt(e.target.value)}
+            className="w-full px-4 py-3 rounded-xl border border-[var(--color-accent)]/30 bg-[var(--color-background)] text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/50"
+            required
+          />
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="w-full px-4 py-3 rounded-xl border border-[var(--color-accent)]/30 bg-[var(--color-background)] text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/50"
+          >
+            {CATEGORIES.map((c) => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
+          <Button type="submit" variant="primary" disabled={!selectedFile || uploading}>
+            {uploading ? 'Subiendo...' : 'Subir Foto'}
+          </Button>
+          {uploadMessage && <p className="text-sm text-[var(--color-text)]/60">{uploadMessage}</p>}
+        </form>
+      </div>
     </div>
   );
 }
+
+

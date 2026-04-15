@@ -4,9 +4,10 @@ import { SectionManager } from './SectionManager';
 import { PhotoUploader } from './PhotoUploader';
 import { EssayEditor } from './EssayEditor';
 import { ThemeEditor } from './ThemeEditor';
+import { ContentEditor } from './ContentEditor';
 import { Button } from '../../components/ui/Button';
 
-const TABS = ['Sections', 'Photos', 'Essays', 'Theme'] as const;
+const TABS = ['Sections', 'Content', 'Photos', 'Essays', 'Theme'] as const;
 type Tab = typeof TABS[number];
 
 interface DashboardProps {
@@ -22,19 +23,19 @@ export function Dashboard({ siteConfig, token, onRefetch, onLogout }: DashboardP
   return (
     <div className="min-h-screen bg-[var(--color-background)]">
       <header className="bg-[var(--color-surface)] border-b border-[var(--color-accent)]/20 px-6 h-16 flex items-center justify-between">
-        <span className="text-xl text-[var(--color-primary)]" style={{ fontFamily: 'Playfair Display, serif' }}>Dolores PH — Admin</span>
+        <span className="text-xl text-[var(--color-primary)]" style={{ fontFamily: 'var(--font-heading)' }}>Dolores PH — Admin</span>
         <div className="flex items-center gap-4">
           <a href="/" className="text-sm text-[var(--color-text)]/60 hover:text-[var(--color-primary)] transition-colors">
-            View Site
+            Ver sitio
           </a>
           <Button variant="ghost" size="sm" onClick={onLogout}>
-            Sign Out
+            Cerrar sesión
           </Button>
         </div>
       </header>
 
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="flex gap-2 mb-8 border-b border-[var(--color-accent)]/20 pb-4">
+      <div className="max-w-4xl mx-auto px-4 py-6 md:py-8">
+        <div className="flex gap-2 mb-8 border-b border-[var(--color-accent)]/20 pb-4 flex-wrap">
           {TABS.map((tab) => (
             <button
               key={tab}
@@ -50,12 +51,15 @@ export function Dashboard({ siteConfig, token, onRefetch, onLogout }: DashboardP
           ))}
         </div>
 
-        <div className="bg-[var(--color-surface)] rounded-2xl p-8 shadow-sm">
+        <div className="bg-[var(--color-surface)] rounded-2xl p-4 md:p-8 shadow-sm">
           {activeTab === 'Sections' && (
             <SectionManager sections={siteConfig.sections} token={token} onUpdate={onRefetch} />
           )}
+          {activeTab === 'Content' && (
+            <ContentEditor content={siteConfig.content} token={token} onUpdate={onRefetch} />
+          )}
           {activeTab === 'Photos' && (
-            <PhotoUploader token={token} onUpload={onRefetch} />
+            <PhotoUploader token={token} photos={siteConfig.photos} onUpload={onRefetch} />
           )}
           {activeTab === 'Essays' && (
             <EssayEditor essays={siteConfig.essays} token={token} onUpdate={onRefetch} />

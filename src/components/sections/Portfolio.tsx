@@ -29,7 +29,7 @@ export function Portfolio({ isVisible, photos }: PortfolioProps) {
       {isVisible && (
         <motion.section
           id="portfolio"
-          className="py-24 bg-[var(--color-background)]"
+          className="py-16 md:py-24 bg-[var(--color-background)]"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -44,7 +44,7 @@ export function Portfolio({ isVisible, photos }: PortfolioProps) {
               transition={{ duration: 0.6 }}
             >
               <p className="text-sm uppercase tracking-[0.3em] text-[var(--color-primary)] mb-4">Work</p>
-              <h2 className="text-4xl md:text-5xl text-[var(--color-text)]" style={{ fontFamily: 'Playfair Display, serif' }}>Portfolio</h2>
+              <h2 className="text-4xl md:text-5xl text-[var(--color-text)]" style={{ fontFamily: 'var(--font-heading)' }}>Portfolio</h2>
             </motion.div>
 
             <div className="flex gap-3 justify-center mb-10 flex-wrap">

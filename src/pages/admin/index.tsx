@@ -5,23 +5,39 @@ import { login as loginApi } from '../../api/auth';
 import { Dashboard } from './Dashboard';
 import { Button } from '../../components/ui/Button';
 
+const MOCK_USER = {
+  email: 'lolita@doloresph.com',
+  password: '123456',
+  token: 'mock_admin_token_dolores',
+};
+
 export function AdminPage() {
   const { siteConfig, refetch } = useSiteConfig();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [token, setToken] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(() => sessionStorage.getItem('admin_token'));
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
+
+    // Hardcoded dev user — replace once real API is live
+    if (email === MOCK_USER.email && password === MOCK_USER.password) {
+      sessionStorage.setItem('admin_token', MOCK_USER.token);
+      setToken(MOCK_USER.token);
+      setLoading(false);
+      return;
+    }
+
     try {
       const response = await loginApi(email, password);
+      sessionStorage.setItem('admin_token', response.token);
       setToken(response.token);
     } catch {
-      setError('Invalid credentials or server unavailable.');
+      setError('Credenciales incorrectas o servidor no disponible.');
     } finally {
       setLoading(false);
     }
@@ -36,7 +52,7 @@ export function AdminPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <h1 className="text-3xl text-[var(--color-text)] mb-2" style={{ fontFamily: 'Playfair Display, serif' }}>Admin Login</h1>
+          <h1 className="text-3xl text-[var(--color-text)] mb-2" style={{ fontFamily: 'var(--font-heading)' }}>Admin Login</h1>
           <p className="text-sm text-[var(--color-text)]/60 mb-8">Dolores Photography CMS</p>
 
           {error && (
@@ -80,7 +96,10 @@ export function AdminPage() {
       siteConfig={siteConfig}
       token={token}
       onRefetch={refetch}
-      onLogout={() => setToken(null)}
+      onLogout={() => {
+        sessionStorage.removeItem('admin_token');
+        setToken(null);
+      }}
     />
   );
 }

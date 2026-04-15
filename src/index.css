@@ -19,17 +19,25 @@
   --color-background: #EDE3F5;
   --color-text: #2D1B4E;
   --color-surface: #F5F0FA;
+  --font-heading: 'Playfair Display', serif;
+  --font-body: 'DM Sans', sans-serif;
+}
+
+html {
+  overflow-x: hidden;
+  scroll-behavior: smooth;
 }
 
 body {
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--font-body);
   background-color: var(--color-background);
   color: var(--color-text);
   margin: 0;
+  overflow-x: hidden;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-heading);
 }
 
 @keyframes shimmer {

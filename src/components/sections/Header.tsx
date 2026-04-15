@@ -29,7 +29,7 @@ export function Header() {
       transition={{ duration: 0.6, ease: 'easeOut' }}
     >
       <nav className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-        <a href="/" className="text-xl font-bold text-[var(--color-primary)]" style={{ fontFamily: 'Playfair Display, serif' }}>
+        <a href="/" className="text-xl font-bold text-[var(--color-primary)]" style={{ fontFamily: 'var(--font-heading)' }}>
           Dolores PH
         </a>
 
@@ -46,7 +46,7 @@ export function Header() {
         </div>
 
         <button
-          className="md:hidden text-[var(--color-text)]"
+          className="md:hidden text-[var(--color-text)] p-2 -mr-2 rounded-lg"
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label="Toggle menu"
         >
@@ -66,7 +66,7 @@ export function Header() {
             <a
               key={link.label}
               href={link.href}
-              className="text-sm text-[var(--color-text)] hover:text-[var(--color-primary)] transition-colors"
+              className="text-sm text-[var(--color-text)] hover:text-[var(--color-primary)] transition-colors py-2"
               onClick={() => setMenuOpen(false)}
             >
               {link.label}

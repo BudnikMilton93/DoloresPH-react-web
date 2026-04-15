@@ -28,7 +28,7 @@ export function Contact({ isVisible, content }: ContactProps) {
       {isVisible && (
         <motion.section
           id="contact"
-          className="py-24 bg-[var(--color-surface)]"
+          className="py-16 md:py-24 bg-[var(--color-surface)]"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -36,17 +36,17 @@ export function Contact({ isVisible, content }: ContactProps) {
         >
           <div className="max-w-6xl mx-auto px-4">
             <motion.div
-              className="text-center mb-16"
+              className="text-center mb-8 md:mb-16"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
             >
               <p className="text-sm uppercase tracking-[0.3em] text-[var(--color-primary)] mb-4">Let's Connect</p>
-              <h2 className="text-4xl md:text-5xl text-[var(--color-text)]" style={{ fontFamily: 'Playfair Display, serif' }}>Get in Touch</h2>
+              <h2 className="text-4xl md:text-5xl text-[var(--color-text)]" style={{ fontFamily: 'var(--font-heading)' }}>Get in Touch</h2>
             </motion.div>
 
-            <div className="grid md:grid-cols-2 gap-16">
+            <div className="grid md:grid-cols-2 gap-8 md:gap-16">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -77,7 +77,7 @@ export function Contact({ isVisible, content }: ContactProps) {
               >
                 {submitted ? (
                   <div className="text-center py-12">
-                    <p className="text-2xl text-[var(--color-primary)] mb-2" style={{ fontFamily: 'Playfair Display, serif' }}>Thank you!</p>
+                    <p className="text-2xl text-[var(--color-primary)] mb-2" style={{ fontFamily: 'var(--font-heading)' }}>Thank you!</p>
                     <p className="text-[var(--color-text)]/70">I'll be in touch soon.</p>
                   </div>
                 ) : (

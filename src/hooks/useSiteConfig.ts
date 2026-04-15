@@ -9,6 +9,8 @@ const DEFAULT_THEME: ThemeConfig = {
   background: '#EDE3F5',
   textColor: '#2D1B4E',
   surface: '#F5F0FA',
+  fontHeading: 'Playfair Display',
+  fontBody: 'DM Sans',
   updatedAt: new Date().toISOString(),
 };
 
@@ -56,7 +58,12 @@ const DEFAULT_CONFIG: SiteConfig = {
   content: [
     { key: 'hero_headline', value: "Capturing Life's Most Beautiful Moments" },
     { key: 'hero_subtext', value: 'Fine art photography for those who believe in the power of a single frame.' },
+    { key: 'about_subtitle', value: 'An Eye for the Extraordinary' },
+    { key: 'about_photo', value: 'https://images.unsplash.com/photo-1554048612-b6a482bc67e5?w=600' },
     { key: 'about_bio', value: "Hi, I'm Dolores — a photographer based in the heart of the city, specializing in portraits, weddings, and editorial work. I believe every image should tell a story that transcends words." },
+    { key: 'about_years', value: '8+' },
+    { key: 'about_sessions', value: '500+' },
+    { key: 'about_awards', value: '12' },
     { key: 'services_list', value: 'Portrait Sessions\nWedding Photography\nEditorial & Commercial\nPhoto Essays\nPrint Sales' },
     { key: 'contact_email', value: 'hello@doloresphotography.com' },
     { key: 'contact_instagram', value: '@doloresphotography' },

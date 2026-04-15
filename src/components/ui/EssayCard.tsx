@@ -28,7 +28,7 @@ export function EssayCard({ essay }: EssayCardProps) {
         )}
       </div>
       <div className="p-6">
-        <h3 className="text-xl text-[var(--color-text)] mb-2" style={{ fontFamily: 'Playfair Display, serif' }}>{essay.title}</h3>
+        <h3 className="text-xl text-[var(--color-text)] mb-2" style={{ fontFamily: 'var(--font-heading)' }}>{essay.title}</h3>
         <p className="text-sm text-[var(--color-text)]/70 leading-relaxed">{essay.description}</p>
       </div>
     </motion.div>

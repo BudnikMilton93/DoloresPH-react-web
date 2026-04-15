@@ -15,7 +15,7 @@ export function Essays({ isVisible, essays }: EssaysProps) {
       {isVisible && (
         <motion.section
           id="essays"
-          className="py-24 bg-[var(--color-surface)]"
+          className="py-16 md:py-24 bg-[var(--color-surface)]"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -23,14 +23,14 @@ export function Essays({ isVisible, essays }: EssaysProps) {
         >
           <div className="max-w-6xl mx-auto px-4">
             <motion.div
-              className="text-center mb-12"
+              className="text-center mb-8 md:mb-12"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
             >
               <p className="text-sm uppercase tracking-[0.3em] text-[var(--color-primary)] mb-4">Stories</p>
-              <h2 className="text-4xl md:text-5xl text-[var(--color-text)]" style={{ fontFamily: 'Playfair Display, serif' }}>Photo Essays</h2>
+              <h2 className="text-4xl md:text-5xl text-[var(--color-text)]" style={{ fontFamily: 'var(--font-heading)' }}>Photo Essays</h2>
             </motion.div>
 
             <div className="grid md:grid-cols-2 gap-8">
