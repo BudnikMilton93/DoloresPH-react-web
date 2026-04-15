@@ -74,7 +74,7 @@ export function EssayEditor({ essays, token, onUpdate }: EssayEditorProps) {
   };
 
   const handleDelete = async (essay: Essay) => {
-    if (!window.confirm(`Â¿Eliminar "${essay.title}"? Esta acciÃ³n no se puede deshacer.`)) return;
+    if (!window.confirm(`¿Eliminar "${essay.title}"? Esta acción no se puede deshacer.`)) return;
     setDeletingId(essay.id);
     setMessage('');
     try {
@@ -88,13 +88,13 @@ export function EssayEditor({ essays, token, onUpdate }: EssayEditorProps) {
   };
 
   const inputClass =
-    'w-full px-4 py-3 rounded-xl border border-[var(--color-accent)]/30 bg-[var(--color-surface)] text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/50 text-sm';
+    'w-full px-4 py-3 rounded-xl border border-accent/30 bg-surface text-text focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm';
 
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl text-[var(--color-text)]" style={{ fontFamily: 'var(--font-heading)' }}>
-          Ensayos FotogrÃ¡ficos
+        <h2 className="text-2xl text-text" style={{ fontFamily: 'var(--font-heading)' }}>
+          Ensayos Fotográficos
         </h2>
         <Button variant="primary" size="sm" onClick={() => setCreating(!creating)}>
           {creating ? 'Cancelar' : '+ Nuevo ensayo'}
@@ -104,18 +104,18 @@ export function EssayEditor({ essays, token, onUpdate }: EssayEditorProps) {
       {creating && (
         <form
           onSubmit={handleCreate}
-          className="bg-[var(--color-background)] rounded-2xl p-6 mb-6 space-y-4 border border-[var(--color-accent)]/20"
+          className="bg-background rounded-2xl p-6 mb-6 space-y-4 border border-accent/20"
         >
           <input
             type="text"
-            placeholder="TÃ­tulo del ensayo"
+            placeholder="Título del ensayo"
             value={newTitle}
             onChange={(e) => setNewTitle(e.target.value)}
             className={inputClass}
             required
           />
           <textarea
-            placeholder="DescripciÃ³n"
+            placeholder="Descripción"
             rows={3}
             value={newDescription}
             onChange={(e) => setNewDescription(e.target.value)}
@@ -128,13 +128,13 @@ export function EssayEditor({ essays, token, onUpdate }: EssayEditorProps) {
         </form>
       )}
 
-      {message && <p className="text-sm text-[var(--color-text)]/60 mb-4">{message}</p>}
+      {message && <p className="text-sm text-text/60 mb-4">{message}</p>}
 
       <div className="space-y-3">
         {essays.map((essay) => (
           <div
             key={essay.id}
-            className="bg-[var(--color-background)] rounded-xl border border-[var(--color-accent)]/20 overflow-hidden"
+            className="bg-background rounded-xl border border-accent/20 overflow-hidden"
           >
             {editingId === essay.id ? (
               <div className="p-4 space-y-3">
@@ -143,14 +143,14 @@ export function EssayEditor({ essays, token, onUpdate }: EssayEditorProps) {
                   value={editTitle}
                   onChange={(e) => setEditTitle(e.target.value)}
                   className={inputClass}
-                  placeholder="TÃ­tulo"
+                  placeholder="Título"
                 />
                 <textarea
                   value={editDescription}
                   onChange={(e) => setEditDescription(e.target.value)}
                   rows={3}
                   className={`${inputClass} resize-none`}
-                  placeholder="DescripciÃ³n"
+                  placeholder="Descripción"
                 />
                 <div className="flex gap-2">
                   <Button variant="primary" size="sm" onClick={() => handleSaveEdit(essay.id)} disabled={editSaving}>
@@ -164,8 +164,8 @@ export function EssayEditor({ essays, token, onUpdate }: EssayEditorProps) {
             ) : (
               <div className="flex items-center justify-between p-4">
                 <div className="flex-1 min-w-0 pr-4">
-                  <p className="font-medium text-[var(--color-text)] truncate">{essay.title}</p>
-                  <p className="text-xs text-[var(--color-text)]/50 mt-0.5">
+                  <p className="font-medium text-text truncate">{essay.title}</p>
+                  <p className="text-xs text-text/50 mt-0.5">
                     {essay.photos.length} foto{essay.photos.length !== 1 ? 's' : ''}
                   </p>
                 </div>
@@ -176,7 +176,7 @@ export function EssayEditor({ essays, token, onUpdate }: EssayEditorProps) {
                   />
                   <button
                     onClick={() => handleStartEdit(essay)}
-                    className="text-xs text-[var(--color-primary)] hover:underline transition-colors"
+                    className="text-xs text-primary hover:underline transition-colors"
                   >
                     Editar
                   </button>

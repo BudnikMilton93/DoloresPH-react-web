@@ -27,7 +27,7 @@ const CONTENT_SCHEMA: { section: string; fields: { key: string; label: string; t
       { key: 'about_bio', label: 'Biografía', type: 'textarea' },
       { key: 'about_years', label: 'Años de experiencia', type: 'text' },
       { key: 'about_sessions', label: 'Sesiones completadas', type: 'text' },
-      { key: 'about_awards', label: 'Premios ganados', type: 'text' },
+      { key: 'about_awards', label: 'Fotografías capturadas', type: 'text' },
     ],
   },
   {

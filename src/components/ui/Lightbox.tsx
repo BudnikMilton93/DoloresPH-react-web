@@ -36,7 +36,7 @@ export function Lightbox({ photos, currentIndex, onClose, onNext, onPrev }: Ligh
     if (touchStartX.current === null) return;
     const diff = touchStartX.current - e.changedTouches[0].clientX;
     if (Math.abs(diff) > 50) {
-      diff > 0 ? onNext() : onPrev();
+      if (diff > 0) onNext(); else onPrev();
     }
     touchStartX.current = null;
   };
@@ -61,7 +61,7 @@ export function Lightbox({ photos, currentIndex, onClose, onNext, onPrev }: Ligh
           onClick={onClose}
           aria-label="Close lightbox"
         >
-          Ã—
+          ×
         </button>
 
         {photos.length > 1 && (
@@ -71,14 +71,14 @@ export function Lightbox({ photos, currentIndex, onClose, onNext, onPrev }: Ligh
               onClick={(e) => { e.stopPropagation(); onPrev(); }}
               aria-label="Previous photo"
             >
-              â€¹
+              ‹
             </button>
             <button
               className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 text-white text-4xl font-light z-10 hover:text-[var(--color-accent)] transition-colors w-10 h-10 flex items-center justify-center rounded-full bg-black/30"
               onClick={(e) => { e.stopPropagation(); onNext(); }}
               aria-label="Next photo"
             >
-              â€º
+              ›
             </button>
           </>
         )}

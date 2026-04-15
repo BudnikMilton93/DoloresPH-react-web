@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import type { SiteConfig, ThemeConfig } from '../types';
+import type { SiteConfig, ThemeConfig, Testimonial } from '../types';
 import { fetchSiteConfig } from '../api/siteConfig';
 
 const DEFAULT_THEME: ThemeConfig = {
@@ -22,6 +22,7 @@ const DEFAULT_CONFIG: SiteConfig = {
     { id: 4, name: 'Essays', isVisible: true, sortOrder: 4 },
     { id: 5, name: 'Services', isVisible: true, sortOrder: 5 },
     { id: 6, name: 'Contact', isVisible: true, sortOrder: 6 },
+    { id: 7, name: 'Testimonials', isVisible: true, sortOrder: 7 },
   ],
   photos: [
     { id: 1, url: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=800', alt: 'Portrait 1', category: 'Portrait', isVisible: true, sortOrder: 1 },
@@ -67,7 +68,20 @@ const DEFAULT_CONFIG: SiteConfig = {
     { key: 'services_list', value: 'Portrait Sessions\nWedding Photography\nEditorial & Commercial\nPhoto Essays\nPrint Sales' },
     { key: 'contact_email', value: 'hello@doloresphotography.com' },
     { key: 'contact_instagram', value: '@doloresphotography' },
+    { key: 'logo_url', value: '/logo.png' },
+    { key: 'brandmark_hero', value: '/brandmark-1.svg' },
+    { key: 'brandmark_about', value: '/brandmark-2.svg' },
+    { key: 'brandmark_services', value: '/brandmark-1.svg' },
+    { key: 'brandmark_contact', value: '/brandmark-2.svg' },
+    { key: 'brandmark_footer', value: '/brandmark-2.svg' },
+    { key: 'custom_fonts', value: '' },
   ],
+  testimonials: [
+    { id: 1, author: 'Maria G.', handle: '@mariagomez', text: '¡Dolores captura emociones de una manera increible! Las fotos de mi boda superaron todas mis expectativas. Cada imagen cuenta una historia llena de amor.', avatarUrl: 'https://i.pravatar.cc/80?img=47', isVisible: true, sortOrder: 1 },
+    { id: 2, author: 'Lucia R.', handle: '@luciaramos_', text: 'La sesion de fotos fue una experiencia hermosa. Dolores sabe como hacerte sentir comoda y el resultado es simplemente magico. 100% recomendada.', avatarUrl: 'https://i.pravatar.cc/80?img=5', isVisible: true, sortOrder: 2 },
+    { id: 3, author: 'Sofia M.', handle: '@sofiamendez', text: 'Contraté a Dolores para mi book y quedé maravillada. Su ojo artístico es único y su edición es impecable. Definitivamente la mejor decision.', avatarUrl: 'https://i.pravatar.cc/80?img=9', isVisible: true, sortOrder: 3 },
+    { id: 4, author: 'Valentina C.', handle: '@vale.castillo', text: 'Queriamos algo diferente para nuestro casamiento y Dolores entendio exactamente nuestra vision. Las fotos son pura poesia visual.', avatarUrl: 'https://i.pravatar.cc/80?img=15', isVisible: true, sortOrder: 4 },
+  ] as Testimonial[],
   theme: DEFAULT_THEME,
 };
 

@@ -1,10 +1,32 @@
-export function Footer() {
+import type { SiteContent } from '../../types';
+
+interface FooterProps {
+  content?: SiteContent[];
+}
+
+export function Footer({ content = [] }: FooterProps) {
+  const logoUrl = content.find((c) => c.key === 'logo_url')?.value || '';
+  const brandmarkFooter = content.find((c) => c.key === 'brandmark_footer')?.value || '';
+
   return (
-    <footer className="bg-[var(--color-text)] py-8">
+    <footer className="bg-text py-10">
       <div className="max-w-6xl mx-auto px-4 text-center">
-        <p className="text-xl text-[var(--color-surface)] mb-2" style={{ fontFamily: 'var(--font-heading)' }}>Dolores PH</p>
-        <p className="text-sm text-[var(--color-surface)]/60">
-          © {new Date().getFullYear()} Dolores Photography. All rights reserved.
+        {logoUrl ? (
+          <img src={logoUrl} alt="Dolores PH" className="h-12 w-auto object-contain mx-auto mb-4 opacity-90" />
+        ) : (
+          <p className="text-xl text-surface mb-4" style={{ fontFamily: 'var(--font-heading)' }}>Dolores PH</p>
+        )}
+
+        {brandmarkFooter && (
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <span className="flex-1 max-w-20 h-px bg-surface/20" />
+            <img src={brandmarkFooter} alt="" aria-hidden="true" className="h-8 w-auto object-contain opacity-50" />
+            <span className="flex-1 max-w-20 h-px bg-surface/20" />
+          </div>
+        )}
+
+        <p className="text-sm text-surface/50">
+          &copy; {new Date().getFullYear()} Dolores Photography. All rights reserved.
         </p>
       </div>
     </footer>

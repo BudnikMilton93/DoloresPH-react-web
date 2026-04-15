@@ -1,0 +1,194 @@
+import { useState } from 'react';
+import type { Testimonial } from '../../types';
+import { createTestimonial, patchTestimonial, deleteTestimonial } from '../../api/admin';
+import { Button } from '../../components/ui/Button';
+
+interface TestimonialsManagerProps {
+  testimonials: Testimonial[];
+  token: string;
+  onUpdate: () => void;
+}
+
+const EMPTY_FORM = { author: '', handle: '', text: '', avatarUrl: '' };
+
+export function TestimonialsManager({ testimonials, token, onUpdate }: TestimonialsManagerProps) {
+  const [form, setForm] = useState(EMPTY_FORM);
+  const [editId, setEditId] = useState<number | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const sorted = [...testimonials].sort((a, b) => a.sortOrder - b.sortOrder);
+
+  function startEdit(t: Testimonial) {
+    setEditId(t.id);
+    setForm({ author: t.author, handle: t.handle, text: t.text, avatarUrl: t.avatarUrl ?? '' });
+    setError(null);
+  }
+
+  function cancelEdit() {
+    setEditId(null);
+    setForm(EMPTY_FORM);
+    setError(null);
+  }
+
+  async function handleSave() {
+    if (!form.author.trim() || !form.text.trim()) {
+      setError('El nombre y el comentario son obligatorios.');
+      return;
+    }
+    setSaving(true);
+    setError(null);
+    try {
+      if (editId !== null) {
+        await patchTestimonial(editId, { author: form.author, handle: form.handle, text: form.text, avatarUrl: form.avatarUrl || undefined }, token);
+      } else {
+        await createTestimonial({
+          author: form.author,
+          handle: form.handle,
+          text: form.text,
+          avatarUrl: form.avatarUrl || undefined,
+          isVisible: true,
+          sortOrder: testimonials.length + 1,
+        }, token);
+      }
+      setForm(EMPTY_FORM);
+      setEditId(null);
+      onUpdate();
+    } catch {
+      setError('Error al guardar. La API puede no estar disponible aun.');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleToggle(t: Testimonial) {
+    try {
+      await patchTestimonial(t.id, { isVisible: !t.isVisible }, token);
+      onUpdate();
+    } catch {
+      setError('Error al actualizar visibilidad.');
+    }
+  }
+
+  async function handleDelete(id: number) {
+    if (!confirm('Eliminar este testimonio?')) return;
+    try {
+      await deleteTestimonial(id, token);
+      onUpdate();
+    } catch {
+      setError('Error al eliminar.');
+    }
+  }
+
+  return (
+    <div className="space-y-8">
+      <h2 className="text-xl text-[var(--color-primary)]" style={{ fontFamily: 'var(--font-heading)' }}>
+        Testimonios de Instagram
+      </h2>
+
+      {error && <p className="text-sm text-red-500 bg-red-50 rounded-lg px-4 py-2">{error}</p>}
+
+      {/* Form */}
+      <div className="rounded-xl border border-[var(--color-accent)]/20 p-5 space-y-4">
+        <p className="font-semibold text-[var(--color-text)] text-sm">
+          {editId !== null ? 'Editar testimonio' : 'Agregar testimonio'}
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <input
+            type="text"
+            placeholder="Nombre del cliente *"
+            value={form.author}
+            onChange={(e) => setForm({ ...form, author: e.target.value })}
+            className="text-sm px-3 py-2 rounded-lg border border-[var(--color-accent)]/30 bg-[var(--color-background)] text-[var(--color-text)] outline-none focus:border-[var(--color-accent)]"
+          />
+          <input
+            type="text"
+            placeholder="@usuario de Instagram"
+            value={form.handle}
+            onChange={(e) => setForm({ ...form, handle: e.target.value })}
+            className="text-sm px-3 py-2 rounded-lg border border-[var(--color-accent)]/30 bg-[var(--color-background)] text-[var(--color-text)] outline-none focus:border-[var(--color-accent)]"
+          />
+        </div>
+        <textarea
+          placeholder="Comentario (copiado de Instagram) *"
+          value={form.text}
+          onChange={(e) => setForm({ ...form, text: e.target.value })}
+          rows={3}
+          className="w-full text-sm px-3 py-2 rounded-lg border border-[var(--color-accent)]/30 bg-[var(--color-background)] text-[var(--color-text)] outline-none focus:border-[var(--color-accent)] resize-none"
+        />
+        <input
+          type="url"
+          placeholder="URL de avatar (opcional)"
+          value={form.avatarUrl}
+          onChange={(e) => setForm({ ...form, avatarUrl: e.target.value })}
+          className="w-full text-sm px-3 py-2 rounded-lg border border-[var(--color-accent)]/30 bg-[var(--color-background)] text-[var(--color-text)] outline-none focus:border-[var(--color-accent)]"
+        />
+        <div className="flex gap-2">
+          <Button variant="primary" size="sm" onClick={handleSave} disabled={saving}>
+            {saving ? 'Guardando...' : editId !== null ? 'Actualizar' : 'Agregar'}
+          </Button>
+          {editId !== null && (
+            <Button variant="ghost" size="sm" onClick={cancelEdit}>
+              Cancelar
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {/* List */}
+      <div className="space-y-3">
+        {sorted.length === 0 && (
+          <p className="text-sm text-[var(--color-text)]/50 text-center py-6">
+            No hay testimonios todavia. Agrega el primero arriba.
+          </p>
+        )}
+        {sorted.map((t) => (
+          <div
+            key={t.id}
+            className={`rounded-xl border p-4 flex gap-4 transition-opacity ${
+              t.isVisible
+                ? 'border-[var(--color-accent)]/20'
+                : 'border-[var(--color-accent)]/10 opacity-50'
+            }`}
+          >
+            {t.avatarUrl ? (
+              <img src={t.avatarUrl} alt={t.author} className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
+            ) : (
+              <div className="w-10 h-10 rounded-full bg-[var(--color-accent)]/20 flex items-center justify-center flex-shrink-0 text-[var(--color-primary)] font-semibold">
+                {t.author[0]}
+              </div>
+            )}
+          <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="font-semibold text-sm text-[var(--color-text)]">{t.author}</span>
+                <span className="text-xs text-[var(--color-accent)]">{t.handle}</span>
+              </div>
+              <p className="text-xs text-[var(--color-text)]/70 mt-1 line-clamp-2">{t.text}</p>
+              <div className="flex gap-2 mt-2 flex-wrap">
+                <button
+                  onClick={() => handleToggle(t)}
+                  className="text-xs px-2 py-1 rounded-lg border border-[var(--color-accent)]/30 text-[var(--color-text)]/60 hover:bg-[var(--color-background)] transition-colors"
+                  title={t.isVisible ? 'Ocultar' : 'Mostrar'}
+                >
+                  {t.isVisible ? 'Ocultar' : 'Mostrar'}
+                </button>
+                <button
+                  onClick={() => startEdit(t)}
+                  className="text-xs px-2 py-1 rounded-lg border border-[var(--color-accent)]/30 text-[var(--color-text)]/60 hover:bg-[var(--color-background)] transition-colors"
+                >
+                  Editar
+                </button>
+                <button
+                  onClick={() => handleDelete(t.id)}
+                  className="text-xs px-2 py-1 rounded-lg border border-red-200 text-red-400 hover:bg-red-50 transition-colors"
+                >
+                  Eliminar
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}

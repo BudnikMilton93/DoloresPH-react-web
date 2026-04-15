@@ -45,15 +45,15 @@ export function AdminPage() {
 
   if (!token) {
     return (
-      <div className="min-h-screen bg-[var(--color-background)] flex items-center justify-center px-4">
+      <div className="min-h-screen bg-background flex items-center justify-center px-4">
         <motion.div
-          className="bg-[var(--color-surface)] rounded-2xl shadow-xl p-10 w-full max-w-md"
+          className="bg-surface rounded-2xl shadow-xl p-10 w-full max-w-md"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <h1 className="text-3xl text-[var(--color-text)] mb-2" style={{ fontFamily: 'var(--font-heading)' }}>Admin Login</h1>
-          <p className="text-sm text-[var(--color-text)]/60 mb-8">Dolores Photography CMS</p>
+          <h1 className="text-3xl text-text mb-2" style={{ fontFamily: 'var(--font-heading)' }}>Admin Login</h1>
+          <p className="text-sm text-text/60 mb-8">Dolores Photography CMS</p>
 
           {error && (
             <div className="bg-red-50 text-red-600 text-sm px-4 py-3 rounded-lg mb-4">
@@ -67,7 +67,7 @@ export function AdminPage() {
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-[var(--color-accent)]/30 bg-[var(--color-background)] text-[var(--color-text)] placeholder-[var(--color-text)]/40 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/50"
+              className="w-full px-4 py-3 rounded-xl border border-accent/30 bg-background text-text placeholder-text/40 focus:outline-none focus:ring-2 focus:ring-primary/50"
               required
             />
             <input
@@ -75,7 +75,7 @@ export function AdminPage() {
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-[var(--color-accent)]/30 bg-[var(--color-background)] text-[var(--color-text)] placeholder-[var(--color-text)]/40 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/50"
+              className="w-full px-4 py-3 rounded-xl border border-accent/30 bg-background text-text placeholder-text/40 focus:outline-none focus:ring-2 focus:ring-primary/50"
               required
             />
             <Button type="submit" variant="primary" size="lg" className="w-full" disabled={loading}>
@@ -83,8 +83,8 @@ export function AdminPage() {
             </Button>
           </form>
 
-          <p className="text-center text-xs text-[var(--color-text)]/40 mt-6">
-            <a href="/" className="hover:text-[var(--color-primary)] transition-colors">← Back to site</a>
+          <p className="text-center text-xs text-text/40 mt-6">
+            <a href="/" className="hover:text-primary transition-colors">← Back to site</a>
           </p>
         </motion.div>
       </div>

@@ -1,9 +1,12 @@
-import axios from 'axios';
+import { supabase } from '../lib/supabase';
 import type { AuthResponse } from '../types';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-
 export async function login(email: string, password: string): Promise<AuthResponse> {
-  const response = await axios.post<AuthResponse>(`${API_URL}/api/auth/login`, { email, password });
-  return response.data;
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error || !data.session) throw new Error(error?.message ?? 'Credenciales inválidas');
+  return { token: data.session.access_token };
+}
+
+export async function logout(): Promise<void> {
+  await supabase.auth.signOut();
 }

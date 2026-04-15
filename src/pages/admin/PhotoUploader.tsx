@@ -48,11 +48,7 @@ export function PhotoUploader({ token, photos, onUpload }: PhotoUploaderProps) {
     setUploading(true);
     setUploadMessage('');
     try {
-      const formData = new FormData();
-      formData.append('file', selectedFile);
-      formData.append('alt', alt);
-      formData.append('category', category);
-      await uploadPhoto(formData, token);
+      await uploadPhoto(selectedFile, { alt, category }, token);
       setUploadMessage('Foto subida correctamente.');
       setPreview(null);
       setSelectedFile(null);
@@ -79,7 +75,7 @@ export function PhotoUploader({ token, photos, onUpload }: PhotoUploaderProps) {
   };
 
   const handleDelete = async (photo: Photo) => {
-    if (!window.confirm(`Â¿Eliminar la foto "${photo.alt}"? Esta acciÃ³n no se puede deshacer.`)) return;
+    if (!window.confirm(`¿Eliminar la foto "${photo.alt}"? Esta acción no se puede deshacer.`)) return;
     setDeleting(photo.id);
     setActionError('');
     try {
@@ -96,13 +92,13 @@ export function PhotoUploader({ token, photos, onUpload }: PhotoUploaderProps) {
 
   return (
     <div>
-      <h2 className="text-2xl text-[var(--color-text)] mb-8" style={{ fontFamily: 'var(--font-heading)' }}>
-        GestiÃ³n de Fotos
+      <h2 className="text-2xl text-text mb-8" style={{ fontFamily: 'var(--font-heading)' }}>
+        Gestión de Fotos
       </h2>
 
       {/* --- Existing photos --- */}
       <div className="mb-10">
-        <p className="text-xs uppercase tracking-[0.2em] text-[var(--color-primary)] mb-4">
+        <p className="text-xs uppercase tracking-[0.2em] text-primary mb-4">
           Fotos existentes ({photos.length})
         </p>
 
@@ -111,7 +107,7 @@ export function PhotoUploader({ token, photos, onUpload }: PhotoUploaderProps) {
         )}
 
         {sortedPhotos.length === 0 ? (
-          <p className="text-sm text-[var(--color-text)]/50 py-4">No hay fotos cargadas aún.</p>
+          <p className="text-sm text-text/50 py-4">No hay fotos cargadas aún.</p>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {sortedPhotos.map((photo) => (
@@ -119,7 +115,7 @@ export function PhotoUploader({ token, photos, onUpload }: PhotoUploaderProps) {
                 key={photo.id}
                 className={`relative rounded-xl overflow-hidden border transition-all ${
                   photo.isVisible
-                    ? 'border-[var(--color-accent)]/30'
+                    ? 'border-accent/30'
                     : 'border-transparent opacity-50'
                 }`}
               >
@@ -128,9 +124,9 @@ export function PhotoUploader({ token, photos, onUpload }: PhotoUploaderProps) {
                   alt={photo.alt}
                   className="w-full h-32 object-cover"
                 />
-                <div className="p-2 bg-[var(--color-background)]">
-                  <p className="text-xs text-[var(--color-text)] truncate mb-1">{photo.alt || '—'}</p>
-                  <span className="text-[10px] text-[var(--color-primary)] bg-[var(--color-primary)]/10 px-1.5 py-0.5 rounded-full">
+                <div className="p-2 bg-background">
+                  <p className="text-xs text-text truncate mb-1">{photo.alt || '—'}</p>
+                  <span className="text-[10px] text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">
                     {photo.category}
                   </span>
                   <div className="flex items-center justify-between mt-2">
@@ -156,13 +152,13 @@ export function PhotoUploader({ token, photos, onUpload }: PhotoUploaderProps) {
 
       {/* --- Upload new photo --- */}
       <div>
-        <p className="text-xs uppercase tracking-[0.2em] text-[var(--color-primary)] mb-4">Subir nueva foto</p>
+        <p className="text-xs uppercase tracking-[0.2em] text-primary mb-4">Subir nueva foto</p>
 
         <div
           className={`border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer transition-colors mb-6 ${
             dragging
-              ? 'border-[var(--color-primary)] bg-[var(--color-primary)]/5'
-              : 'border-[var(--color-accent)]/40 hover:border-[var(--color-primary)]'
+              ? 'border-primary bg-primary/5'
+              : 'border-accent/40 hover:border-primary'
           }`}
           onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
           onDragLeave={() => setDragging(false)}
@@ -180,8 +176,8 @@ export function PhotoUploader({ token, photos, onUpload }: PhotoUploaderProps) {
             <img src={preview} alt="Preview" className="max-h-48 mx-auto rounded-lg object-contain" />
           ) : (
             <div>
-              <p className="text-[var(--color-text)]/60 mb-2">ArrastrÃ¡ una imagen aquÃ­</p>
-              <p className="text-sm text-[var(--color-text)]/40">o hacÃ© click para elegir</p>
+              <p className="text-text/60 mb-2">Arrastrá una imagen aquí</p>
+              <p className="text-sm text-text/40">o hacé click para elegir</p>
             </div>
           )}
         </div>
@@ -189,16 +185,16 @@ export function PhotoUploader({ token, photos, onUpload }: PhotoUploaderProps) {
         <form onSubmit={handleUploadSubmit} className="space-y-4">
           <input
             type="text"
-            placeholder="Texto alternativo / descripciÃ³n"
+            placeholder="Texto alternativo / descripción"
             value={alt}
             onChange={(e) => setAlt(e.target.value)}
-            className="w-full px-4 py-3 rounded-xl border border-[var(--color-accent)]/30 bg-[var(--color-background)] text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/50"
+            className="w-full px-4 py-3 rounded-xl border border-accent/30 bg-background text-text focus:outline-none focus:ring-2 focus:ring-primary/50"
             required
           />
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="w-full px-4 py-3 rounded-xl border border-[var(--color-accent)]/30 bg-[var(--color-background)] text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/50"
+            className="w-full px-4 py-3 rounded-xl border border-accent/30 bg-background text-text focus:outline-none focus:ring-2 focus:ring-primary/50"
           >
             {CATEGORIES.map((c) => (
               <option key={c} value={c}>{c}</option>
@@ -207,7 +203,7 @@ export function PhotoUploader({ token, photos, onUpload }: PhotoUploaderProps) {
           <Button type="submit" variant="primary" disabled={!selectedFile || uploading}>
             {uploading ? 'Subiendo...' : 'Subir Foto'}
           </Button>
-          {uploadMessage && <p className="text-sm text-[var(--color-text)]/60">{uploadMessage}</p>}
+          {uploadMessage && <p className="text-sm text-text/60">{uploadMessage}</p>}
         </form>
       </div>
     </div>

@@ -29,7 +29,7 @@ export function Portfolio({ isVisible, photos }: PortfolioProps) {
       {isVisible && (
         <motion.section
           id="portfolio"
-          className="py-16 md:py-24 bg-[var(--color-background)]"
+          className="py-16 md:py-24 bg-background"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -43,8 +43,8 @@ export function Portfolio({ isVisible, photos }: PortfolioProps) {
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
             >
-              <p className="text-sm uppercase tracking-[0.3em] text-[var(--color-primary)] mb-4">Work</p>
-              <h2 className="text-4xl md:text-5xl text-[var(--color-text)]" style={{ fontFamily: 'var(--font-heading)' }}>Portfolio</h2>
+              <p className="text-sm uppercase tracking-[0.3em] text-primary mb-4">Work</p>
+              <h2 className="text-4xl md:text-5xl text-text" style={{ fontFamily: 'var(--font-heading)' }}>Portfolio</h2>
             </motion.div>
 
             <div className="flex gap-3 justify-center mb-10 flex-wrap">
@@ -54,8 +54,8 @@ export function Portfolio({ isVisible, photos }: PortfolioProps) {
                   onClick={() => setActiveCategory(cat)}
                   className={`px-5 py-2 rounded-full text-sm transition-all duration-200 ${
                     activeCategory === cat
-                      ? 'bg-[var(--color-primary)] text-white'
-                      : 'bg-[var(--color-surface)] text-[var(--color-text)] hover:bg-[var(--color-accent)]/20'
+                      ? 'bg-primary text-white'
+                      : 'bg-surface text-text hover:bg-accent/20'
                   }`}
                 >
                   {cat}

@@ -5,9 +5,11 @@ import { PhotoUploader } from './PhotoUploader';
 import { EssayEditor } from './EssayEditor';
 import { ThemeEditor } from './ThemeEditor';
 import { ContentEditor } from './ContentEditor';
+import { BrandingManager } from './BrandingManager';
+import { TestimonialsManager } from './TestimonialsManager';
 import { Button } from '../../components/ui/Button';
 
-const TABS = ['Sections', 'Content', 'Photos', 'Essays', 'Theme'] as const;
+const TABS = ['Sections', 'Content', 'Photos', 'Essays', 'Theme', 'Branding', 'Testimonials'] as const;
 type Tab = typeof TABS[number];
 
 interface DashboardProps {
@@ -19,36 +21,50 @@ interface DashboardProps {
 
 export function Dashboard({ siteConfig, token, onRefetch, onLogout }: DashboardProps) {
   const [activeTab, setActiveTab] = useState<Tab>('Sections');
+  const logoUrl = siteConfig.content.find((c) => c.key === 'logo_url')?.value || '';
 
   return (
     <div className="min-h-screen bg-[var(--color-background)]">
-      <header className="bg-[var(--color-surface)] border-b border-[var(--color-accent)]/20 px-6 h-16 flex items-center justify-between">
-        <span className="text-xl text-[var(--color-primary)]" style={{ fontFamily: 'var(--font-heading)' }}>Dolores PH — Admin</span>
-        <div className="flex items-center gap-4">
-          <a href="/" className="text-sm text-[var(--color-text)]/60 hover:text-[var(--color-primary)] transition-colors">
+      <header className="bg-[var(--color-surface)] border-b border-[var(--color-accent)]/20 px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3 min-w-0">
+          {logoUrl ? (
+            <img src={logoUrl} alt="Dolores PH" className="h-9 w-auto object-contain flex-shrink-0" />
+          ) : (
+            <span className="text-xl text-[var(--color-primary)] truncate" style={{ fontFamily: 'var(--font-heading)' }}>Dolores PH</span>
+          )}
+          <span className="text-sm text-[var(--color-text)]/40 flex-shrink-0">Admin</span>
+        </div>
+        <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+          <a href="/" className="text-sm text-[var(--color-text)]/60 hover:text-[var(--color-primary)] transition-colors hidden sm:inline">
             Ver sitio
           </a>
+          <a href="/" className="text-sm text-[var(--color-primary)] sm:hidden" aria-label="Ver sitio">
+            ↗
+          </a>
           <Button variant="ghost" size="sm" onClick={onLogout}>
-            Cerrar sesión
+            <span className="hidden sm:inline">Cerrar sesión</span>
+            <span className="sm:hidden">Salir</span>
           </Button>
         </div>
       </header>
 
       <div className="max-w-4xl mx-auto px-4 py-6 md:py-8">
-        <div className="flex gap-2 mb-8 border-b border-[var(--color-accent)]/20 pb-4 flex-wrap">
-          {TABS.map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-5 py-2 rounded-full text-sm transition-all duration-200 ${
-                activeTab === tab
-                  ? 'bg-[var(--color-primary)] text-white'
-                  : 'text-[var(--color-text)] hover:bg-[var(--color-surface)]'
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
+        <div className="-mx-4 px-4 overflow-x-auto mb-8 border-b border-[var(--color-accent)]/20">
+          <div className="flex gap-2 pb-4 min-w-max">
+            {TABS.map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`px-4 py-2 rounded-full text-sm whitespace-nowrap transition-all duration-200 ${
+                  activeTab === tab
+                    ? 'bg-[var(--color-primary)] text-white'
+                    : 'text-[var(--color-text)] hover:bg-[var(--color-surface)]'
+                }`}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="bg-[var(--color-surface)] rounded-2xl p-4 md:p-8 shadow-sm">
@@ -65,7 +81,13 @@ export function Dashboard({ siteConfig, token, onRefetch, onLogout }: DashboardP
             <EssayEditor essays={siteConfig.essays} token={token} onUpdate={onRefetch} />
           )}
           {activeTab === 'Theme' && (
-            <ThemeEditor currentTheme={siteConfig.theme} token={token} onUpdate={onRefetch} />
+            <ThemeEditor currentTheme={siteConfig.theme} content={siteConfig.content} token={token} onUpdate={onRefetch} />
+          )}
+          {activeTab === 'Branding' && (
+            <BrandingManager content={siteConfig.content} token={token} onUpdate={onRefetch} />
+          )}
+          {activeTab === 'Testimonials' && (
+            <TestimonialsManager testimonials={siteConfig.testimonials} token={token} onUpdate={onRefetch} />
           )}
         </div>
       </div>

@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import type { SiteContent } from '../../types';
+import { Brandmark } from '../ui/Brandmarks';
 
 interface AboutProps {
   isVisible: boolean;
@@ -17,13 +18,14 @@ export function About({ isVisible, content }: AboutProps) {
   const years = getContent(content, 'about_years', '8+');
   const sessions = getContent(content, 'about_sessions', '500+');
   const awards = getContent(content, 'about_awards', '12');
+  const brandmarkAbout = content.find((c) => c.key === 'brandmark_about')?.value || '';
 
   return (
     <AnimatePresence>
       {isVisible && (
         <motion.section
           id="about"
-          className="py-16 md:py-24 bg-[var(--color-surface)]"
+          className="py-16 md:py-24 bg-surface"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -37,25 +39,25 @@ export function About({ isVisible, content }: AboutProps) {
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, ease: 'easeOut' }}
               >
-                <p className="text-sm uppercase tracking-[0.3em] text-[var(--color-primary)] mb-4">About Me</p>
-                <h2 className="text-4xl md:text-5xl text-[var(--color-text)] mb-6" style={{ fontFamily: 'var(--font-heading)' }}>
+                <p className="text-sm uppercase tracking-[0.3em] text-primary mb-4">About Me</p>
+                <h2 className="text-4xl md:text-5xl text-text mb-6" style={{ fontFamily: 'var(--font-heading)' }}>
                   {subtitle}
                 </h2>
-                <p className="text-[var(--color-text)]/70 leading-relaxed text-lg mb-6">
+                <p className="text-text/70 leading-relaxed text-lg mb-6">
                   {bio}
                 </p>
                 <div className="flex gap-8">
                   <div>
-                    <p className="text-3xl text-[var(--color-primary)]" style={{ fontFamily: 'var(--font-heading)' }}>{years}</p>
-                    <p className="text-sm text-[var(--color-text)]/60">Years Experience</p>
+                    <p className="text-3xl text-primary" style={{ fontFamily: 'var(--font-heading)' }}>{years}</p>
+                    <p className="text-sm text-text/60">Years Experience</p>
                   </div>
                   <div>
-                    <p className="text-3xl text-[var(--color-primary)]" style={{ fontFamily: 'var(--font-heading)' }}>{sessions}</p>
-                    <p className="text-sm text-[var(--color-text)]/60">Sessions Complete</p>
+                    <p className="text-3xl text-primary" style={{ fontFamily: 'var(--font-heading)' }}>{sessions}</p>
+                    <p className="text-sm text-text/60">Sessions Complete</p>
                   </div>
                   <div>
-                    <p className="text-3xl text-[var(--color-primary)]" style={{ fontFamily: 'var(--font-heading)' }}>{awards}</p>
-                    <p className="text-sm text-[var(--color-text)]/60">Awards Won</p>
+                    <p className="text-3xl text-primary" style={{ fontFamily: 'var(--font-heading)' }}>{awards}</p>
+                    <p className="text-sm text-text/60">Awards Won</p>
                   </div>
                 </div>
               </motion.div>
@@ -67,12 +69,20 @@ export function About({ isVisible, content }: AboutProps) {
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, ease: 'easeOut', delay: 0.2 }}
               >
-                <div className="absolute -top-4 -left-4 w-full h-full rounded-2xl border-2 border-[var(--color-primary)]/20 hidden md:block" />
+                <div className="absolute -top-4 -left-4 w-full h-full rounded-2xl border-2 border-primary/20 hidden md:block" />
                 <img
                   src={photo}
                   alt="Photographer at work"
                   className="relative z-10 rounded-2xl w-full object-cover h-64 md:h-96"
                 />
+                {brandmarkAbout && (
+                  <Brandmark
+                    src={brandmarkAbout}
+                    size="lg"
+                    opacity={45}
+                    className="absolute bottom-4 right-4 z-20"
+                  />
+                )}
               </motion.div>
             </div>
           </div>

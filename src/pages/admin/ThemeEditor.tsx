@@ -1,7 +1,8 @@
 ﻿import { useState, useCallback } from 'react';
-import type { ThemeConfig } from '../../types';
-import { applyTheme } from '../../utils/theme';
+import type { ThemeConfig, SiteContent } from '../../types';
+import { applyTheme, loadCustomFonts } from '../../utils/theme';
 import { patchTheme } from '../../api/siteConfig';
+import { patchContent } from '../../api/admin';
 import { Button } from '../../components/ui/Button';
 
 const PRESETS: { name: string; theme: Omit<ThemeConfig, 'id' | 'updatedAt'> }[] = [
@@ -46,14 +47,82 @@ const BODY_FONTS = [
 
 interface ThemeEditorProps {
   currentTheme: ThemeConfig;
+  content: SiteContent[];
   token: string;
   onUpdate: () => void;
 }
 
-export function ThemeEditor({ currentTheme, token, onUpdate }: ThemeEditorProps) {
+export function ThemeEditor({ currentTheme, content, token, onUpdate }: ThemeEditorProps) {
   const [localTheme, setLocalTheme] = useState<ThemeConfig>(currentTheme);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
+
+  // ── Custom font library ──────────────────────────────────────────────────
+  const parseCustomFonts = (c: SiteContent[]) =>
+    (c.find((x) => x.key === 'custom_fonts')?.value || '')
+      .split(',')
+      .map((f) => f.trim())
+      .filter(Boolean);
+
+  const [customFonts, setCustomFonts] = useState<string[]>(() => parseCustomFonts(content));
+  const [fontInput, setFontInput] = useState('');
+  const [fontMsg, setFontMsg] = useState('');
+  const [savingFont, setSavingFont] = useState(false);
+
+  const MAX_FONTS = 10;
+
+  async function handleAddFont() {
+    const name = fontInput.trim();
+    if (!name) return;
+    if (customFonts.map((f) => f.toLowerCase()).includes(name.toLowerCase())) {
+      setFontMsg('Esa fuente ya está en tu biblioteca.');
+      return;
+    }
+    if (customFonts.length >= MAX_FONTS) {
+      setFontMsg(`Máximo ${MAX_FONTS} fuentes. Eliminá una para agregar otra.`);
+      return;
+    }
+    setSavingFont(true);
+    setFontMsg('');
+    const next = [...customFonts, name];
+    try {
+      await patchContent('custom_fonts', next.join(','), token);
+      loadCustomFonts(next.join(','));
+      setCustomFonts(next);
+      setFontInput('');
+      setFontMsg(`"${name}" agregada.`);
+      onUpdate();
+    } catch {
+      // sin API: guardar localmente igual
+      loadCustomFonts(next.join(','));
+      setCustomFonts(next);
+      setFontInput('');
+      setFontMsg(`"${name}" cargada (sin servidor).`);
+    } finally {
+      setSavingFont(false);
+    }
+  }
+
+  async function handleRemoveFont(font: string) {
+    const next = customFonts.filter((f) => f !== font);
+    try {
+      await patchContent('custom_fonts', next.join(','), token);
+      onUpdate();
+    } catch { /* sin API */ }
+    setCustomFonts(next);
+    // si era la fuente activa, revertir a default
+    const updated = { ...localTheme };
+    if (localTheme.fontHeading === font) updated.fontHeading = 'Playfair Display';
+    if (localTheme.fontBody === font) updated.fontBody = 'DM Sans';
+    if (updated.fontHeading !== localTheme.fontHeading || updated.fontBody !== localTheme.fontBody) {
+      setLocalTheme(updated);
+      applyTheme(updated);
+    }
+  }
+
+  // Merged font lists: built-in + custom (deduplicated)
+  const allHeadingFonts = [...new Set([...HEADING_FONTS, ...customFonts])];
+  const allBodyFonts = [...new Set([...BODY_FONTS, ...customFonts])];
 
   const updateColor = useCallback((key: keyof Omit<ThemeConfig, 'id' | 'updatedAt'>, value: string) => {
     setLocalTheme((prev) => {
@@ -105,21 +174,21 @@ export function ThemeEditor({ currentTheme, token, onUpdate }: ThemeEditorProps)
   ];
 
   const selectClass =
-    'w-full px-4 py-3 rounded-xl border border-[var(--color-accent)]/30 bg-[var(--color-background)] text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/50 text-sm';
+    'w-full px-4 py-3 rounded-xl border border-accent/30 bg-background text-text focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm';
 
   return (
     <div>
-      <h2 className="text-2xl text-[var(--color-text)] mb-6" style={{ fontFamily: 'var(--font-heading)' }}>Editor de Tema</h2>
+      <h2 className="text-2xl text-text mb-6" style={{ fontFamily: 'var(--font-heading)' }}>Editor de Tema</h2>
 
       {/* Presets */}
       <div className="mb-8">
-        <p className="text-xs uppercase tracking-[0.2em] text-[var(--color-primary)] mb-3">Presets</p>
+        <p className="text-xs uppercase tracking-[0.2em] text-primary mb-3">Presets</p>
         <div className="flex flex-wrap gap-2">
           {PRESETS.map((preset) => (
             <button
               key={preset.name}
               onClick={() => applyPreset(preset)}
-              className="px-4 py-2 rounded-full border border-[var(--color-accent)]/30 text-sm text-[var(--color-text)] hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] transition-colors"
+              className="px-4 py-2 rounded-full border border-accent/30 text-sm text-text hover:border-primary hover:text-primary transition-colors"
             >
               {preset.name}
             </button>
@@ -129,7 +198,7 @@ export function ThemeEditor({ currentTheme, token, onUpdate }: ThemeEditorProps)
 
       {/* Colors */}
       <div className="mb-8">
-        <p className="text-xs uppercase tracking-[0.2em] text-[var(--color-primary)] mb-4">Colores</p>
+        <p className="text-xs uppercase tracking-[0.2em] text-primary mb-4">Colores</p>
         <div className="space-y-4">
           {colorFields.map(({ key, label }) => (
             <div key={key} className="flex items-center gap-4">
@@ -137,11 +206,11 @@ export function ThemeEditor({ currentTheme, token, onUpdate }: ThemeEditorProps)
                 type="color"
                 value={localTheme[key] as string}
                 onChange={(e) => updateColor(key, e.target.value)}
-                className="w-10 h-10 rounded-lg border border-[var(--color-accent)]/30 cursor-pointer bg-transparent"
+                className="w-10 h-10 rounded-lg border border-accent/30 cursor-pointer bg-transparent"
               />
               <div>
-                <p className="font-medium text-[var(--color-text)] text-sm">{label}</p>
-                <p className="text-xs text-[var(--color-text)]/50">{localTheme[key] as string}</p>
+                <p className="font-medium text-text text-sm">{label}</p>
+                <p className="text-xs text-text/50">{localTheme[key] as string}</p>
               </div>
             </div>
           ))}
@@ -150,11 +219,11 @@ export function ThemeEditor({ currentTheme, token, onUpdate }: ThemeEditorProps)
 
       {/* Typography */}
       <div className="mb-8">
-        <p className="text-xs uppercase tracking-[0.2em] text-[var(--color-primary)] mb-4">TipografÃ­a</p>
+        <p className="text-xs uppercase tracking-[0.2em] text-primary mb-4">Tipografía</p>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-[var(--color-text)]/70 mb-1.5">
-              Fuente de tÃ­tulos
+            <label className="block text-sm font-medium text-text/70 mb-1.5">
+              Fuente de títulos
             </label>
             <select
               value={localTheme.fontHeading}
@@ -162,13 +231,13 @@ export function ThemeEditor({ currentTheme, token, onUpdate }: ThemeEditorProps)
               className={selectClass}
               style={{ fontFamily: `'${localTheme.fontHeading}', serif` }}
             >
-              {HEADING_FONTS.map((f) => (
-                <option key={f} value={f} style={{ fontFamily: `'${f}', serif` }}>{f}</option>
+              {allHeadingFonts.map((f) => (
+                <option key={f} value={f} style={{ fontFamily: `'${f}', serif` }}>{f}{customFonts.includes(f) ? ' ★' : ''}</option>
               ))}
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-[var(--color-text)]/70 mb-1.5">
+            <label className="block text-sm font-medium text-text/70 mb-1.5">
               Fuente de cuerpo
             </label>
             <select
@@ -177,22 +246,97 @@ export function ThemeEditor({ currentTheme, token, onUpdate }: ThemeEditorProps)
               className={selectClass}
               style={{ fontFamily: `'${localTheme.fontBody}', sans-serif` }}
             >
-              {BODY_FONTS.map((f) => (
-                <option key={f} value={f} style={{ fontFamily: `'${f}', sans-serif` }}>{f}</option>
+              {allBodyFonts.map((f) => (
+                <option key={f} value={f} style={{ fontFamily: `'${f}', sans-serif` }}>{f}{customFonts.includes(f) ? ' ★' : ''}</option>
               ))}
             </select>
           </div>
         </div>
       </div>
 
-      {message && <p className="text-sm text-[var(--color-text)]/60 mb-4">{message}</p>}
+      {/* Custom Font Library */}
+      <div className="mb-8">
+        <p className="text-xs uppercase tracking-[0.2em] text-primary mb-1">Mis Fuentes</p>
+        <p className="text-xs text-text/50 mb-4">
+          Agregá hasta {MAX_FONTS} fuentes de{' '}
+          <a
+            href="https://fonts.google.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-primary"
+          >
+            Google Fonts
+          </a>
+          . Copiá el nombre exacto y pegalo abajo. Las fuentes marcadas con ★ son tuyas.
+        </p>
+
+        {/* Input row */}
+        <div className="flex flex-col sm:flex-row gap-2 mb-3">
+          <input
+            type="text"
+            value={fontInput}
+            onChange={(e) => setFontInput(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleAddFont()}
+            placeholder="Ej: Bodoni Moda, Abril Fatface..."
+            className="flex-1 min-w-0 text-sm px-3 py-2 rounded-lg border border-accent/30 bg-background text-text outline-none focus:border-accent"
+          />
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={handleAddFont}
+            disabled={savingFont || customFonts.length >= MAX_FONTS}
+            className="flex-shrink-0"
+          >
+            {savingFont ? '...' : `Agregar (${customFonts.length}/${MAX_FONTS})`}
+          </Button>
+        </div>
+
+        {fontMsg && (
+          <p className="text-xs text-primary mb-3">{fontMsg}</p>
+        )}
+
+        {/* Font list */}
+        {customFonts.length > 0 && (
+          <div className="space-y-2">
+            {customFonts.map((font) => (
+              <div
+                key={font}
+                className="flex items-center justify-between gap-3 px-4 py-3 rounded-xl bg-background border border-accent/20"
+              >
+                <div className="min-w-0">
+                  <p className="text-base truncate" style={{ fontFamily: `'${font}', serif` }}>
+                    {font}
+                  </p>
+                  <p className="text-xs text-text/40" style={{ fontFamily: `'${font}', serif` }}>
+                    Abcdefg 123 — The quick brown fox
+                  </p>
+                </div>
+                <button
+                  onClick={() => handleRemoveFont(font)}
+                  className="text-xs px-2 py-1 rounded-lg border border-red-200 text-red-400 hover:bg-red-50 transition-colors flex-shrink-0"
+                >
+                  Eliminar
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {customFonts.length === 0 && (
+          <p className="text-xs text-text/40 italic">
+            No hay fuentes personalizadas todavia.
+          </p>
+        )}
+      </div>
+
+      {message && <p className="text-sm text-text/60 mb-4">{message}</p>}
 
       <div className="flex gap-3">
         <Button variant="primary" onClick={handleSave} disabled={saving}>
-          {saving ? 'Guardando...' : 'Guardar Tema'}
+          {saving ? 'Guardando...' : 'Guardar'}
         </Button>
         <Button variant="outline" onClick={handleDiscard}>
-          Descartar Cambios
+          Descartar
         </Button>
       </div>
     </div>

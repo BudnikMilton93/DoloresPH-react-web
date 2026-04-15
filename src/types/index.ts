@@ -8,6 +8,7 @@ export interface Section {
 export interface Photo {
   id: number;
   url: string;
+  thumbnailUrl?: string;
   alt: string;
   category: string;
   isVisible: boolean;
@@ -41,12 +42,23 @@ export interface ThemeConfig {
   updatedAt: string;
 }
 
+export interface Testimonial {
+  id: number;
+  author: string;
+  handle: string;
+  text: string;
+  avatarUrl?: string;
+  isVisible: boolean;
+  sortOrder: number;
+}
+
 export interface SiteConfig {
   sections: Section[];
   photos: Photo[];
   essays: Essay[];
   content: SiteContent[];
   theme: ThemeConfig;
+  testimonials: Testimonial[];
 }
 
 export interface AuthResponse {
