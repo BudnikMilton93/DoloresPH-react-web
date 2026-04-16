@@ -26,6 +26,7 @@ interface SlotState {
   uploading: boolean;
   error: string | null;
   urlInput: string;
+  saved: boolean;
 }
 
 export function BrandingManager({ content, token, onUpdate }: BrandingManagerProps) {
@@ -34,16 +35,15 @@ export function BrandingManager({ content, token, onUpdate }: BrandingManagerPro
   ) as Record<SlotKey, string>;
 
   const [slots, setSlots] = useState<Record<SlotKey, SlotState>>({
-    logo_url:               { uploading: false, error: null, urlInput: initialUrlInputs.logo_url },
-    brandmark_about:        { uploading: false, error: null, urlInput: initialUrlInputs.brandmark_about },
-    brandmark_portfolio:    { uploading: false, error: null, urlInput: initialUrlInputs.brandmark_portfolio },
-    brandmark_essays:       { uploading: false, error: null, urlInput: initialUrlInputs.brandmark_essays },
-    brandmark_services:     { uploading: false, error: null, urlInput: initialUrlInputs.brandmark_services },
-    brandmark_testimonials: { uploading: false, error: null, urlInput: initialUrlInputs.brandmark_testimonials },
-    brandmark_contact:      { uploading: false, error: null, urlInput: initialUrlInputs.brandmark_contact },
-    brandmark_footer:       { uploading: false, error: null, urlInput: initialUrlInputs.brandmark_footer },
+    logo_url:               { uploading: false, error: null, urlInput: initialUrlInputs.logo_url, saved: false },
+    brandmark_about:        { uploading: false, error: null, urlInput: initialUrlInputs.brandmark_about, saved: false },
+    brandmark_portfolio:    { uploading: false, error: null, urlInput: initialUrlInputs.brandmark_portfolio, saved: false },
+    brandmark_essays:       { uploading: false, error: null, urlInput: initialUrlInputs.brandmark_essays, saved: false },
+    brandmark_services:     { uploading: false, error: null, urlInput: initialUrlInputs.brandmark_services, saved: false },
+    brandmark_testimonials: { uploading: false, error: null, urlInput: initialUrlInputs.brandmark_testimonials, saved: false },
+    brandmark_contact:      { uploading: false, error: null, urlInput: initialUrlInputs.brandmark_contact, saved: false },
+    brandmark_footer:       { uploading: false, error: null, urlInput: initialUrlInputs.brandmark_footer, saved: false },
   });
-  const [saved, setSaved] = useState(false);
 
   const refLogoUrl            = useRef<HTMLInputElement>(null);
   const refBrandmarkAbout     = useRef<HTMLInputElement>(null);
@@ -75,12 +75,13 @@ export function BrandingManager({ content, token, onUpdate }: BrandingManagerPro
       setSlot(key, { error: 'Solo se permiten archivos PNG.' });
       return;
     }
-    setSlot(key, { uploading: true, error: null });
+    setSlot(key, { uploading: true, error: null, saved: false });
     try {
       const { url } = await uploadMediaAsset(file, token);
       await patchContent(key, url, token);
-      setSlot(key, { uploading: false, urlInput: url });
+      setSlot(key, { uploading: false, urlInput: url, saved: true });
       onUpdate();
+      setTimeout(() => setSlot(key, { saved: false }), 3000);
     } catch (err) {
       setSlot(key, { uploading: false, error: err instanceof Error ? err.message : 'Error al subir el archivo.' });
     }
@@ -88,13 +89,12 @@ export function BrandingManager({ content, token, onUpdate }: BrandingManagerPro
 
   async function handleSaveUrl(key: SlotKey) {
     const url = slots[key].urlInput.trim();
-    setSlot(key, { uploading: true, error: null });
+    setSlot(key, { uploading: true, error: null, saved: false });
     try {
       await patchContent(key, url, token);
-      setSlot(key, { uploading: false });
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2000);
+      setSlot(key, { uploading: false, saved: true });
       onUpdate();
+      setTimeout(() => setSlot(key, { saved: false }), 3000);
     } catch {
       setSlot(key, { uploading: false, error: 'Error al guardar.' });
     }
@@ -105,9 +105,6 @@ export function BrandingManager({ content, token, onUpdate }: BrandingManagerPro
       <h2 className="text-xl text-primary" style={{ fontFamily: 'var(--font-heading)' }}>
         Branding
       </h2>
-      {saved && (
-        <p className="text-sm text-green-600 bg-green-50 rounded-lg px-4 py-2">Guardado exitosamente.</p>
-      )}
 
       {SLOTS.map(({ key, label, hint }) => {
         const state = slots[key];
@@ -130,25 +127,6 @@ export function BrandingManager({ content, token, onUpdate }: BrandingManagerPro
               </div>
             )}
 
-            <div className="flex flex-col sm:flex-row gap-2">
-              <input
-                type="text"
-                value={state.urlInput}
-                placeholder="Pegar URL de imagen PNG..."
-                onChange={(e) => setSlot(key, { urlInput: e.target.value })}
-                className="flex-1 min-w-0 text-sm px-3 py-2 rounded-lg border border-accent/30 bg-background text-text outline-none focus:border-accent"
-              />
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleSaveUrl(key)}
-                disabled={state.uploading}
-                className="shrink-0"
-              >
-                {state.uploading ? '...' : 'Guardar'}
-              </Button>
-            </div>
-
             <div className="flex items-center gap-3">
               <input
                 ref={fileRefs[key]}
@@ -163,10 +141,16 @@ export function BrandingManager({ content, token, onUpdate }: BrandingManagerPro
                 onClick={() => fileRefs[key].current?.click()}
                 disabled={state.uploading}
               >
-                {state.uploading ? 'Subiendo...' : 'Cargar PNG'}
+                {state.uploading ? 'Subiendo y guardando...' : 'Cargar PNG'}
               </Button>
-              <span className="text-xs text-text/40">Solo archivos .png</span>
+              <span className="text-xs text-text/40">Se guarda automáticamente al cargar</span>
             </div>
+
+            {state.saved && (
+              <p className="text-sm text-green-600 bg-green-50 rounded-lg px-3 py-1.5 flex items-center gap-1.5">
+                <span>✓</span> Guardado exitosamente
+              </p>
+            )}
 
             {state.error && (
               <p className="text-sm text-red-500">{state.error}</p>
