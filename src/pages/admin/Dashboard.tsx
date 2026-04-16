@@ -44,7 +44,7 @@ export function Dashboard({ siteConfig, token, onRefetch, onLogout }: DashboardP
           <span className="text-sm text-[var(--color-text)]/40 flex-shrink-0">Dolores Marquez Llorens</span>
         </div>
         <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
-          <div className="flex items-center gap-0.5 border border-[var(--color-accent)]/30 rounded-full px-1 py-0.5">
+          <div className="relative group flex items-center gap-0.5 border border-[var(--color-accent)]/30 rounded-full px-1 py-0.5">
             {LANG_OPTIONS.map(({ value, label }) => (
               <button
                 key={value}
@@ -59,6 +59,9 @@ export function Dashboard({ siteConfig, token, onRefetch, onLogout }: DashboardP
                 {label}
               </button>
             ))}
+            <div className="absolute top-full right-0 mt-2 w-56 px-3 py-2 bg-[var(--color-surface)] border border-[var(--color-accent)]/20 rounded-lg shadow-lg text-xs text-[var(--color-text)]/60 leading-relaxed opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-200 z-50">
+              Solo cambia títulos y subtítulos del sitio. Los textos personalizados que cargues no se ven afectados.
+            </div>
           </div>
           <a href="/" className="text-sm text-[var(--color-text)]/60 hover:text-[var(--color-primary)] transition-colors hidden sm:inline">
             Ver sitio

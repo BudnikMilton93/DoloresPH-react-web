@@ -30,6 +30,10 @@ export function Footer({ content = [] }: FooterProps) {
         <p className="text-sm text-surface/50">
           {t.footer.copyright.replace('{year}', String(new Date().getFullYear()))}
         </p>
+
+        <p className="mt-6 text-[11px] text-surface/20 tracking-wide">
+          Miles de líneas de código escritas con <span className="text-red-400/40">♥</span> apoyando tus proyectos personales y tu crecimiento profesional Lolita.
+        </p>
       </div>
     </footer>
   );

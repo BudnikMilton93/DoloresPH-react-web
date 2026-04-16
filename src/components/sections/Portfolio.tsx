@@ -21,7 +21,7 @@ export function Portfolio({ isVisible, photos, content = [] }: PortfolioProps) {
   const [activeCategory, setActiveCategory] = useState<string>(ALL_FILTER);
 
   const visiblePhotos = photos.filter((p) => p.isVisible);
-  const categories = [ALL_FILTER, ...Array.from(new Set(visiblePhotos.map((p) => p.category)))];
+  const categories = [ALL_FILTER, ...Array.from(new Set(visiblePhotos.map((p) => p.category).filter(Boolean)))];
 
   const filtered = activeCategory === ALL_FILTER
     ? visiblePhotos
