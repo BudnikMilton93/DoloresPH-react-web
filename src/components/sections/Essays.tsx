@@ -1,13 +1,18 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import type { Essay } from '../../types';
+import type { Essay, SiteContent } from '../../types';
 import { EssayCard } from '../ui/EssayCard';
+import { useLanguage } from '../../i18n/LanguageContext';
+import { Brandmark } from '../ui/Brandmarks';
 
 interface EssaysProps {
   isVisible: boolean;
   essays: Essay[];
+  content?: SiteContent[];
 }
 
-export function Essays({ isVisible, essays }: EssaysProps) {
+export function Essays({ isVisible, essays, content = [] }: EssaysProps) {
+  const { t } = useLanguage();
+  const brandmarkEssays = content.find((c) => c.key === 'brandmark_essays')?.value || '';
   const visibleEssays = essays.filter((e) => e.isVisible);
 
   return (
@@ -29,8 +34,8 @@ export function Essays({ isVisible, essays }: EssaysProps) {
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
             >
-              <p className="text-sm uppercase tracking-[0.3em] text-primary mb-4">Stories</p>
-              <h2 className="text-4xl md:text-5xl text-text" style={{ fontFamily: 'var(--font-heading)' }}>Photo Essays</h2>
+              <p className="text-sm uppercase tracking-[0.3em] text-primary mb-4">{t.essays.eyebrow}</p>
+              <h2 className="text-4xl md:text-5xl text-text" style={{ fontFamily: 'var(--font-heading)' }}>{t.essays.title}</h2>
             </motion.div>
 
             <div className="grid md:grid-cols-2 gap-8">
@@ -46,6 +51,18 @@ export function Essays({ isVisible, essays }: EssaysProps) {
                 </motion.div>
               ))}
             </div>
+
+            {brandmarkEssays && (
+              <motion.div
+                className="mt-12 flex justify-start"
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.9, delay: 0.3 }}
+              >
+                <Brandmark src={brandmarkEssays} size="xl" opacity={20} />
+              </motion.div>
+            )}
           </div>
         </motion.section>
       )}

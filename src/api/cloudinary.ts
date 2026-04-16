@@ -11,8 +11,8 @@ const ALLOWED_PHOTO_TYPES = new Set([
 ]);
 const ALLOWED_MEDIA_TYPES = new Set(['image/png', 'image/svg+xml']);
 
-const MAX_PHOTO_SIZE = 60 * 1024 * 1024; // 60 MB
-const MAX_MEDIA_SIZE = 5 * 1024 * 1024;  // 5 MB
+const MAX_PHOTO_SIZE = 80 * 1024 * 1024; // 80 MB
+const MAX_MEDIA_SIZE = 10 * 1024 * 1024;  // 10 MB
 
 interface CloudinaryRawResponse {
   secure_url: string;
@@ -53,6 +53,37 @@ async function cloudinaryUpload(
   };
 }
 
+async function resizeToMaxWidth(file: File, maxPx = 1920): Promise<File> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      if (img.width <= maxPx) {
+        resolve(file);
+        return;
+      }
+      const scale = maxPx / img.width;
+      const canvas = document.createElement('canvas');
+      canvas.width = maxPx;
+      canvas.height = Math.round(img.height * scale);
+      const ctx = canvas.getContext('2d');
+      if (!ctx) { reject(new Error('Canvas no disponible')); return; }
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) { reject(new Error('Error al redimensionar la imagen')); return; }
+          resolve(new File([blob], file.name, { type: 'image/jpeg' }));
+        },
+        'image/jpeg',
+        0.92,
+      );
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('No se pudo leer la imagen')); };
+    img.src = url;
+  });
+}
+
 export async function uploadPhotoToCloudinary(file: File): Promise<CloudinaryPhotoResult> {
   if (!ALLOWED_PHOTO_TYPES.has(file.type)) {
     throw new Error('Formato no permitido. Usá JPEG, PNG, WebP, AVIF o TIFF.');
@@ -61,7 +92,8 @@ export async function uploadPhotoToCloudinary(file: File): Promise<CloudinaryPho
     throw new Error('El archivo supera el límite de 60 MB.');
   }
 
-  const { publicId, version } = await cloudinaryUpload(file, PRESET_PHOTOS, 'image');
+  const resized = await resizeToMaxWidth(file);
+  const { publicId, version } = await cloudinaryUpload(resized, PRESET_PHOTOS, 'image');
   const base = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload`;
 
   return {

@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import type { SiteContent } from '../../types';
 import { Button } from '../ui/Button';
 import { Brandmark } from '../ui/Brandmarks';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 interface HeroProps {
   isVisible: boolean;
@@ -15,8 +16,10 @@ function getContent(content: SiteContent[], key: string, fallback: string): stri
 export function Hero({ isVisible, content }: HeroProps) {
   if (!isVisible) return null;
 
+  const { t } = useLanguage();
   const headline = getContent(content, 'hero_headline', "Capturing Life's Most Beautiful Moments");
   const subtext = getContent(content, 'hero_subtext', 'Fine art photography for those who believe in the power of a single frame.');
+  const eyebrow = getContent(content, 'hero_eyebrow', t.hero.eyebrow);
   const brandmarkHero = content.find((c) => c.key === 'brandmark_hero')?.value || '';
 
   return (
@@ -39,7 +42,7 @@ export function Hero({ isVisible, content }: HeroProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: 'easeOut', delay: 0 }}
         >
-          Photography & Visual Storytelling
+          {eyebrow}
         </motion.p>
 
         <motion.h1
@@ -68,38 +71,59 @@ export function Hero({ isVisible, content }: HeroProps) {
           transition={{ duration: 0.6, ease: 'easeOut', delay: 0.45 }}
         >
           <Button size="lg" variant="primary" onClick={() => document.getElementById('portfolio')?.scrollIntoView({ behavior: 'smooth' })}>
-            View Portfolio
+            {t.hero.viewPortfolio}
           </Button>
           <Button size="lg" variant="outline" onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}>
-            Get in Touch
+            {t.hero.getInTouch}
           </Button>
         </motion.div>
       </div>
 
       {brandmarkHero && (
         <motion.div
-          className="absolute bottom-24 right-8 hidden md:block"
+          className="hidden"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8, duration: 1.2 }}
         >
-          <Brandmark src={brandmarkHero} size="xl" opacity={18} />
+          <Brandmark src={brandmarkHero} size="xl" opacity={28} />
         </motion.div>
       )}
 
       <motion.div
-        className="absolute bottom-8 left-1/2 -translate-x-1/2"
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1, duration: 0.6 }}
       >
-        <div className="w-6 h-10 border-2 border-primary/50 rounded-full flex justify-center pt-2">
-          <motion.div
-            className="w-1 h-2 bg-primary rounded-full"
-            animate={{ y: [0, 8, 0] }}
-            transition={{ repeat: Infinity, duration: 1.5 }}
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          className="w-11 h-11 text-primary/60"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <rect x="2" y="7" width="20" height="14" rx="2" />
+          <path d="M8 7V5a1 1 0 011-1h6a1 1 0 011 1v2" />
+          <circle cx="12" cy="14" r="4" />
+          <motion.circle
+            cx="12"
+            cy="14"
+            r={2}
+            stroke="currentColor"
+            strokeWidth="1"
+            fill="none"
+            animate={{ r: [2, 1, 2] }}
+            transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
           />
-        </div>
+        </svg>
+        <motion.div
+          className="w-px h-4 bg-primary/40 rounded-full"
+          animate={{ scaleY: [1, 0.3, 1], opacity: [0.4, 0.9, 0.4] }}
+          transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
+        />
       </motion.div>
     </section>
   );

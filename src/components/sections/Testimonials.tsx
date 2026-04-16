@@ -1,9 +1,12 @@
 import { motion } from 'framer-motion';
-import type { Testimonial } from '../../types';
+import type { Testimonial, SiteContent } from '../../types';
+import { useLanguage } from '../../i18n/LanguageContext';
+import { Brandmark } from '../ui/Brandmarks';
 
 interface TestimonialsProps {
   isVisible: boolean;
   testimonials: Testimonial[];
+  content?: SiteContent[];
 }
 
 function InstagramIcon() {
@@ -23,7 +26,9 @@ const cardVariants = {
   }),
 };
 
-export function Testimonials({ isVisible, testimonials }: TestimonialsProps) {
+export function Testimonials({ isVisible, testimonials, content = [] }: TestimonialsProps) {
+  const { t } = useLanguage();
+  const brandmarkTestimonials = content.find((c) => c.key === 'brandmark_testimonials')?.value || '';
   if (!isVisible) return null;
 
   const visible = testimonials.filter((t) => t.isVisible).sort((a, b) => a.sortOrder - b.sortOrder);
@@ -43,11 +48,11 @@ export function Testimonials({ isVisible, testimonials }: TestimonialsProps) {
             className="text-3xl md:text-4xl text-[var(--color-primary)] mb-3"
             style={{ fontFamily: 'var(--font-heading)' }}
           >
-            Lo que dicen mis clientes
+            {t.testimonials.title}
           </h2>
           <p className="text-sm text-[var(--color-text)]/60 flex items-center justify-center gap-1.5">
             <InstagramIcon />
-            Comentarios obtenidos de Instagram
+            {t.testimonials.subtitle}
           </p>
         </motion.div>
 
@@ -93,6 +98,18 @@ export function Testimonials({ isVisible, testimonials }: TestimonialsProps) {
             </motion.div>
           ))}
         </div>
+
+        {brandmarkTestimonials && (
+          <motion.div
+            className="mt-12 flex justify-start"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.9, delay: 0.3 }}
+          >
+            <Brandmark src={brandmarkTestimonials} size="xl" opacity={20} />
+          </motion.div>
+        )}
       </div>
     </section>
   );

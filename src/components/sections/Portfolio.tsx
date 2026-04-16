@@ -1,22 +1,29 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import type { Photo } from '../../types';
+import type { Photo, SiteContent } from '../../types';
 import { ImageCard } from '../ui/ImageCard';
 import { Lightbox } from '../ui/Lightbox';
+import { useLanguage } from '../../i18n/LanguageContext';
+import { Brandmark } from '../ui/Brandmarks';
 
 interface PortfolioProps {
   isVisible: boolean;
   photos: Photo[];
+  content?: SiteContent[];
 }
 
-export function Portfolio({ isVisible, photos }: PortfolioProps) {
+const ALL_FILTER = '__all__';
+
+export function Portfolio({ isVisible, photos, content = [] }: PortfolioProps) {
+  const { t } = useLanguage();
+  const brandmarkPortfolio = content.find((c) => c.key === 'brandmark_portfolio')?.value || '';
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
-  const [activeCategory, setActiveCategory] = useState<string>('All');
+  const [activeCategory, setActiveCategory] = useState<string>(ALL_FILTER);
 
   const visiblePhotos = photos.filter((p) => p.isVisible);
-  const categories = ['All', ...Array.from(new Set(visiblePhotos.map((p) => p.category)))];
+  const categories = [ALL_FILTER, ...Array.from(new Set(visiblePhotos.map((p) => p.category)))];
 
-  const filtered = activeCategory === 'All'
+  const filtered = activeCategory === ALL_FILTER
     ? visiblePhotos
     : visiblePhotos.filter((p) => p.category === activeCategory);
 
@@ -43,8 +50,8 @@ export function Portfolio({ isVisible, photos }: PortfolioProps) {
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
             >
-              <p className="text-sm uppercase tracking-[0.3em] text-primary mb-4">Work</p>
-              <h2 className="text-4xl md:text-5xl text-text" style={{ fontFamily: 'var(--font-heading)' }}>Portfolio</h2>
+              <p className="text-sm uppercase tracking-[0.3em] text-primary mb-4">{t.portfolio.eyebrow}</p>
+              <h2 className="text-4xl md:text-5xl text-text" style={{ fontFamily: 'var(--font-heading)' }}>{t.portfolio.title}</h2>
             </motion.div>
 
             <div className="flex gap-3 justify-center mb-10 flex-wrap">
@@ -58,7 +65,7 @@ export function Portfolio({ isVisible, photos }: PortfolioProps) {
                       : 'bg-surface text-text hover:bg-accent/20'
                   }`}
                 >
-                  {cat}
+                  {cat === ALL_FILTER ? t.portfolio.filterAll : cat}
                 </button>
               ))}
             </div>
@@ -77,6 +84,18 @@ export function Portfolio({ isVisible, photos }: PortfolioProps) {
                 </motion.div>
               ))}
             </div>
+
+            {brandmarkPortfolio && (
+              <motion.div
+                className="mt-12 flex justify-end"
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.9, delay: 0.3 }}
+              >
+                <Brandmark src={brandmarkPortfolio} size="xl" opacity={20} />
+              </motion.div>
+            )}
           </div>
 
           {lightboxIndex !== null && (

@@ -1,14 +1,8 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import type { SiteContent } from '../../types';
-
-const navLinks = [
-  { label: 'About', href: '#about' },
-  { label: 'Portfolio', href: '#portfolio' },
-  { label: 'Essays', href: '#essays' },
-  { label: 'Services', href: '#services' },
-  { label: 'Contact', href: '#contact' },
-];
+import { useLanguage } from '../../i18n/LanguageContext';
+import type { Language } from '../../i18n/translations';
 
 interface HeaderProps {
   content?: SiteContent[];
@@ -17,7 +11,16 @@ interface HeaderProps {
 export function Header({ content = [] }: HeaderProps) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const { t } = useLanguage();
   const logoUrl = content.find((c) => c.key === 'logo_url')?.value || '';
+
+  const navLinks = [
+    { label: t.nav.about, href: '#about' },
+    { label: t.nav.portfolio, href: '#portfolio' },
+    { label: t.nav.essays, href: '#essays' },
+    { label: t.nav.services, href: '#services' },
+    { label: t.nav.contact, href: '#contact' },
+  ];
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -46,7 +49,7 @@ export function Header({ content = [] }: HeaderProps) {
         <div className="hidden md:flex items-center gap-8">
           {navLinks.map((link) => (
             <a
-              key={link.label}
+              key={link.href}
               href={link.href}
               className="text-sm text-text hover:text-primary transition-colors duration-200"
             >
@@ -74,7 +77,7 @@ export function Header({ content = [] }: HeaderProps) {
         >
           {navLinks.map((link) => (
             <a
-              key={link.label}
+              key={link.href}
               href={link.href}
               className="text-sm text-text hover:text-primary transition-colors py-2"
               onClick={() => setMenuOpen(false)}
@@ -87,3 +90,4 @@ export function Header({ content = [] }: HeaderProps) {
     </motion.header>
   );
 }
+

@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useEffect } from 'react';
+import { LanguageProvider } from './i18n/LanguageContext';
 import { useSiteConfig } from './hooks/useSiteConfig';
 import { applyTheme, loadCustomFonts } from './utils/theme';
 import { SkeletonLoader } from './components/ui/SkeletonLoader';
@@ -41,10 +42,10 @@ function MainPage() {
       <Header content={content} />
       <Hero isVisible={isSectionVisible('Hero')} content={content} />
       <About isVisible={isSectionVisible('About')} content={content} />
-      <Portfolio isVisible={isSectionVisible('Portfolio')} photos={photos} />
-      <Essays isVisible={isSectionVisible('Essays')} essays={essays} />
+      <Portfolio isVisible={isSectionVisible('Portfolio')} photos={photos} content={content} />
+      <Essays isVisible={isSectionVisible('Essays')} essays={essays} content={content} />
       <Services isVisible={isSectionVisible('Services')} content={content} />
-      <Testimonials isVisible={isSectionVisible('Testimonials')} testimonials={testimonials} />
+      <Testimonials isVisible={isSectionVisible('Testimonials')} testimonials={testimonials} content={content} />
       <Contact isVisible={isSectionVisible('Contact')} content={content} />
       <Footer content={content} />
     </div>
@@ -53,11 +54,13 @@ function MainPage() {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<MainPage />} />
-        <Route path="/admin" element={<AdminPage />} />
-      </Routes>
-    </BrowserRouter>
+    <LanguageProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<MainPage />} />
+          <Route path="/admin" element={<AdminPage />} />
+        </Routes>
+      </BrowserRouter>
+    </LanguageProvider>
   );
 }

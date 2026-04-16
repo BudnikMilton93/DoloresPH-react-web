@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import type { Testimonial } from '../../types';
 import { createTestimonial, patchTestimonial, deleteTestimonial } from '../../api/admin';
+import { uploadPhotoToCloudinary } from '../../api/cloudinary';
 import { Button } from '../../components/ui/Button';
 
 interface TestimonialsManagerProps {
@@ -16,6 +17,8 @@ export function TestimonialsManager({ testimonials, token, onUpdate }: Testimoni
   const [editId, setEditId] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   const sorted = [...testimonials].sort((a, b) => a.sortOrder - b.sortOrder);
 
@@ -29,6 +32,19 @@ export function TestimonialsManager({ testimonials, token, onUpdate }: Testimoni
     setEditId(null);
     setForm(EMPTY_FORM);
     setError(null);
+  }
+
+  async function handleAvatarFile(file: File) {
+    setUploadingAvatar(true);
+    setError(null);
+    try {
+      const { url } = await uploadPhotoToCloudinary(file);
+      setForm((prev) => ({ ...prev, avatarUrl: url }));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al subir el avatar.');
+    } finally {
+      setUploadingAvatar(false);
+    }
   }
 
   async function handleSave() {
@@ -116,13 +132,45 @@ export function TestimonialsManager({ testimonials, token, onUpdate }: Testimoni
           rows={3}
           className="w-full text-sm px-3 py-2 rounded-lg border border-[var(--color-accent)]/30 bg-[var(--color-background)] text-[var(--color-text)] outline-none focus:border-[var(--color-accent)] resize-none"
         />
-        <input
-          type="url"
-          placeholder="URL de avatar (opcional)"
-          value={form.avatarUrl}
-          onChange={(e) => setForm({ ...form, avatarUrl: e.target.value })}
-          className="w-full text-sm px-3 py-2 rounded-lg border border-[var(--color-accent)]/30 bg-[var(--color-background)] text-[var(--color-text)] outline-none focus:border-[var(--color-accent)]"
-        />
+        {/* Avatar uploader */}
+        <div className="flex items-center gap-4">
+          <button
+            type="button"
+            onClick={() => avatarInputRef.current?.click()}
+            disabled={uploadingAvatar}
+            className="w-14 h-14 rounded-full border-2 border-dashed border-[var(--color-accent)]/40 hover:border-[var(--color-primary)] transition-colors overflow-hidden flex items-center justify-center shrink-0 bg-[var(--color-background)] disabled:opacity-50"
+            title="Subir foto de perfil"
+          >
+            {form.avatarUrl ? (
+              <img src={form.avatarUrl} alt="avatar" className="w-full h-full object-cover" />
+            ) : uploadingAvatar ? (
+              <span className="text-[10px] text-[var(--color-primary)]">...</span>
+            ) : (
+              <span className="text-xl text-[var(--color-accent)]/60">+</span>
+            )}
+          </button>
+          <input
+            ref={avatarInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => { if (e.target.files?.[0]) handleAvatarFile(e.target.files[0]); e.target.value = ''; }}
+          />
+          <div className="flex-1 min-w-0">
+            <p className="text-xs text-[var(--color-text)]/60">
+              {form.avatarUrl ? 'Avatar cargado. Hacé click para cambiarlo.' : 'Hacé click en el círculo para subir la foto de perfil del cliente.'}
+            </p>
+            {form.avatarUrl && (
+              <button
+                type="button"
+                onClick={() => setForm((prev) => ({ ...prev, avatarUrl: '' }))}
+                className="text-xs text-red-400 hover:text-red-600 mt-1"
+              >
+                Quitar avatar
+              </button>
+            )}
+          </div>
+        </div>
         <div className="flex gap-2">
           <Button variant="primary" size="sm" onClick={handleSave} disabled={saving}>
             {saving ? 'Guardando...' : editId !== null ? 'Actualizar' : 'Agregar'}

@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import type { SiteContent } from '../../types';
 import { patchContent } from '../../api/admin';
+import { uploadPhotoToCloudinary, uploadMediaToCloudinary } from '../../api/cloudinary';
 import { Button } from '../../components/ui/Button';
+import { ImageCropper } from '../../components/ui/ImageCropper';
 
 interface ContentEditorProps {
   content: SiteContent[];
@@ -9,12 +11,13 @@ interface ContentEditorProps {
   onUpdate: () => void;
 }
 
-type FieldType = 'text' | 'textarea' | 'url';
+type FieldType = 'text' | 'textarea' | 'url' | 'image-upload';
 
 const CONTENT_SCHEMA: { section: string; fields: { key: string; label: string; type: FieldType }[] }[] = [
   {
     section: 'Hero',
     fields: [
+      { key: 'hero_eyebrow', label: 'Eyebrow (texto sobre el título)', type: 'text' },
       { key: 'hero_headline', label: 'Headline', type: 'textarea' },
       { key: 'hero_subtext', label: 'Subtexto', type: 'textarea' },
     ],
@@ -23,7 +26,7 @@ const CONTENT_SCHEMA: { section: string; fields: { key: string; label: string; t
     section: 'About',
     fields: [
       { key: 'about_subtitle', label: 'Subtítulo de sección', type: 'text' },
-      { key: 'about_photo', label: 'URL de foto de perfil', type: 'url' },
+      { key: 'about_photo', label: 'Foto de perfil', type: 'image-upload' },
       { key: 'about_bio', label: 'Biografía', type: 'textarea' },
       { key: 'about_years', label: 'Años de experiencia', type: 'text' },
       { key: 'about_sessions', label: 'Sesiones completadas', type: 'text' },
@@ -54,6 +57,41 @@ export function ContentEditor({ content, token, onUpdate }: ContentEditorProps) 
   const [savedValues, setSavedValues] = useState<Record<string, string>>(fromProps);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
+  const [uploadingKey, setUploadingKey] = useState<string | null>(null);
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
+  const [cropKey, setCropKey] = useState<string | null>(null);
+  const photoInputRef = useRef<HTMLInputElement>(null);
+
+  // Abre el cropper al seleccionar archivo
+  const handleFileSelected = (key: string, file: File) => {
+    const objectUrl = URL.createObjectURL(file);
+    setCropKey(key);
+    setCropSrc(objectUrl);
+  };
+
+  // Tras confirmar el recorte: sube a Cloudinary y actualiza values (no savedValues)
+  const handleCropConfirm = async (blob: Blob) => {
+    if (!cropKey) return;
+    setCropSrc(null);
+    setUploadingKey(cropKey);
+    try {
+      const file = new File([blob], 'profile.jpg', { type: 'image/jpeg' });
+      const { url } = await uploadPhotoToCloudinary(file);
+      // Solo actualiza values → activa el botón Guardar
+      setValues((prev) => ({ ...prev, [cropKey]: url }));
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : 'Error al subir la imagen.');
+    } finally {
+      setUploadingKey(null);
+      setCropKey(null);
+    }
+  };
+
+  const handleCropCancel = () => {
+    if (cropSrc) URL.revokeObjectURL(cropSrc);
+    setCropSrc(null);
+    setCropKey(null);
+  };
 
   const hasChanges = Object.entries(values).some(([k, v]) => v !== (savedValues[k] ?? ''));
 
@@ -102,9 +140,50 @@ export function ContentEditor({ content, token, onUpdate }: ContentEditorProps) 
                     <textarea
                       value={values[key] ?? ''}
                       onChange={(e) => handleChange(key, e.target.value)}
-                      rows={key === 'services_list' ? 5 : 3}
-                      className={`${inputClass} resize-none`}
+                      rows={key === 'about_bio' ? 8 : key === 'services_list' ? 5 : 3}
+                      className={`${inputClass} resize-y`}
                     />
+                  ) : type === 'image-upload' ? (
+                    <div className="space-y-3">
+                      {values[key] && (
+                        <div className="relative mt-4">
+                          <div className="absolute -top-3 -left-3 w-full h-full rounded-2xl border-2 border-primary/20" />
+                          <img
+                            src={values[key]}
+                            alt="Foto de perfil"
+                            className="relative z-10 rounded-2xl w-full object-cover h-96"
+                          />
+                        </div>
+                      )}
+                      <div className={`flex gap-2 items-center ${values[key] ? 'mt-6' : ''}`}>
+                        <input
+                          type="url"
+                          value={values[key] ?? ''}
+                          onChange={(e) => handleChange(key, e.target.value)}
+                          placeholder="Pegar URL..."
+                          className={`${inputClass} flex-1`}
+                        />
+                        <input
+                          ref={photoInputRef}
+                          type="file"
+                          accept="image/png,image/jpeg,image/webp"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) handleFileSelected(key, file);
+                          }}
+                        />
+                        <Button
+                          variant="primary"
+                          size="sm"
+                          onClick={() => photoInputRef.current?.click()}
+                          disabled={uploadingKey === key}
+                          className="shrink-0"
+                        >
+                          {uploadingKey === key ? 'Subiendo...' : 'Subir'}
+                        </Button>
+                      </div>
+                    </div>
                   ) : (
                     <input
                       type={type}
@@ -132,6 +211,15 @@ export function ContentEditor({ content, token, onUpdate }: ContentEditorProps) 
           Descartar Cambios
         </Button>
       </div>
+
+      {cropSrc && cropKey && (
+        <ImageCropper
+          imageSrc={cropSrc}
+          aspect={3 / 2}
+          onConfirm={handleCropConfirm}
+          onCancel={handleCropCancel}
+        />
+      )}
     </div>
   );
 }

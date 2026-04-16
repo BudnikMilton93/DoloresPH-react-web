@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import type { SiteContent } from '../../types';
 import { Brandmark } from '../ui/Brandmarks';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 interface ServicesProps {
   isVisible: boolean;
@@ -12,6 +13,7 @@ function getContent(content: SiteContent[], key: string, fallback: string): stri
 }
 
 export function Services({ isVisible, content }: ServicesProps) {
+  const { t } = useLanguage();
   const servicesList = getContent(content, 'services_list', 'Portrait Sessions\nWedding Photography\nEditorial & Commercial');
   const services = servicesList.split('\n').filter(Boolean);
   const brandmarkServices = content.find((c) => c.key === 'brandmark_services')?.value || '';
@@ -35,8 +37,8 @@ export function Services({ isVisible, content }: ServicesProps) {
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
             >
-              <p className="text-sm uppercase tracking-[0.3em] text-primary mb-4">What I Offer</p>
-              <h2 className="text-4xl md:text-5xl text-text" style={{ fontFamily: 'var(--font-heading)' }}>Services</h2>
+              <p className="text-sm uppercase tracking-[0.3em] text-primary mb-4">{t.services.eyebrow}</p>
+              <h2 className="text-4xl md:text-5xl text-text" style={{ fontFamily: 'var(--font-heading)' }}>{t.services.title}</h2>
             </motion.div>
 
             <div className="max-w-2xl mx-auto">
@@ -60,7 +62,7 @@ export function Services({ isVisible, content }: ServicesProps) {
             </div>
             {brandmarkServices && (
               <motion.div
-                className="mt-12 flex justify-start"
+                className="mt-12 flex justify-end"
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
                 viewport={{ once: true }}

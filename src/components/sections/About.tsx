@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import type { SiteContent } from '../../types';
 import { Brandmark } from '../ui/Brandmarks';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 interface AboutProps {
   isVisible: boolean;
@@ -12,6 +13,7 @@ function getContent(content: SiteContent[], key: string, fallback: string): stri
 }
 
 export function About({ isVisible, content }: AboutProps) {
+  const { t } = useLanguage();
   const subtitle = getContent(content, 'about_subtitle', 'An Eye for the Extraordinary');
   const photo = getContent(content, 'about_photo', 'https://images.unsplash.com/photo-1554048612-b6a482bc67e5?w=600');
   const bio = getContent(content, 'about_bio', "Hi, I'm Dolores — a photographer based in the heart of the city.");
@@ -39,7 +41,7 @@ export function About({ isVisible, content }: AboutProps) {
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, ease: 'easeOut' }}
               >
-                <p className="text-sm uppercase tracking-[0.3em] text-primary mb-4">About Me</p>
+                <p className="text-sm uppercase tracking-[0.3em] text-primary mb-4">{t.about.eyebrow}</p>
                 <h2 className="text-4xl md:text-5xl text-text mb-6" style={{ fontFamily: 'var(--font-heading)' }}>
                   {subtitle}
                 </h2>
@@ -49,15 +51,15 @@ export function About({ isVisible, content }: AboutProps) {
                 <div className="flex gap-8">
                   <div>
                     <p className="text-3xl text-primary" style={{ fontFamily: 'var(--font-heading)' }}>{years}</p>
-                    <p className="text-sm text-text/60">Years Experience</p>
+                    <p className="text-sm text-text/60">{t.about.yearsLabel}</p>
                   </div>
                   <div>
                     <p className="text-3xl text-primary" style={{ fontFamily: 'var(--font-heading)' }}>{sessions}</p>
-                    <p className="text-sm text-text/60">Sessions Complete</p>
+                    <p className="text-sm text-text/60">{t.about.sessionsLabel}</p>
                   </div>
                   <div>
                     <p className="text-3xl text-primary" style={{ fontFamily: 'var(--font-heading)' }}>{awards}</p>
-                    <p className="text-sm text-text/60">Awards Won</p>
+                    <p className="text-sm text-text/60">{t.about.awardsLabel}</p>
                   </div>
                 </div>
               </motion.div>

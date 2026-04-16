@@ -1,10 +1,12 @@
 import type { SiteContent } from '../../types';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 interface FooterProps {
   content?: SiteContent[];
 }
 
 export function Footer({ content = [] }: FooterProps) {
+  const { t } = useLanguage();
   const logoUrl = content.find((c) => c.key === 'logo_url')?.value || '';
   const brandmarkFooter = content.find((c) => c.key === 'brandmark_footer')?.value || '';
 
@@ -26,7 +28,7 @@ export function Footer({ content = [] }: FooterProps) {
         )}
 
         <p className="text-sm text-surface/50">
-          &copy; {new Date().getFullYear()} Dolores Photography. All rights reserved.
+          {t.footer.copyright.replace('{year}', String(new Date().getFullYear()))}
         </p>
       </div>
     </footer>

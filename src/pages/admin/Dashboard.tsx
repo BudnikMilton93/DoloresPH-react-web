@@ -8,6 +8,14 @@ import { ContentEditor } from './ContentEditor';
 import { BrandingManager } from './BrandingManager';
 import { TestimonialsManager } from './TestimonialsManager';
 import { Button } from '../../components/ui/Button';
+import { useLanguage } from '../../i18n/LanguageContext';
+import type { Language } from '../../i18n/translations';
+
+const LANG_OPTIONS: { value: Language; label: string }[] = [
+  { value: 'es', label: 'ES' },
+  { value: 'en', label: 'EN' },
+  { value: 'pt', label: 'PT' },
+];
 
 const TABS = ['Sections', 'Content', 'Photos', 'Essays', 'Theme', 'Branding', 'Testimonials'] as const;
 type Tab = typeof TABS[number];
@@ -21,6 +29,7 @@ interface DashboardProps {
 
 export function Dashboard({ siteConfig, token, onRefetch, onLogout }: DashboardProps) {
   const [activeTab, setActiveTab] = useState<Tab>('Sections');
+  const { language, setLanguage } = useLanguage();
   const logoUrl = siteConfig.content.find((c) => c.key === 'logo_url')?.value || '';
 
   return (
@@ -32,9 +41,25 @@ export function Dashboard({ siteConfig, token, onRefetch, onLogout }: DashboardP
           ) : (
             <span className="text-xl text-[var(--color-primary)] truncate" style={{ fontFamily: 'var(--font-heading)' }}>Dolores PH</span>
           )}
-          <span className="text-sm text-[var(--color-text)]/40 flex-shrink-0">Admin</span>
+          <span className="text-sm text-[var(--color-text)]/40 flex-shrink-0">Dolores Marquez Llorens</span>
         </div>
         <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+          <div className="flex items-center gap-0.5 border border-[var(--color-accent)]/30 rounded-full px-1 py-0.5">
+            {LANG_OPTIONS.map(({ value, label }) => (
+              <button
+                key={value}
+                onClick={() => setLanguage(value)}
+                title={`Idioma del sitio: ${label}`}
+                className={`text-xs px-2 py-1 rounded-full transition-all duration-200 ${
+                  language === value
+                    ? 'bg-[var(--color-primary)] text-white font-semibold'
+                    : 'text-[var(--color-text)]/50 hover:text-[var(--color-text)]'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
           <a href="/" className="text-sm text-[var(--color-text)]/60 hover:text-[var(--color-primary)] transition-colors hidden sm:inline">
             Ver sitio
           </a>

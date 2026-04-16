@@ -10,12 +10,14 @@ interface BrandingManagerProps {
 }
 
 const SLOTS = [
-  { key: 'logo_url',          label: 'Logo principal',           hint: 'Aparece en el header y en el footer del sitio.' },
-  { key: 'brandmark_hero',    label: 'Infrasigno — Hero',        hint: 'Grande, centrado, muy sutil. Se muestra en el fondo del hero.' },
-  { key: 'brandmark_about',   label: 'Infrasigno — About',       hint: 'Se superpone como sello en la esquina de tu foto de perfil.' },
-  { key: 'brandmark_services',label: 'Infrasigno — Servicios',   hint: 'Aparece centrado al pie del listado de servicios.' },
-  { key: 'brandmark_contact', label: 'Infrasigno — Contacto',    hint: 'Aparece centrado al pie de la seccion de contacto.' },
-  { key: 'brandmark_footer',  label: 'Infrasigno — Footer',      hint: 'Flanqueado por lineas decorativas entre el logo y el copyright.' },
+  { key: 'logo_url',               label: 'Logo principal',              hint: 'Aparece en el header y en el footer del sitio.' },
+  { key: 'brandmark_about',        label: 'Infrasigno — About',          hint: 'Se superpone como sello en la esquina de tu foto de perfil.' },
+  { key: 'brandmark_portfolio',    label: 'Infrasigno — Portfolio',      hint: 'Aparece sutil al pie de la galería de fotos.' },
+  { key: 'brandmark_essays',       label: 'Infrasigno — Ensayos',        hint: 'Aparece al pie de la sección de ensayos fotográficos.' },
+  { key: 'brandmark_services',     label: 'Infrasigno — Servicios',      hint: 'Aparece centrado al pie del listado de servicios.' },
+  { key: 'brandmark_testimonials', label: 'Infrasigno — Testimonios',    hint: 'Aparece al pie de la sección de testimonios.' },
+  { key: 'brandmark_contact',      label: 'Infrasigno — Contacto',       hint: 'Aparece centrado al pie de la seccion de contacto.' },
+  { key: 'brandmark_footer',       label: 'Infrasigno — Footer',         hint: 'Flanqueado por lineas decorativas entre el logo y el copyright.' },
 ] as const;
 
 type SlotKey = typeof SLOTS[number]['key'];
@@ -32,29 +34,35 @@ export function BrandingManager({ content, token, onUpdate }: BrandingManagerPro
   ) as Record<SlotKey, string>;
 
   const [slots, setSlots] = useState<Record<SlotKey, SlotState>>({
-    logo_url:           { uploading: false, error: null, urlInput: initialUrlInputs.logo_url },
-    brandmark_hero:     { uploading: false, error: null, urlInput: initialUrlInputs.brandmark_hero },
-    brandmark_about:    { uploading: false, error: null, urlInput: initialUrlInputs.brandmark_about },
-    brandmark_services: { uploading: false, error: null, urlInput: initialUrlInputs.brandmark_services },
-    brandmark_contact:  { uploading: false, error: null, urlInput: initialUrlInputs.brandmark_contact },
-    brandmark_footer:   { uploading: false, error: null, urlInput: initialUrlInputs.brandmark_footer },
+    logo_url:               { uploading: false, error: null, urlInput: initialUrlInputs.logo_url },
+    brandmark_about:        { uploading: false, error: null, urlInput: initialUrlInputs.brandmark_about },
+    brandmark_portfolio:    { uploading: false, error: null, urlInput: initialUrlInputs.brandmark_portfolio },
+    brandmark_essays:       { uploading: false, error: null, urlInput: initialUrlInputs.brandmark_essays },
+    brandmark_services:     { uploading: false, error: null, urlInput: initialUrlInputs.brandmark_services },
+    brandmark_testimonials: { uploading: false, error: null, urlInput: initialUrlInputs.brandmark_testimonials },
+    brandmark_contact:      { uploading: false, error: null, urlInput: initialUrlInputs.brandmark_contact },
+    brandmark_footer:       { uploading: false, error: null, urlInput: initialUrlInputs.brandmark_footer },
   });
   const [saved, setSaved] = useState(false);
 
-  const refLogoUrl        = useRef<HTMLInputElement>(null);
-  const refBrandmarkHero  = useRef<HTMLInputElement>(null);
-  const refBrandmarkAbout = useRef<HTMLInputElement>(null);
-  const refBrandmarkSvcs  = useRef<HTMLInputElement>(null);
-  const refBrandmarkCont  = useRef<HTMLInputElement>(null);
-  const refBrandmarkFoot  = useRef<HTMLInputElement>(null);
+  const refLogoUrl            = useRef<HTMLInputElement>(null);
+  const refBrandmarkAbout     = useRef<HTMLInputElement>(null);
+  const refBrandmarkPortfolio = useRef<HTMLInputElement>(null);
+  const refBrandmarkEssays    = useRef<HTMLInputElement>(null);
+  const refBrandmarkSvcs      = useRef<HTMLInputElement>(null);
+  const refBrandmarkTestim    = useRef<HTMLInputElement>(null);
+  const refBrandmarkCont      = useRef<HTMLInputElement>(null);
+  const refBrandmarkFoot      = useRef<HTMLInputElement>(null);
 
   const fileRefs = {
-    logo_url:           refLogoUrl,
-    brandmark_hero:     refBrandmarkHero,
-    brandmark_about:    refBrandmarkAbout,
-    brandmark_services: refBrandmarkSvcs,
-    brandmark_contact:  refBrandmarkCont,
-    brandmark_footer:   refBrandmarkFoot,
+    logo_url:               refLogoUrl,
+    brandmark_about:        refBrandmarkAbout,
+    brandmark_portfolio:    refBrandmarkPortfolio,
+    brandmark_essays:       refBrandmarkEssays,
+    brandmark_services:     refBrandmarkSvcs,
+    brandmark_testimonials: refBrandmarkTestim,
+    brandmark_contact:      refBrandmarkCont,
+    brandmark_footer:       refBrandmarkFoot,
   };
 
   function setSlot(key: SlotKey, patch: Partial<SlotState>) {

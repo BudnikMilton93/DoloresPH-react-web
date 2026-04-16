@@ -54,8 +54,8 @@ export function PhotoUploader({ token, photos, onUpload }: PhotoUploaderProps) {
       setSelectedFile(null);
       setAlt('');
       onUpload();
-    } catch {
-      setUploadMessage('Error al subir. La API puede no estar disponible.');
+    } catch (err) {
+      setUploadMessage(err instanceof Error ? err.message : 'Error desconocido al subir.');
     } finally {
       setUploading(false);
     }
