@@ -115,3 +115,42 @@ export async function uploadMediaToCloudinary(file: File): Promise<string> {
   const { secureUrl } = await cloudinaryUpload(file, PRESET_MEDIA, resourceType);
   return secureUrl;
 }
+
+/* ------------------------------------------------------------------ */
+/*  Cloudinary cleanup — calls Supabase Edge Function                  */
+/* ------------------------------------------------------------------ */
+
+import { supabase } from '../lib/supabase';
+
+export interface OrphanedImage {
+  publicId: string;
+  url: string;
+  resourceType: string;
+  bytes: number;
+  format: string;
+  createdAt: string;
+}
+
+export interface ScanResult {
+  totalCloud: number;
+  totalReferenced: number;
+  orphans: OrphanedImage[];
+}
+
+export async function scanOrphanedImages(): Promise<ScanResult> {
+  const { data, error } = await supabase.functions.invoke('cloudinary-cleanup', {
+    body: { action: 'scan' },
+  });
+  if (error) throw new Error(error.message);
+  return data as ScanResult;
+}
+
+export async function deleteOrphanedImages(
+  items: { id: string; resourceType: string }[],
+): Promise<{ deleted: number; failed: number }> {
+  const { data, error } = await supabase.functions.invoke('cloudinary-cleanup', {
+    body: { action: 'delete', publicIds: items },
+  });
+  if (error) throw new Error(error.message);
+  return data as { deleted: number; failed: number };
+}

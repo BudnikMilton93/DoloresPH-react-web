@@ -7,6 +7,7 @@ import { ThemeEditor } from './ThemeEditor';
 import { ContentEditor } from './ContentEditor';
 import { BrandingManager } from './BrandingManager';
 import { TestimonialsManager } from './TestimonialsManager';
+import { CloudinaryManager } from './CloudinaryManager';
 import { Button } from '../../components/ui/Button';
 import { useLanguage } from '../../i18n/LanguageContext';
 import type { Language } from '../../i18n/translations';
@@ -17,7 +18,7 @@ const LANG_OPTIONS: { value: Language; label: string }[] = [
   { value: 'pt', label: 'PT' },
 ];
 
-const TABS = ['Sections', 'Content', 'Photos', 'Essays', 'Theme', 'Branding', 'Testimonials'] as const;
+const TABS = ['Sections', 'Content', 'Photos', 'Essays', 'Theme', 'Branding', 'Testimonials', 'Cloudinary'] as const;
 type Tab = typeof TABS[number];
 
 interface DashboardProps {
@@ -116,6 +117,9 @@ export function Dashboard({ siteConfig, token, onRefetch, onLogout }: DashboardP
           )}
           {activeTab === 'Testimonials' && (
             <TestimonialsManager testimonials={siteConfig.testimonials} token={token} onUpdate={onRefetch} />
+          )}
+          {activeTab === 'Cloudinary' && (
+            <CloudinaryManager />
           )}
         </div>
       </div>
