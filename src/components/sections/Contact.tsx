@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Mail } from 'lucide-react';
 import type { SiteContent } from '../../types';
 import { Button } from '../ui/Button';
 import { Brandmark } from '../ui/Brandmarks';
@@ -65,11 +66,16 @@ export function Contact({ isVisible, content }: ContactProps) {
                     href={`mailto:${email}`}
                     className="flex items-center gap-3 text-text hover:text-primary transition-colors"
                   >
-                    <span className="text-primary">✉</span> {email}
+                    <Mail className="w-5 h-5 text-primary" /> {email}
                   </a>
-                  <p className="flex items-center gap-3 text-text">
-                    <span className="text-primary">📸</span> {instagram}
-                  </p>
+                  <a
+                    href={`https://instagram.com/${instagram.replace('@', '')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 text-text hover:text-primary transition-colors"
+                  >
+                    <svg className="w-5 h-5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5" /><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" /><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" /></svg> {instagram}
+                  </a>
                 </div>
               </motion.div>
 
