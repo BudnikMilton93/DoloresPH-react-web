@@ -82,7 +82,7 @@ export function Hero({ isVisible, content }: HeroProps) {
       {brandmarkHero && (
         <motion.div
           className="hidden"
-          initial={{ opacity: 0 }}
+          initial={{ opacity: 0 }} 
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8, duration: 1.2 }}
         >
