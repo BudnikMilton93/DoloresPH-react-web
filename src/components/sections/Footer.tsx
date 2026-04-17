@@ -32,7 +32,7 @@ export function Footer({ content = [] }: FooterProps) {
         </p>
 
         <p className="mt-6 text-[11px] text-surface/20 tracking-wide">
-          Esta web tiene muchas líneas de código escritas con <span className="text-red-400/40">♥</span> para impulsar tus proyectos personales y tu crecimiento profesional, Lolita.
+          Lolita, esta web tiene muchas líneas de código escritas con <span className="text-red-400/40">♥</span> para impulsar tus proyectos personales y tu crecimiento profesional.
         </p>
       </div>
     </footer>
