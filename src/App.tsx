@@ -1,9 +1,9 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { LanguageProvider } from './i18n/LanguageContext';
 import { useSiteConfig } from './hooks/useSiteConfig';
 import { applyTheme, loadCustomFonts } from './utils/theme';
-import { SkeletonLoader } from './components/ui/SkeletonLoader';
+import { SplashScreen } from './components/ui/SplashScreen';
 import { Header } from './components/sections/Header';
 import { Hero } from './components/sections/Hero';
 import { About } from './components/sections/About';
@@ -17,6 +17,7 @@ import { Testimonials } from './components/sections/Testimonials';
 
 function MainPage() {
   const { siteConfig, loading } = useSiteConfig();
+  const [splashDone, setSplashDone] = useState(false);
 
   useEffect(() => {
     if (siteConfig?.theme) {
@@ -28,7 +29,18 @@ function MainPage() {
     }
   }, [siteConfig]);
 
-  if (loading) return <SkeletonLoader />;
+  const logoUrl = !loading
+    ? siteConfig?.content?.find((c) => c.key === 'logo_url')?.value
+    : undefined;
+
+  if (loading || !splashDone) {
+    return (
+      <SplashScreen
+        logoUrl={logoUrl}
+        onFinish={() => setSplashDone(true)}
+      />
+    );
+  }
 
   const { sections, photos, essays, content, testimonials } = siteConfig;
 
