@@ -79,6 +79,7 @@ export function ContentEditor({ content, token, onUpdate }: ContentEditorProps) 
       const { url } = await uploadPhotoToCloudinary(file);
       // Solo actualiza values → activa el botón Guardar
       setValues((prev) => ({ ...prev, [cropKey]: url }));
+      setMessage('Foto subida con éxito.');
     } catch (err) {
       setMessage(err instanceof Error ? err.message : 'Error al subir la imagen.');
     } finally {
@@ -155,14 +156,7 @@ export function ContentEditor({ content, token, onUpdate }: ContentEditorProps) 
                           />
                         </div>
                       )}
-                      <div className={`flex gap-2 items-center ${values[key] ? 'mt-6' : ''}`}>
-                        <input
-                          type="url"
-                          value={values[key] ?? ''}
-                          onChange={(e) => handleChange(key, e.target.value)}
-                          placeholder="Pegar URL..."
-                          className={`${inputClass} flex-1`}
-                        />
+                      <div className={values[key] ? 'mt-6' : ''}>
                         <input
                           ref={photoInputRef}
                           type="file"
@@ -178,9 +172,8 @@ export function ContentEditor({ content, token, onUpdate }: ContentEditorProps) 
                           size="sm"
                           onClick={() => photoInputRef.current?.click()}
                           disabled={uploadingKey === key}
-                          className="shrink-0"
                         >
-                          {uploadingKey === key ? 'Subiendo...' : 'Subir'}
+                          {uploadingKey === key ? 'Subiendo...' : 'Subir foto'}
                         </Button>
                       </div>
                     </div>

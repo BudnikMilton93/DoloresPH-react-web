@@ -97,7 +97,7 @@ export const translations: Record<Language, Translations> = {
       eyebrow: 'Conectemos',
       title: 'Hablemos',
       description:
-        'Me encantaría escuchar sobre tu proyecto. Ya sea una boda, sesión de retratos, una aventura en la naturaleza o una colaboración creativa — creemos algo hermoso juntos. También disfruto capturar paisajes y la belleza del mundo natural.',
+        'Me encantaría escuchar sobre tu proyecto. Ya sea un ensayo, sesión de retratos, una aventura en la naturaleza o una colaboración creativa, creemos algo lindo juntos. También disfruto capturar paisajes y la belleza del mundo natural.',
       namePlaceholder: 'Tu Nombre',
       emailPlaceholder: 'Tu Email',
       messagePlaceholder: 'Tu Mensaje',
@@ -153,7 +153,7 @@ export const translations: Record<Language, Translations> = {
       eyebrow: "Let's Connect",
       title: 'Get in Touch',
       description:
-        "I'd love to hear about your project. Whether it's a wedding, portrait session, a nature adventure, or a creative collaboration — let's create something beautiful together. I also enjoy capturing landscapes and the beauty of the natural world.",
+        "I'd love to hear about your project. Whether it's a photo essay, portrait session, a nature adventure, or a creative collaboration, let's create something beautiful together. I also enjoy capturing landscapes and the beauty of the natural world.",
       namePlaceholder: 'Your Name',
       emailPlaceholder: 'Your Email',
       messagePlaceholder: 'Your Message',
@@ -209,7 +209,7 @@ export const translations: Record<Language, Translations> = {
       eyebrow: 'Vamos conversar',
       title: 'Entre em Contato',
       description:
-        'Adoraria ouvir sobre o seu projeto. Seja um casamento, sessão de retratos, uma aventura na natureza ou uma colaboração criativa — vamos criar algo lindo juntos. Também adoro capturar paisagens e a beleza do mundo natural.',
+        'Adoraria ouvir sobre o seu projeto. Seja um ensaio fotográfico, sessão de retratos, uma aventura na natureza ou uma colaboração criativa, vamos criar algo lindo juntos. Também adoro capturar paisagens e a beleza do mundo natural.',
       namePlaceholder: 'Seu Nome',
       emailPlaceholder: 'Seu Email',
       messagePlaceholder: 'Sua Mensagem',

@@ -10,7 +10,7 @@ interface PhotoUploaderProps {
   onUpload: () => void;
 }
 
-const CATEGORIES = ['Portrait', 'Wedding', 'Landscape', 'Editorial', 'Other'];
+const CATEGORIES = ['Portrait', 'Wedding', 'Landscape', 'Nature', 'Editorial', 'Other'];
 
 export function PhotoUploader({ token, photos, onUpload }: PhotoUploaderProps) {
   // Upload state
