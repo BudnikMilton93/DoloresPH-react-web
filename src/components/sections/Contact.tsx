@@ -5,6 +5,7 @@ import type { SiteContent } from '../../types';
 import { Button } from '../ui/Button';
 import { Brandmark } from '../ui/Brandmarks';
 import { useLanguage } from '../../i18n/LanguageContext';
+import { sendContactEmail } from '../../api/contact';
 
 interface ContactProps {
   isVisible: boolean;
@@ -22,10 +23,21 @@ export function Contact({ isVisible, content }: ContactProps) {
   const brandmarkContact = content.find((c) => c.key === 'brandmark_contact')?.value || '';
   const [formState, setFormState] = useState({ name: '', email: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
+    setSending(true);
+    setError(null);
+    try {
+      await sendContactEmail(formState);
+      setSubmitted(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t.contact.errorGeneric);
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -116,8 +128,11 @@ export function Contact({ isVisible, content }: ContactProps) {
                       className="w-full px-4 py-3 rounded-xl border border-accent/30 bg-background text-text placeholder-text/40 focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
                       required
                     />
-                    <Button type="submit" variant="primary" size="lg" className="w-full">
-                      {t.contact.submit}
+                    {error && (
+                      <p className="text-red-500 text-sm">{error}</p>
+                    )}
+                    <Button type="submit" variant="primary" size="lg" className="w-full" disabled={sending}>
+                      {sending ? t.contact.sending : t.contact.submit}
                     </Button>
                   </form>
                 )}

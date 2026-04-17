@@ -1,10 +1,13 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Photo, SiteContent } from '../../types';
 import { ImageCard } from '../ui/ImageCard';
 import { Lightbox } from '../ui/Lightbox';
+import { Button } from '../ui/Button';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { Brandmark } from '../ui/Brandmarks';
+
+const MOBILE_INITIAL_COUNT = 8;
 
 interface PortfolioProps {
   isVisible: boolean;
@@ -19,13 +22,25 @@ export function Portfolio({ isVisible, photos, content = [] }: PortfolioProps) {
   const brandmarkPortfolio = content.find((c) => c.key === 'brandmark_portfolio')?.value || '';
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [activeCategory, setActiveCategory] = useState<string>(ALL_FILTER);
+  const [showAll, setShowAll] = useState(false);
 
   const visiblePhotos = photos.filter((p) => p.isVisible);
   const categories = [ALL_FILTER, ...Array.from(new Set(visiblePhotos.map((p) => p.category).filter(Boolean)))];
 
-  const filtered = activeCategory === ALL_FILTER
+  const allFiltered = activeCategory === ALL_FILTER
     ? visiblePhotos
     : visiblePhotos.filter((p) => p.category === activeCategory);
+
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+  const filtered = (!showAll && isMobile && allFiltered.length > MOBILE_INITIAL_COUNT)
+    ? allFiltered.slice(0, MOBILE_INITIAL_COUNT)
+    : allFiltered;
+  const hasMore = !showAll && isMobile && allFiltered.length > MOBILE_INITIAL_COUNT;
+
+  const handleCategoryChange = useCallback((cat: string) => {
+    setActiveCategory(cat);
+    setShowAll(false);
+  }, []);
 
   const closeLightbox = () => setLightboxIndex(null);
   const nextPhoto = () => setLightboxIndex((prev) => prev !== null ? (prev + 1) % filtered.length : 0);
@@ -58,7 +73,7 @@ export function Portfolio({ isVisible, photos, content = [] }: PortfolioProps) {
               {categories.map((cat) => (
                 <button
                   key={cat}
-                  onClick={() => setActiveCategory(cat)}
+                  onClick={() => handleCategoryChange(cat)}
                   className={`px-5 py-2 rounded-full text-sm transition-all duration-200 ${
                     activeCategory === cat
                       ? 'bg-primary text-white'
@@ -70,7 +85,7 @@ export function Portfolio({ isVisible, photos, content = [] }: PortfolioProps) {
               ))}
             </div>
 
-            <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4">
+            <div className="columns-2 sm:columns-2 lg:columns-3 gap-3 sm:gap-4 space-y-3 sm:space-y-4">
               {filtered.map((photo, index) => (
                 <motion.div
                   key={photo.id}
@@ -84,6 +99,14 @@ export function Portfolio({ isVisible, photos, content = [] }: PortfolioProps) {
                 </motion.div>
               ))}
             </div>
+
+            {hasMore && (
+              <div className="mt-8 text-center sm:hidden">
+                <Button variant="outline" size="md" onClick={() => setShowAll(true)}>
+                  {t.portfolio.showMore} ({allFiltered.length - MOBILE_INITIAL_COUNT})
+                </Button>
+              </div>
+            )}
 
             {brandmarkPortfolio && (
               <motion.div

@@ -70,10 +70,10 @@ export function Hero({ isVisible, content }: HeroProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: 'easeOut', delay: 0.45 }}
         >
-          <Button size="lg" variant="primary" onClick={() => document.getElementById('portfolio')?.scrollIntoView({ behavior: 'smooth' })}>
+          <Button size="lg" variant="primary" className="min-w-[180px]" onClick={() => document.getElementById('portfolio')?.scrollIntoView({ behavior: 'smooth' })}>
             {t.hero.viewPortfolio}
           </Button>
-          <Button size="lg" variant="outline" onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}>
+          <Button size="lg" variant="outline" className="min-w-[180px]" onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}>
             {t.hero.getInTouch}
           </Button>
         </motion.div>
@@ -91,7 +91,7 @@ export function Hero({ isVisible, content }: HeroProps) {
       )}
 
       <motion.div
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+        className="absolute bottom-8 inset-x-0 flex flex-col items-center gap-2"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1, duration: 0.6 }}

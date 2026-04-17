@@ -23,6 +23,7 @@ export interface Translations {
     eyebrow: string;
     title: string;
     filterAll: string;
+    showMore: string;
   };
   essays: {
     eyebrow: string;
@@ -44,6 +45,8 @@ export interface Translations {
     emailPlaceholder: string;
     messagePlaceholder: string;
     submit: string;
+    sending: string;
+    errorGeneric: string;
     successTitle: string;
     successSub: string;
   };
@@ -76,6 +79,7 @@ export const translations: Record<Language, Translations> = {
       eyebrow: 'Trabajo',
       title: 'Portfolio',
       filterAll: 'Todas',
+      showMore: 'Ver más',
     },
     essays: {
       eyebrow: 'Historias',
@@ -98,6 +102,8 @@ export const translations: Record<Language, Translations> = {
       emailPlaceholder: 'Tu Email',
       messagePlaceholder: 'Tu Mensaje',
       submit: 'Enviar Mensaje',
+      sending: 'Enviando...',
+      errorGeneric: 'Error al enviar el mensaje. Intenta de nuevo.',
       successTitle: '¡Gracias!',
       successSub: 'Me pongo en contacto pronto.',
     },
@@ -129,6 +135,7 @@ export const translations: Record<Language, Translations> = {
       eyebrow: 'Work',
       title: 'Portfolio',
       filterAll: 'All',
+      showMore: 'Show more',
     },
     essays: {
       eyebrow: 'Stories',
@@ -151,6 +158,8 @@ export const translations: Record<Language, Translations> = {
       emailPlaceholder: 'Your Email',
       messagePlaceholder: 'Your Message',
       submit: 'Send Message',
+      sending: 'Sending...',
+      errorGeneric: 'Failed to send the message. Please try again.',
       successTitle: 'Thank you!',
       successSub: "I'll be in touch soon.",
     },
@@ -182,6 +191,7 @@ export const translations: Record<Language, Translations> = {
       eyebrow: 'Trabalho',
       title: 'Portfolio',
       filterAll: 'Todas',
+      showMore: 'Ver mais',
     },
     essays: {
       eyebrow: 'Histórias',
@@ -204,6 +214,8 @@ export const translations: Record<Language, Translations> = {
       emailPlaceholder: 'Seu Email',
       messagePlaceholder: 'Sua Mensagem',
       submit: 'Enviar Mensagem',
+      sending: 'Enviando...',
+      errorGeneric: 'Erro ao enviar a mensagem. Tente novamente.',
       successTitle: 'Obrigada!',
       successSub: 'Entrarei em contato em breve.',
     },
