@@ -15,7 +15,8 @@ interface EssaysProps {
 export function Essays({ isVisible, essays, content = [] }: EssaysProps) {
   const { t } = useLanguage();
   const brandmarkEssays = content.find((c) => c.key === 'brandmark_essays')?.value || '';
-  const visibleEssays = essays.filter((e) => e.isVisible);
+  // Filtrar ensayos que estén visibles Y que tengan fotos
+  const visibleEssays = essays.filter((e) => e.isVisible && e.photos.length > 0);
 
   const [selectedEssay, setSelectedEssay] = useState<Essay | null>(null);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);

@@ -1,15 +1,16 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import type { SiteContent, Section } from '../../types';
+import type { SiteContent, Section, Essay } from '../../types';
 import { useLanguage } from '../../i18n/LanguageContext';
 import type { Language } from '../../i18n/translations';
 
 interface HeaderProps {
   content?: SiteContent[];
   sections?: Section[];
+  essays?: Essay[];
 }
 
-export function Header({ content = [], sections = [] }: HeaderProps) {
+export function Header({ content = [], sections = [], essays = [] }: HeaderProps) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const { t } = useLanguage();
@@ -23,10 +24,18 @@ export function Header({ content = [], sections = [] }: HeaderProps) {
     { label: t.nav.contact, href: '#contact', section: 'Contact' },
   ];
 
-  // Filtrar links basándose en secciones visibles
+  // Filtrar links basándose en secciones visibles y contenido disponible
   const navLinks = allNavLinks.filter(link => {
     const section = sections.find(s => s.name.toLowerCase() === link.section.toLowerCase());
-    return section ? section.isVisible : true;
+    const isSectionVisible = section ? section.isVisible : true;
+    
+    // Para la sección Essays, también verificar que haya ensayos con fotos
+    if (link.section === 'Essays') {
+      const hasEssaysWithPhotos = essays.some(essay => essay.isVisible && essay.photos.length > 0);
+      return isSectionVisible && hasEssaysWithPhotos;
+    }
+    
+    return isSectionVisible;
   });
 
   useEffect(() => {
