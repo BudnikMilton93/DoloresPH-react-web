@@ -2,15 +2,6 @@ const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME as string;
 const PRESET_PHOTOS = import.meta.env.VITE_CLOUDINARY_PRESET_PHOTOS as string;
 const PRESET_MEDIA = import.meta.env.VITE_CLOUDINARY_PRESET_MEDIA as string;
 
-// Validar que las variables de entorno estén configuradas
-if (!CLOUD_NAME || !PRESET_PHOTOS || !PRESET_MEDIA) {
-  console.error('Variables de entorno de Cloudinary faltantes:', {
-    CLOUD_NAME: !!CLOUD_NAME,
-    PRESET_PHOTOS: !!PRESET_PHOTOS,
-    PRESET_MEDIA: !!PRESET_MEDIA
-  });
-}
-
 const ALLOWED_PHOTO_TYPES = new Set([
   'image/jpeg',
   'image/png',
@@ -116,9 +107,13 @@ async function resizeToMaxWidth(file: File, maxPx = 1920): Promise<File> {
 }
 
 export async function uploadPhotoToCloudinary(file: File): Promise<CloudinaryPhotoResult> {
-  // Verificar configuración antes de proceder
-  if (!CLOUD_NAME || !PRESET_PHOTOS) {
-    throw new Error('Error de configuración: Variables de entorno de Cloudinary no configuradas. Verificá que tengas un archivo .env con VITE_CLOUDINARY_CLOUD_NAME y VITE_CLOUDINARY_PRESET_PHOTOS configurados.');
+  // Verificar configuración antes de proceder - solo si están realmente vacías o son placeholder
+  if (!CLOUD_NAME || CLOUD_NAME === 'your_cloud_name' || !PRESET_PHOTOS) {
+    console.error('Configuración Cloudinary:', { 
+      CLOUD_NAME: CLOUD_NAME || 'VACÍO', 
+      PRESET_PHOTOS: PRESET_PHOTOS || 'VACÍO' 
+    });
+    throw new Error('Error de configuración: Variables de entorno de Cloudinary no configuradas correctamente. Verificá tu archivo .env y reiniciá el servidor de desarrollo.');
   }
   
   if (!ALLOWED_PHOTO_TYPES.has(file.type)) {
@@ -139,9 +134,13 @@ export async function uploadPhotoToCloudinary(file: File): Promise<CloudinaryPho
 }
 
 export async function uploadMediaToCloudinary(file: File): Promise<string> {
-  // Verificar configuración antes de proceder
-  if (!CLOUD_NAME || !PRESET_MEDIA) {
-    throw new Error('Error de configuración: Variables de entorno de Cloudinary no configuradas. Verificá que tengas un archivo .env con VITE_CLOUDINARY_CLOUD_NAME y VITE_CLOUDINARY_PRESET_MEDIA configurados.');
+  // Verificar configuración antes de proceder - solo si están realmente vacías o son placeholder  
+  if (!CLOUD_NAME || CLOUD_NAME === 'your_cloud_name' || !PRESET_MEDIA) {
+    console.error('Configuración Cloudinary Media:', { 
+      CLOUD_NAME: CLOUD_NAME || 'VACÍO', 
+      PRESET_MEDIA: PRESET_MEDIA || 'VACÍO' 
+    });
+    throw new Error('Error de configuración: Variables de entorno de Cloudinary no configuradas correctamente. Verificá tu archivo .env y reiniciá el servidor de desarrollo.');
   }
 
   if (!ALLOWED_MEDIA_TYPES.has(file.type)) {
