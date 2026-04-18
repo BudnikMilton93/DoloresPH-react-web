@@ -200,6 +200,23 @@ export function About({ isVisible, content }: AboutProps) {
                     delay={600}
                   />
                 </div>
+                
+                {/* Infrasigno debajo de las estadísticas */}
+                {brandmarkAbout && (
+                  <motion.div
+                    className="mt-8 flex justify-start"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6, ease: 'easeOut', delay: 0.8 }}
+                  >
+                    <Brandmark
+                      src={brandmarkAbout}
+                      size="lg"
+                      opacity={45}
+                    />
+                  </motion.div>
+                )}
               </motion.div>
 
               <motion.div
@@ -228,14 +245,6 @@ export function About({ isVisible, content }: AboutProps) {
                         : 'w-full h-64 md:h-96'
                     }`}
                   />
-                  {brandmarkAbout && (
-                    <Brandmark
-                      src={brandmarkAbout}
-                      size="lg"
-                      opacity={45}
-                      className="absolute bottom-4 right-4 z-20"
-                    />
-                  )}
                 </div>
               </motion.div>
             </div>
