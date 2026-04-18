@@ -3,6 +3,40 @@ import type { Section, Photo, Essay, Testimonial } from '../types';
 import { uploadPhotoToCloudinary, uploadMediaToCloudinary } from './cloudinary';
 import { mapSection, mapPhoto, mapEssay, mapTestimonial } from '../lib/mappers';
 
+// Helper function to extract Cloudinary public_id from URL
+function extractCloudinaryPublicId(url: string): string | null {
+  try {
+    const match = new URL(url).pathname.match(/\/v\d{5,}\/(.+)$/);
+    if (!match) return null;
+    // Strip file extension (.jpg, .png, .webp, etc.)
+    return match[1].replace(/\.\w{2,5}$/, '');
+  } catch {
+    return null;
+  }
+}
+
+// Helper function to delete images from Cloudinary using edge function
+async function deleteCloudinaryImages(publicIds: { id: string; resourceType: string }[]): Promise<void> {
+  if (publicIds.length === 0) return;
+  
+  try {
+    const response = await fetch('/functions/v1/cloudinary-cleanup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'delete',
+        publicIds
+      })
+    });
+    
+    if (!response.ok) {
+      console.warn('Failed to delete Cloudinary images:', await response.text());
+    }
+  } catch (error) {
+    console.warn('Error calling Cloudinary cleanup function:', error);
+  }
+}
+
 export async function toggleSection(id: number, data: Partial<Section>, _token: string): Promise<Section> {
   const update: Record<string, unknown> = {};
   if (data.isVisible !== undefined) update.is_visible = data.isVisible;
@@ -110,7 +144,45 @@ export async function patchEssay(id: number, data: Partial<Essay>, _token: strin
   return mapEssay(row, (photosData ?? []).map(mapPhoto));
 }
 
-export async function deleteEssay(id: number, _token: string): Promise<void> {
+export async function deleteEssay(id: number, token: string): Promise<void> {
+  // Primero, obtener todas las fotos asociadas al ensayo con sus URLs
+  const { data: photos, error: photosError } = await supabase
+    .from('photos')
+    .select('id, url, thumbnail_url')
+    .eq('essay_id', id);
+
+  if (photosError) throw new Error(photosError.message);
+
+  // Extraer public_ids de Cloudinary para eliminar las imágenes físicamente
+  if (photos && photos.length > 0) {
+    const cloudinaryIds: { id: string; resourceType: string }[] = [];
+    
+    for (const photo of photos) {
+      // Extraer public_id de la URL principal
+      const mainPublicId = extractCloudinaryPublicId(photo.url);
+      if (mainPublicId) {
+        cloudinaryIds.push({ id: mainPublicId, resourceType: 'image' });
+      }
+      
+      // Extraer public_id de la thumbnail (si es diferente)
+      if (photo.thumbnail_url) {
+        const thumbPublicId = extractCloudinaryPublicId(photo.thumbnail_url);
+        if (thumbPublicId && thumbPublicId !== mainPublicId) {
+          cloudinaryIds.push({ id: thumbPublicId, resourceType: 'image' });
+        }
+      }
+    }
+    
+    // Eliminar imágenes de Cloudinary (no bloquea si falla)
+    await deleteCloudinaryImages(cloudinaryIds);
+    
+    // Eliminar cada foto de la base de datos
+    for (const photo of photos) {
+      await deletePhoto(photo.id, token);
+    }
+  }
+
+  // Finalmente, eliminar el ensayo
   const { error } = await supabase.from('essays').delete().eq('id', id);
   if (error) throw new Error(error.message);
 }
