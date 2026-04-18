@@ -343,11 +343,11 @@ export function EssayEditor({ essays, token, onUpdate }: EssayEditorProps) {
                                 className="w-full h-full object-cover"
                               />
                               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-all flex items-end justify-between p-1.5 gap-1">
-                                <p className="text-white text-[10px] leading-tight opacity-0 group-hover:opacity-100 transition-opacity line-clamp-2 flex-1">{photo.alt}</p>
+                                <p className="text-white text-[10px] leading-tight opacity-0 group-hover:opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity line-clamp-2 flex-1">{photo.alt}</p>
                                 <button
                                   onClick={() => handleDeletePhoto(photo.id)}
                                   disabled={deletingPhotoId === photo.id}
-                                  className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0 bg-red-500 hover:bg-red-600 text-white rounded-md px-1.5 py-0.5 text-[10px] disabled:opacity-40"
+                                  className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0 bg-red-500 hover:bg-red-600 text-white rounded-md px-1.5 py-0.5 text-[10px] disabled:opacity-40"
                                 >
                                   {deletingPhotoId === photo.id ? '…' : 'Quitar'}
                                 </button>
@@ -387,59 +387,64 @@ export function EssayEditor({ essays, token, onUpdate }: EssayEditorProps) {
 
                     {/* Lista de fotos seleccionadas */}
                     {uploadItems.length > 0 && (
-                      <div className="space-y-2">
-                        {uploadItems.map((item, index) => (
-                          <div
-                            key={index}
-                            className="flex items-center gap-3 bg-surface rounded-lg p-2"
-                          >
-                            <img
-                              src={item.preview}
-                              alt=""
-                              className="w-12 h-12 rounded-lg object-cover shrink-0"
-                            />
-                            <input
-                              type="text"
-                              value={item.alt}
-                              onChange={(e) => handleAltChange(index, e.target.value)}
-                              placeholder="Descripción..."
-                              disabled={item.status !== 'pending'}
-                              className="flex-1 text-sm px-2 py-1 rounded-lg border border-accent/30 bg-background text-text outline-none focus:border-primary disabled:opacity-50"
-                            />
-                            <span className="text-xs shrink-0 w-20 text-center">
-                              {item.status === 'pending' && (
-                                <button
-                                  onClick={() => handleRemoveItem(index)}
-                                  className="text-red-400 hover:text-red-600"
-                                >
-                                  Quitar
-                                </button>
-                              )}
-                              {item.status === 'uploading' && (
-                                <span className="text-primary">Subiendo…</span>
-                              )}
-                              {item.status === 'done' && (
-                                <span className="text-green-500">✓ Lista</span>
-                              )}
-                              {item.status === 'error' && (
-                                <span className="text-red-500" title={item.error}>Error</span>
-                              )}
-                            </span>
-                          </div>
-                        ))}
+                      <div className="space-y-3">
+                        <div className="space-y-2">
+                          {uploadItems.map((item, index) => (
+                            <div
+                              key={index}
+                              className="flex items-center gap-3 bg-surface rounded-lg p-2"
+                            >
+                              <img
+                                src={item.preview}
+                                alt=""
+                                className="w-12 h-12 rounded-lg object-cover shrink-0"
+                              />
+                              <input
+                                type="text"
+                                value={item.alt}
+                                onChange={(e) => handleAltChange(index, e.target.value)}
+                                placeholder="Descripción..."
+                                disabled={item.status !== 'pending'}
+                                className="flex-1 text-sm px-2 py-1 rounded-lg border border-accent/30 bg-background text-text outline-none focus:border-primary disabled:opacity-50"
+                              />
+                              <div className="text-xs shrink-0 w-16 text-center">
+                                {item.status === 'uploading' && (
+                                  <span className="text-primary">Subiendo…</span>
+                                )}
+                                {item.status === 'done' && (
+                                  <span className="text-green-500">✓ Lista</span>
+                                )}
+                                {item.status === 'error' && (
+                                  <span className="text-red-500" title={item.error}>Error</span>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
 
-                        <Button
-                          variant="primary"
-                          onClick={() => handleUploadAll(essay.id)}
-                          disabled={
-                            uploadingAll ||
-                            uploadItems.every((i) => i.status !== 'pending')
-                          }
-                        >
-                          {uploadingAll
-                            ? `Subiendo ${uploadItems.filter((i) => i.status === 'uploading').length + 1} / ${uploadItems.filter((i) => i.status === 'pending' || i.status === 'uploading').length + uploadItems.filter((i) => i.status === 'done').length}…`
-                            : `Subir ${uploadItems.filter((i) => i.status === 'pending').length} foto${uploadItems.filter((i) => i.status === 'pending').length !== 1 ? 's' : ''}`}
-                        </Button>
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          {uploadItems.some(i => i.status === 'pending') && (
+                            <button
+                              onClick={() => setUploadItems(uploadItems.filter(i => i.status !== 'pending'))}
+                              className="text-sm text-red-500 hover:text-red-600 px-3 py-2 rounded-lg border border-red-200 hover:border-red-300 transition-colors"
+                            >
+                              Quitar todas las pendientes
+                            </button>
+                          )}
+                          <Button
+                            variant="primary"
+                            onClick={() => handleUploadAll(essay.id)}
+                            disabled={
+                              uploadingAll ||
+                              uploadItems.every((i) => i.status !== 'pending')
+                            }
+                            className="flex-1 sm:flex-none"
+                          >
+                            {uploadingAll
+                              ? `Subiendo ${uploadItems.filter((i) => i.status === 'uploading').length + 1} / ${uploadItems.filter((i) => i.status === 'pending' || i.status === 'uploading').length + uploadItems.filter((i) => i.status === 'done').length}…`
+                              : `Subir ${uploadItems.filter((i) => i.status === 'pending').length} foto${uploadItems.filter((i) => i.status === 'pending').length !== 1 ? 's' : ''}`}
+                          </Button>
+                        </div>
                       </div>
                     )}
                   </div>
