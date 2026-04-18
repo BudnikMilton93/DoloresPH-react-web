@@ -178,7 +178,7 @@ export function About({ isVisible, content }: AboutProps) {
                 <h2 className="text-4xl md:text-5xl text-text mb-6" style={{ fontFamily: 'var(--font-heading)' }}>
                   {subtitle}
                 </h2>
-                <p className="text-text/70 leading-relaxed text-lg mb-8">
+                <p className="text-text/70 leading-relaxed text-lg mb-8 whitespace-pre-line">
                   {bio}
                 </p>
                 
