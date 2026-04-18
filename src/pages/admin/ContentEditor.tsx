@@ -136,6 +136,10 @@ export function ContentEditor({ content, token, onUpdate }: ContentEditorProps) 
         Editor de Contenido
       </h2>
 
+      <div className="mb-6">
+        <p className="text-xs text-text/50 mt-0.5">Edita el texto de cada sección a tu gusto, también podes cargar la foto de perfil en la orientación que desees.</p>
+      </div>
+
       <div className="space-y-10">
         {CONTENT_SCHEMA.map(({ section, fields }) => (
           <div key={section}>

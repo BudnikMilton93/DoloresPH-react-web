@@ -13,12 +13,12 @@ interface BrandingManagerProps {
 const SLOTS = [
   { key: 'logo_url',               label: 'Logo principal',              hint: 'Aparece en el header y en el footer del sitio.' },
   { key: 'brandmark_about',        label: 'Infrasigno — About',          hint: 'Se superpone como sello en la esquina de tu foto de perfil.' },
-  { key: 'brandmark_portfolio',    label: 'Infrasigno — Portfolio',      hint: 'Aparece sutil al pie de la galería de fotos.' },
-  { key: 'brandmark_essays',       label: 'Infrasigno — Ensayos',        hint: 'Aparece al pie de la sección de ensayos fotográficos.' },
-  { key: 'brandmark_services',     label: 'Infrasigno — Servicios',      hint: 'Aparece centrado al pie del listado de servicios.' },
-  { key: 'brandmark_testimonials', label: 'Infrasigno — Testimonios',    hint: 'Aparece al pie de la sección de testimonios.' },
-  { key: 'brandmark_contact',      label: 'Infrasigno — Contacto',       hint: 'Aparece centrado al pie de la seccion de contacto.' },
-  { key: 'brandmark_footer',       label: 'Infrasigno — Footer',         hint: 'Flanqueado por lineas decorativas entre el logo y el copyright.' },
+  { key: 'brandmark_portfolio',    label: 'Infrasigno — Portfolio',      hint: 'Aparece ubicado al pie y a la derecha de la galería de fotos.' },
+  { key: 'brandmark_essays',       label: 'Infrasigno — Ensayos',        hint: 'Aparece al pie y a la izquierda de la sección de ensayos fotográficos.' },
+  { key: 'brandmark_services',     label: 'Infrasigno — Servicios',      hint: 'Aparece a la derecha y al pie del listado de servicios.' },
+  { key: 'brandmark_testimonials', label: 'Infrasigno — Testimonios',    hint: 'Aparece a la izquierda y al pie de la sección de testimonios.' },
+  { key: 'brandmark_contact',      label: 'Infrasigno — Contacto',       hint: 'Más diminuto, aparece al pie y a la derecha de la sección de contacto.' },
+  { key: 'brandmark_footer',       label: 'Infrasigno — Footer',         hint: 'Aparece al final del sitio, flanqueado por lineas decorativas entre el logo y el copyright.' },
 ] as const;
 
 type SlotKey = typeof SLOTS[number]['key'];
@@ -127,6 +127,8 @@ export function BrandingManager({ content, token, onUpdate }: BrandingManagerPro
       <h2 className="text-xl text-primary" style={{ fontFamily: 'var(--font-heading)' }}>
         Branding
       </h2>
+
+      <p className="text-xs text-text/50 mt-0.5">Cada infrasigno tiene una ubicación específica en su sección correspondiente, podes como no cargarlos.</p>
 
       {SLOTS.map(({ key, label, hint }) => {
         const state = slots[key];

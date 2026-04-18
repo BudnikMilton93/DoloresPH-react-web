@@ -108,7 +108,7 @@ export const translations: Record<Language, Translations> = {
       successSub: 'Me pongo en contacto pronto.',
     },
     footer: {
-      copyright: '© {year} Dolores Photography. Todos los derechos reservados.',
+      copyright: '© {year} Dolores M. Llorens | Fotografía. Todos los derechos reservados.',
     },
   },
 
@@ -164,7 +164,7 @@ export const translations: Record<Language, Translations> = {
       successSub: "I'll be in touch soon.",
     },
     footer: {
-      copyright: '© {year} Dolores Photography. All rights reserved.',
+      copyright: '© {year} Dolores M. Llorens | Photography. All rights reserved.',
     },
   },
 
@@ -220,7 +220,7 @@ export const translations: Record<Language, Translations> = {
       successSub: 'Entrarei em contato em breve.',
     },
     footer: {
-      copyright: '© {year} Dolores Photography. Todos os direitos reservados.',
+      copyright: '© {year} Dolores M. Llorens | Fotografia. Todos os direitos reservados.',
     },
   },
 };

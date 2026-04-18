@@ -97,7 +97,7 @@ export function CloudinaryManager() {
             Limpieza de Cloudinary
           </h2>
           <p className="text-sm text-text/60 mt-1">
-            Detectá y eliminá imágenes huérfanas que ya no se usan en el sitio.
+            Detectá y eliminá imágenes huérfanas que existen en tu servidor y que ya no se usan en el sitio.
           </p>
         </div>
         <Button variant="primary" onClick={handleScan} disabled={scanning || deleting}>

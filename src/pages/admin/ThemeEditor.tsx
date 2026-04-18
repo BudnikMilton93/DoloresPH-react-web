@@ -185,6 +185,11 @@ export function ThemeEditor({ currentTheme, content, token, onUpdate }: ThemeEdi
     <div>
       <h2 className="text-2xl text-text mb-6" style={{ fontFamily: 'var(--font-heading)' }}>Editor de Tema</h2>
 
+      <div className="mb-6">
+        <p className="text-xs text-text/50 mt-0.5">Edita la paleta de colores a tu gusto y personaliza la tipografía de tu sitio.</p>
+      </div>
+
+
       {/* Presets */}
       <div className="mb-8">
         <p className="text-xs uppercase tracking-[0.2em] text-primary mb-3">Presets</p>

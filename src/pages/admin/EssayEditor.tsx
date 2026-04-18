@@ -211,6 +211,10 @@ export function EssayEditor({ essays, token, onUpdate }: EssayEditorProps) {
         </Button>
       </div>
 
+      <div className="mb-6">
+        <p className="text-xs text-text/50 mt-0.5">Crea/edita tus ensayos, y luego asignale las fotos que desees.</p>
+      </div>
+
       {creating && (
         <form
           onSubmit={handleCreate}

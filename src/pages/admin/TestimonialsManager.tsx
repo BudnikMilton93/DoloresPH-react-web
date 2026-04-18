@@ -123,6 +123,10 @@ export function TestimonialsManager({ testimonials, token, onUpdate }: Testimoni
         Testimonios de Instagram
       </h2>
 
+      <div className="mb-6">
+        <p className="text-xs text-text/50 mt-0.5">Trae tus testimonios de Instagram y adminístralos desde acá.</p>
+      </div>
+
       {error && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-4 py-2 mb-4">{error}</p>}
       {success && <p className="text-sm text-green-600 bg-green-50 rounded-lg px-4 py-2 mb-4">{success}</p>}
 

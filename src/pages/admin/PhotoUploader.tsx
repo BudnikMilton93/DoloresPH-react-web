@@ -104,6 +104,10 @@ export function PhotoUploader({ token, photos, onUpload }: PhotoUploaderProps) {
       <h2 className="text-2xl text-text mb-8" style={{ fontFamily: 'var(--font-heading)' }}>
         Gestión de Fotos
       </h2>
+      
+      <div className="mb-6">
+        <p className="text-xs text-text/50 mt-0.5">Acá ves toda la galería de tu sitio, podes subir fotos individuales sin necesidad de crear un ensayo.</p>
+      </div>
 
       {/* --- Existing photos --- */}
       <div className="mb-10">
