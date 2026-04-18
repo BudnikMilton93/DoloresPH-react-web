@@ -202,7 +202,7 @@ export function BrandingManager({ content, token, onUpdate }: BrandingManagerPro
       <ConfirmDialog
         isOpen={confirmDelete !== null}
         title="Eliminar infrasigno"
-        message={`¿Estás seguro de que quieres eliminar "${confirmDelete?.label}"?\n\nEsta acción se puede deshacer cargando el infrasigno nuevamente.`}
+        message={`¿Estás seguro de que quieres eliminar "${confirmDelete?.label}"? Esta acción se puede deshacer cargando el infrasigno nuevamente.`}
         confirmText="Eliminar"
         cancelText="Cancelar"
         variant="danger"

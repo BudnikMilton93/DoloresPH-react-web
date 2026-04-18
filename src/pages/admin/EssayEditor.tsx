@@ -130,7 +130,7 @@ export function EssayEditor({ essays, token, onUpdate }: EssayEditorProps) {
       setNewTitle('');
       setNewDescription('');
       setCreating(false);
-      setMessage('✓ Ensayo creado correctamente.');
+      setMessage(' Ensayo creado correctamente.');
       setMessageType('success');
       onUpdate();
       setTimeout(() => setMessage(''), 3000);
@@ -155,7 +155,7 @@ export function EssayEditor({ essays, token, onUpdate }: EssayEditorProps) {
     try {
       await patchEssay(essayId, { title: editTitle, description: editDescription }, token);
       setEditingId(null);
-      setMessage('✓ Ensayo actualizado correctamente.');
+      setMessage(' Ensayo actualizado correctamente.');
       setMessageType('success');
       onUpdate();
       setTimeout(() => setMessage(''), 3000);
@@ -392,22 +392,39 @@ export function EssayEditor({ essays, token, onUpdate }: EssayEditorProps) {
                           {uploadItems.map((item, index) => (
                             <div
                               key={index}
-                              className="flex items-center gap-3 bg-surface rounded-lg p-2"
+                              className="bg-surface rounded-lg p-2"
                             >
-                              <img
-                                src={item.preview}
-                                alt=""
-                                className="w-12 h-12 rounded-lg object-cover shrink-0"
-                              />
-                              <input
-                                type="text"
-                                value={item.alt}
-                                onChange={(e) => handleAltChange(index, e.target.value)}
-                                placeholder="Descripción..."
-                                disabled={item.status !== 'pending'}
-                                className="flex-1 text-sm px-2 py-1 rounded-lg border border-accent/30 bg-background text-text outline-none focus:border-primary disabled:opacity-50"
-                              />
-                              <div className="text-xs shrink-0 w-16 text-center">
+                              {/* Contenedor principal horizontal */}
+                              <div className="flex items-center gap-3">
+                                <img
+                                  src={item.preview}
+                                  alt=""
+                                  className="w-12 h-12 rounded-lg object-cover shrink-0"
+                                />
+                                <input
+                                  type="text"
+                                  value={item.alt}
+                                  onChange={(e) => handleAltChange(index, e.target.value)}
+                                  placeholder="Descripción..."
+                                  disabled={item.status !== 'pending'}
+                                  className="flex-1 text-sm px-2 py-1 rounded-lg border border-accent/30 bg-background text-text outline-none focus:border-primary disabled:opacity-50"
+                                />
+                                {/* Status visible solo en desktop */}
+                                <div className="hidden sm:flex text-xs shrink-0 w-16 justify-center">
+                                  {item.status === 'uploading' && (
+                                    <span className="text-primary">Subiendo…</span>
+                                  )}
+                                  {item.status === 'done' && (
+                                    <span className="text-green-500">✓ Lista</span>
+                                  )}
+                                  {item.status === 'error' && (
+                                    <span className="text-red-500" title={item.error}>Error</span>
+                                  )}
+                                </div>
+                              </div>
+                              
+                              {/* Status centrado debajo solo en móvil */}
+                              <div className="flex sm:hidden justify-center text-xs mt-2">
                                 {item.status === 'uploading' && (
                                   <span className="text-primary">Subiendo…</span>
                                 )}
@@ -458,7 +475,7 @@ export function EssayEditor({ essays, token, onUpdate }: EssayEditorProps) {
       <ConfirmDialog
         isOpen={confirmDeletePhoto !== null}
         title="Eliminar foto"
-        message="¿Estás seguro de que quieres eliminar esta foto del ensayo?\n\nEsta acción no se puede deshacer."
+        message="¿Estás seguro de que quieres eliminar esta foto del ensayo? Esta acción no se puede deshacer."
         confirmText="Eliminar"
         cancelText="Cancelar"
         variant="danger"
@@ -469,7 +486,7 @@ export function EssayEditor({ essays, token, onUpdate }: EssayEditorProps) {
       <ConfirmDialog
         isOpen={confirmDeleteEssay !== null}
         title="Eliminar ensayo"
-        message={`¿Estás seguro de que quieres eliminar "${confirmDeleteEssay?.title}"?\n\nEsta acción no se puede deshacer.`}
+        message={`¿Estás seguro de que quieres eliminar "${confirmDeleteEssay?.title}"? Esta acción no se puede deshacer.`}
         confirmText="Eliminar"
         cancelText="Cancelar"
         variant="danger"

@@ -285,7 +285,7 @@ Diagnóstico:
       <ConfirmDialog
         isOpen={confirmDelete !== null}
         title="Eliminar foto"
-        message={`¿Estás seguro de que quieres eliminar la foto "${confirmDelete?.alt}"?\n\nEsta acción no se puede deshacer.`}
+        message={`¿Estás seguro de que quieres eliminar la foto "${confirmDelete?.alt}"?Esta acción no se puede deshacer.`}
         confirmText="Eliminar"
         cancelText="Cancelar"
         variant="danger"
