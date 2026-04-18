@@ -2,6 +2,15 @@ const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME as string;
 const PRESET_PHOTOS = import.meta.env.VITE_CLOUDINARY_PRESET_PHOTOS as string;
 const PRESET_MEDIA = import.meta.env.VITE_CLOUDINARY_PRESET_MEDIA as string;
 
+// Validar que las variables de entorno estén configuradas
+if (!CLOUD_NAME || !PRESET_PHOTOS || !PRESET_MEDIA) {
+  console.error('Variables de entorno de Cloudinary faltantes:', {
+    CLOUD_NAME: !!CLOUD_NAME,
+    PRESET_PHOTOS: !!PRESET_PHOTOS,
+    PRESET_MEDIA: !!PRESET_MEDIA
+  });
+}
+
 const ALLOWED_PHOTO_TYPES = new Set([
   'image/jpeg',
   'image/png',
@@ -35,22 +44,44 @@ async function cloudinaryUpload(
   formData.append('file', file);
   formData.append('upload_preset', preset);
 
-  const res = await fetch(
-    `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${resourceType}/upload`,
-    { method: 'POST', body: formData },
-  );
+  const uploadUrl = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${resourceType}/upload`;
+  
+  try {
+    const res = await fetch(uploadUrl, { method: 'POST', body: formData });
+    
+    const data = await res.json() as CloudinaryRawResponse;
 
-  const data = await res.json() as CloudinaryRawResponse;
+    if (!res.ok) {
+      const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+      let errorMessage = data.error?.message ?? 'Error al subir a Cloudinary';
+      
+      // Agregar información de diagnóstico para errores específicos
+      if (errorMessage.includes('cloud_name') || res.status === 404) {
+        errorMessage = `${errorMessage}. 
+Diagnóstico${isMobile ? ' (móvil)' : ''}:
+- URL: ${uploadUrl}
+- Status: ${res.status}
+- Cloud Name: ${CLOUD_NAME}
+- Preset: ${preset}
+- Tipo de archivo: ${file.type}
+- Tamaño: ${(file.size / 1024 / 1024).toFixed(2)}MB`;
+      }
+      
+      throw new Error(errorMessage);
+    }
 
-  if (!res.ok) {
-    throw new Error(data.error?.message ?? 'Error al subir a Cloudinary');
+    return {
+      secureUrl: data.secure_url,
+      publicId: data.public_id,
+      version: data.version,
+    };
+  } catch (error) {
+    // Si es un error de red, agregar información adicional
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      throw new Error(`Error de conexión a Cloudinary. URL: ${uploadUrl}. ${error.message}`);
+    }
+    throw error;
   }
-
-  return {
-    secureUrl: data.secure_url,
-    publicId: data.public_id,
-    version: data.version,
-  };
 }
 
 async function resizeToMaxWidth(file: File, maxPx = 1920): Promise<File> {
@@ -85,6 +116,11 @@ async function resizeToMaxWidth(file: File, maxPx = 1920): Promise<File> {
 }
 
 export async function uploadPhotoToCloudinary(file: File): Promise<CloudinaryPhotoResult> {
+  // Verificar configuración antes de proceder
+  if (!CLOUD_NAME || !PRESET_PHOTOS) {
+    throw new Error('Error de configuración: Variables de entorno de Cloudinary no configuradas. Verificá que tengas un archivo .env con VITE_CLOUDINARY_CLOUD_NAME y VITE_CLOUDINARY_PRESET_PHOTOS configurados.');
+  }
+  
   if (!ALLOWED_PHOTO_TYPES.has(file.type)) {
     throw new Error('Formato no permitido. Usá JPEG, PNG, WebP, AVIF o TIFF.');
   }
@@ -103,6 +139,11 @@ export async function uploadPhotoToCloudinary(file: File): Promise<CloudinaryPho
 }
 
 export async function uploadMediaToCloudinary(file: File): Promise<string> {
+  // Verificar configuración antes de proceder
+  if (!CLOUD_NAME || !PRESET_MEDIA) {
+    throw new Error('Error de configuración: Variables de entorno de Cloudinary no configuradas. Verificá que tengas un archivo .env con VITE_CLOUDINARY_CLOUD_NAME y VITE_CLOUDINARY_PRESET_MEDIA configurados.');
+  }
+
   if (!ALLOWED_MEDIA_TYPES.has(file.type)) {
     throw new Error('Solo se permiten archivos PNG o SVG.');
   }

@@ -57,12 +57,37 @@ export function PhotoUploader({ token, photos, onUpload }: PhotoUploaderProps) {
     try {
       await uploadPhoto(selectedFile, { alt, category }, token);
       setUploadMessage('Foto subida correctamente.');
+      setUploadMessageType('success');
       setPreview(null);
       setSelectedFile(null);
       setAlt('');
       onUpload();
     } catch (err) {
-      setUploadMessage(err instanceof Error ? err.message : 'Error desconocido al subir.');
+      console.error('Error detallado al subir foto:', err);
+      
+      // Información de diagnóstico para móviles
+      const isMobile = window.innerWidth < 768;
+      const userAgent = navigator.userAgent;
+      
+      let errorMessage = '';
+      if (err instanceof Error) {
+        errorMessage = err.message;
+        
+        // Error específico de Cloudinary
+        if (errorMessage.includes('cloud_name is disabled') || errorMessage.includes('cloud_name')) {
+          errorMessage = `Error de configuración de Cloudinary${isMobile ? ' (móvil)' : ''}: ${errorMessage}. 
+Diagnóstico:
+- Cloud name: ${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || 'NO CONFIGURADO'}
+- Preset: ${import.meta.env.VITE_CLOUDINARY_PRESET_PHOTOS || 'NO CONFIGURADO'}
+- Dispositivo: ${isMobile ? 'Móvil' : 'Desktop'}
+- User Agent: ${userAgent}`;
+        }
+      } else {
+        errorMessage = 'Error desconocido al subir.';
+      }
+      
+      setUploadMessage(errorMessage);
+      setUploadMessageType('error');
     } finally {
       setUploading(false);
     }
