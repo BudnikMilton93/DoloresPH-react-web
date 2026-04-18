@@ -261,10 +261,10 @@ export function ContentEditor({ content, token, onUpdate }: ContentEditorProps) 
 
       <div className="flex gap-3 mt-6">
         <Button variant="primary" onClick={handleSave} disabled={saving || !hasChanges}>
-          {saving ? 'Guardando...' : 'Guardar Contenido'}
+          {saving ? 'Guardando...' : 'Guardar'}
         </Button>
         <Button variant="outline" onClick={handleDiscard} disabled={!hasChanges}>
-          Descartar Cambios
+          Descartar
         </Button>
       </div>
 

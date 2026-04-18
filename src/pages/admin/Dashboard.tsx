@@ -44,7 +44,7 @@ export function Dashboard({ siteConfig, token, onRefetch, onLogout }: DashboardP
           )}
           {/* Nombre largo: ocultar en xs, truncar en sm, mostrar completo en md+ */}
           <span className="hidden xs:inline-block max-w-28 truncate text-xs text-text/40 shrink min-w-0 sm:max-w-48 md:max-w-none md:text-sm md:whitespace-normal md:inline-block">
-            Dolores Marquez Llorens
+            Dolores M. Llorens | Fotografía
           </span>
         </div>
         <div className="flex items-center gap-1 sm:gap-3 shrink-0">

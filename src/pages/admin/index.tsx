@@ -62,7 +62,7 @@ export function AdminPage() {
             )}
           </div>
           <h1 className="text-3xl text-text mb-2" style={{ fontFamily: 'var(--font-heading)' }}>Login Administradora</h1>
-          <p className="text-sm text-text/70 mb-8">Dolores Marquez Llorens PH</p>
+          <p className="text-sm text-text/70 mb-8">Dolores M. Llorens | Fotografía</p>
 
           {error && (
             <div className="bg-red-50 text-red-600 text-sm px-4 py-3 rounded-lg mb-4">

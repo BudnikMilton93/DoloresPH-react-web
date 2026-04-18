@@ -4,6 +4,7 @@ import { uploadPhoto, patchPhoto, deletePhoto } from '../../api/admin';
 import { Toggle } from '../../components/ui/Toggle';
 import { Button } from '../../components/ui/Button';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
+import { Lightbox } from '../../components/ui/Lightbox';
 
 interface PhotoUploaderProps {
   token: string;
@@ -30,6 +31,9 @@ export function PhotoUploader({ token, photos, onUpload }: PhotoUploaderProps) {
   const [deleting, setDeleting] = useState<number | null>(null);
   const [actionError, setActionError] = useState('');
   const [confirmDelete, setConfirmDelete] = useState<Photo | null>(null);
+
+  // Lightbox state
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   const handleFile = (file: File) => {
     setSelectedFile(file);
@@ -99,6 +103,19 @@ export function PhotoUploader({ token, photos, onUpload }: PhotoUploaderProps) {
 
   const sortedPhotos = [...photos].sort((a, b) => a.sortOrder - b.sortOrder);
 
+  const handlePhotoClick = (photo: Photo) => {
+    const index = sortedPhotos.findIndex(p => p.id === photo.id);
+    setLightboxIndex(index);
+  };
+
+  const handleLightboxNext = () => {
+    setLightboxIndex(prev => prev !== null ? (prev + 1) % sortedPhotos.length : 0);
+  };
+
+  const handleLightboxPrev = () => {
+    setLightboxIndex(prev => prev !== null ? (prev - 1 + sortedPhotos.length) % sortedPhotos.length : 0);
+  };
+
   return (
     <div>
       <h2 className="text-2xl text-text mb-8" style={{ fontFamily: 'var(--font-heading)' }}>
@@ -135,13 +152,25 @@ export function PhotoUploader({ token, photos, onUpload }: PhotoUploaderProps) {
                 <img
                   src={photo.url}
                   alt={photo.alt}
-                  className="w-full h-32 object-cover"
+                  className="w-full h-32 object-cover cursor-pointer hover:scale-105 transition-transform"
+                  onClick={() => handlePhotoClick(photo)}
                 />
                 <div className="p-2 bg-background">
                   <p className="text-xs text-text truncate mb-1">{photo.alt || '—'}</p>
-                  <span className="text-[10px] text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">
-                    {photo.category}
-                  </span>
+                  <div className="flex items-center gap-1.5 mb-2 flex-wrap">
+                    <span className="text-[10px] text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">
+                      {photo.category}
+                    </span>
+                    {photo.essayId ? (
+                      <span className="text-[10px] text-accent bg-accent/10 px-1.5 py-0.5 rounded-full border border-accent/20">
+                        Ensayo
+                      </span>
+                    ) : (
+                      <span className="text-[10px] text-text/60 bg-surface border border-accent/20 px-1.5 py-0.5 rounded-full">
+                        Galería
+                      </span>
+                    )}
+                  </div>
                   <div className="flex items-center justify-between mt-2">
                     <Toggle
                       checked={photo.isVisible}
@@ -241,6 +270,16 @@ export function PhotoUploader({ token, photos, onUpload }: PhotoUploaderProps) {
         onConfirm={confirmDeletePhoto}
         onCancel={() => setConfirmDelete(null)}
       />
+
+      {lightboxIndex !== null && (
+        <Lightbox
+          photos={sortedPhotos}
+          currentIndex={lightboxIndex}
+          onClose={() => setLightboxIndex(null)}
+          onNext={handleLightboxNext}
+          onPrev={handleLightboxPrev}
+        />
+      )}
     </div>
   );
 }
