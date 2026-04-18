@@ -3,6 +3,7 @@ import type { Photo } from '../../types';
 import { uploadPhoto, patchPhoto, deletePhoto } from '../../api/admin';
 import { Toggle } from '../../components/ui/Toggle';
 import { Button } from '../../components/ui/Button';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 
 interface PhotoUploaderProps {
   token: string;
@@ -20,6 +21,7 @@ export function PhotoUploader({ token, photos, onUpload }: PhotoUploaderProps) {
   const [alt, setAlt] = useState('');
   const [uploading, setUploading] = useState(false);
   const [uploadMessage, setUploadMessage] = useState('');
+  const [uploadMessageType, setUploadMessageType] = useState<'success' | 'error' | ''>('');
   const fileRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
@@ -27,6 +29,7 @@ export function PhotoUploader({ token, photos, onUpload }: PhotoUploaderProps) {
   const [toggling, setToggling] = useState<number | null>(null);
   const [deleting, setDeleting] = useState<number | null>(null);
   const [actionError, setActionError] = useState('');
+  const [confirmDelete, setConfirmDelete] = useState<Photo | null>(null);
 
   const handleFile = (file: File) => {
     setSelectedFile(file);
@@ -75,7 +78,13 @@ export function PhotoUploader({ token, photos, onUpload }: PhotoUploaderProps) {
   };
 
   const handleDelete = async (photo: Photo) => {
-    if (!window.confirm(`¿Eliminar la foto "${photo.alt}"? Esta acción no se puede deshacer.`)) return;
+    setConfirmDelete(photo);
+  };
+
+  const confirmDeletePhoto = async () => {
+    if (!confirmDelete) return;
+    const photo = confirmDelete;
+    setConfirmDelete(null);
     setDeleting(photo.id);
     setActionError('');
     try {
@@ -203,9 +212,31 @@ export function PhotoUploader({ token, photos, onUpload }: PhotoUploaderProps) {
           <Button type="submit" variant="primary" disabled={!selectedFile || uploading}>
             {uploading ? 'Subiendo...' : 'Subir Foto'}
           </Button>
-          {uploadMessage && <p className="text-sm text-text/60">{uploadMessage}</p>}
+          {uploadMessage && (
+            <p className={`text-sm px-3 py-1.5 rounded-lg flex items-center gap-1.5 ${
+              uploadMessageType === 'success'
+                ? 'text-green-600 bg-green-50'
+                : uploadMessageType === 'error'
+                ? 'text-red-600 bg-red-50'
+                : 'text-text/60'
+            }`}>
+              {uploadMessageType === 'success' && <span>✓</span>}
+              {uploadMessage}
+            </p>
+          )}
         </form>
       </div>
+      
+      <ConfirmDialog
+        isOpen={confirmDelete !== null}
+        title="Eliminar foto"
+        message={`¿Estás seguro de que quieres eliminar la foto "${confirmDelete?.alt}"?\n\nEsta acción no se puede deshacer.`}
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        variant="danger"
+        onConfirm={confirmDeletePhoto}
+        onCancel={() => setConfirmDelete(null)}
+      />
     </div>
   );
 }

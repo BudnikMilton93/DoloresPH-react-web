@@ -10,6 +10,9 @@ interface SectionManagerProps {
   onUpdate: () => void;
 }
 
+//  DESACTIVAR REORDENAMIENTO: Cambiar a true para deshabilitar esta función
+const DISABLE_REORDERING = true;
+
 function SectionItem({
   section,
   updating,
@@ -59,23 +62,29 @@ function SectionItem({
 export function SectionManager({ sections, token, onUpdate }: SectionManagerProps) {
   const [updating, setUpdating] = useState<number | null>(null);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [order, setOrder] = useState<Section[]>(() =>
     [...sections].sort((a, b) => a.sortOrder - b.sortOrder)
   );
+  const [hasChanges, setHasChanges] = useState(false);
   const prevSectionsRef = useRef(sections);
 
   // Sync local order when sections prop changes (after API update)
   if (prevSectionsRef.current !== sections) {
     prevSectionsRef.current = sections;
     setOrder([...sections].sort((a, b) => a.sortOrder - b.sortOrder));
+    setHasChanges(false);
   }
 
   const handleToggle = async (section: Section, visible: boolean) => {
     setUpdating(section.id);
     setError('');
+    setSuccess('');
     try {
       await toggleSection(section.id, { isVisible: visible }, token);
+      setSuccess(`✓ "${section.name}" ${visible ? 'activada' : 'desactivada'}.`);
       onUpdate();
+      setTimeout(() => setSuccess(''), 3000);
     } catch {
       setError(`No se pudo cambiar la visibilidad de "${section.name}".`);
     } finally {
@@ -83,30 +92,96 @@ export function SectionManager({ sections, token, onUpdate }: SectionManagerProp
     }
   };
 
+  // Si el reordenamiento está desactivado, simplificar la vista
+  if (DISABLE_REORDERING) {
+    return (
+      <div>
+        <h2 className="text-2xl text-[var(--color-text)] mb-2" style={{ fontFamily: 'var(--font-heading)' }}>
+          Secciones
+        </h2>
+        <p className="text-sm text-[var(--color-text)]/50 mb-6">
+          Activá/desactivá secciones.
+        </p>
+
+        {error && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-4 py-2 mb-4">{error}</p>}
+        {success && <p className="text-sm text-green-600 bg-green-50 rounded-lg px-4 py-2 mb-4">{success}</p>}
+
+        <div className="space-y-3">
+          {order.map((section) => (
+            <div
+              key={section.id}
+              className="flex items-center justify-between p-4 bg-[var(--color-background)] rounded-xl border border-[var(--color-accent)]/20"
+            >
+              <span className="font-medium text-[var(--color-text)]">{section.name}</span>
+              <Toggle
+                checked={section.isVisible}
+                onChange={(checked) => handleToggle(section, checked)}
+                disabled={updating === section.id}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  const handleReorder = (newOrder: Section[]) => {
+    setOrder(newOrder);
+    // Check if the order actually changed compared to the original sections
+    const orderChanged = newOrder.some((section, index) => {
+      const originalSection = sections.find(s => s.id === section.id);
+      return originalSection && originalSection.sortOrder !== index + 1;
+    });
+    setHasChanges(orderChanged);
+  };
+
   const handleReorderEnd = async () => {
     setError('');
+    setSuccess('');
+    
     // Build updates: assign new sortOrder based on position
-    const updates = order.map((section, index) => ({
-      id: section.id,
-      newOrder: index + 1,
-      oldOrder: section.sortOrder,
-    })).filter((u) => u.newOrder !== u.oldOrder);
+    const updates = order.map((section, index) => {
+      const originalSection = sections.find(s => s.id === section.id);
+      return {
+        id: section.id,
+        newOrder: index + 1,
+        oldOrder: originalSection?.sortOrder || 0,
+      };
+    });
 
-    if (updates.length === 0) return;
+    const filteredUpdates = updates.filter((u) => u.newOrder !== u.oldOrder);
 
-    setUpdating(updates[0].id);
+    if (filteredUpdates.length === 0) {
+      setHasChanges(false);
+      return;
+    }
+
+    setUpdating(filteredUpdates[0].id);
     try {
       await Promise.all(
-        updates.map((u) => toggleSection(u.id, { sortOrder: u.newOrder }, token))
+        filteredUpdates.map((u) => 
+          toggleSection(u.id, { sortOrder: u.newOrder }, token)
+        )
       );
+      setSuccess('✓ Orden guardado correctamente.');
+      setHasChanges(false);
       onUpdate();
-    } catch {
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (error) {
       setError('No se pudo reordenar. Intentá de nuevo.');
     } finally {
       setUpdating(null);
     }
   };
 
+  const handleDiscardChanges = () => {
+    setOrder([...sections].sort((a, b) => a.sortOrder - b.sortOrder));
+    setHasChanges(false);
+    setError('');
+    setSuccess('');
+  };
+
+  // Renderizado principal (con reordenamiento habilitado)
   return (
     <div>
       <h2 className="text-2xl text-[var(--color-text)] mb-2" style={{ fontFamily: 'var(--font-heading)' }}>
@@ -116,12 +191,13 @@ export function SectionManager({ sections, token, onUpdate }: SectionManagerProp
         Activá/desactivá secciones y arrastralas para cambiar su orden.
       </p>
 
-      {error && <p className="text-sm text-red-500 mb-4">{error}</p>}
+      {error && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-4 py-2 mb-4">{error}</p>}
+      {success && <p className="text-sm text-green-600 bg-green-50 rounded-lg px-4 py-2 mb-4">{success}</p>}
 
       <Reorder.Group
         axis="y"
         values={order}
-        onReorder={setOrder}
+        onReorder={handleReorder}
         className="space-y-3"
       >
         {order.map((section) => (
@@ -134,15 +210,24 @@ export function SectionManager({ sections, token, onUpdate }: SectionManagerProp
         ))}
       </Reorder.Group>
 
-      {/* Save button appears when order changed */}
-      {order.some((s, i) => s.sortOrder !== i + 1) && (
-        <button
-          onClick={handleReorderEnd}
-          disabled={updating !== null}
-          className="mt-4 px-6 py-2 rounded-lg bg-[var(--color-primary)] text-white font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
-        >
-          {updating !== null ? 'Guardando...' : 'Guardar orden'}
-        </button>
+      {/* Save and discard buttons appear when order changed */}
+      {hasChanges && (
+        <div className="mt-4 flex gap-3">
+          <button
+            onClick={handleReorderEnd}
+            disabled={updating !== null}
+            className="px-6 py-2 rounded-lg bg-[var(--color-primary)] text-white font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+          >
+            {updating !== null ? 'Guardando...' : 'Guardar orden'}
+          </button>
+          <button
+            onClick={handleDiscardChanges}
+            disabled={updating !== null}
+            className="px-6 py-2 rounded-lg border border-[var(--color-accent)]/30 text-[var(--color-text)] font-medium hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] transition-colors disabled:opacity-50"
+          >
+            Descartar cambios
+          </button>
+        </div>
       )}
     </div>
   );

@@ -6,6 +6,7 @@ import { Button } from './Button';
 interface ImageCropperProps {
   imageSrc: string;
   aspect?: number;       // default 3/2 (igual que el About)
+  orientation?: 'portrait' | 'landscape';
   onConfirm: (blob: Blob) => void;
   onCancel: () => void;
 }
@@ -43,7 +44,7 @@ async function getCroppedBlob(imageSrc: string, pixelCrop: Area): Promise<Blob> 
   });
 }
 
-export function ImageCropper({ imageSrc, aspect = 3 / 2, onConfirm, onCancel }: ImageCropperProps) {
+export function ImageCropper({ imageSrc, aspect = 3 / 2, orientation, onConfirm, onCancel }: ImageCropperProps) {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
@@ -72,7 +73,7 @@ export function ImageCropper({ imageSrc, aspect = 3 / 2, onConfirm, onCancel }: 
             Ajustar foto de perfil
           </p>
           <p className="text-xs text-text/50 mt-0.5">
-            Arrastrá para encuadrar · Usá el scroll para hacer zoom
+            {orientation === 'portrait' ? '📐 Vertical (portrait)' : '📐 Horizontal (landscape)'} · Arrastrá para encuadrar · Usá el scroll para hacer zoom
           </p>
         </div>
 

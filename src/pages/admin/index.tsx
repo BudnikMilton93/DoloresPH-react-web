@@ -43,17 +43,26 @@ export function AdminPage() {
     }
   };
 
+  const logoUrl = siteConfig?.content?.find((c) => c.key === 'logo_url')?.value || '';
+
   if (!token) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center px-4">
         <motion.div
-          className="bg-surface rounded-2xl shadow-xl p-10 w-full max-w-md"
+          className="bg-surface rounded-2xl shadow-xl p-10 w-full max-w-md border border-accent/20"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
+          <div className="text-center mb-6">
+            {logoUrl ? (
+              <img src={logoUrl} alt="Dolores PH" className="h-12 w-auto object-contain mx-auto mb-4" />
+            ) : (
+              <span className="text-2xl text-primary block mb-4" style={{ fontFamily: 'var(--font-heading)' }}>Dolores PH</span>
+            )}
+          </div>
           <h1 className="text-3xl text-text mb-2" style={{ fontFamily: 'var(--font-heading)' }}>Login Administradora</h1>
-          <p className="text-sm text-text/60 mb-8">Dolores Marquez Llorens PH</p>
+          <p className="text-sm text-text/70 mb-8">Dolores Marquez Llorens PH</p>
 
           {error && (
             <div className="bg-red-50 text-red-600 text-sm px-4 py-3 rounded-lg mb-4">
@@ -64,18 +73,18 @@ export function AdminPage() {
           <form onSubmit={handleLogin} className="space-y-4">
             <input
               type="email"
-              placeholder="Email"
+              placeholder="Email (lolita@doloresph.com)"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-accent/30 bg-background text-text placeholder-text/40 focus:outline-none focus:ring-2 focus:ring-primary/50"
+              className="w-full px-4 py-3 rounded-xl border border-accent/30 bg-background text-text placeholder-text/50 focus:outline-none focus:ring-2 focus:ring-primary/50"
               required
             />
             <input
               type="password"
-              placeholder="Password"
+              placeholder="Password (123456)"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-accent/30 bg-background text-text placeholder-text/40 focus:outline-none focus:ring-2 focus:ring-primary/50"
+              className="w-full px-4 py-3 rounded-xl border border-accent/30 bg-background text-text placeholder-text/50 focus:outline-none focus:ring-2 focus:ring-primary/50"
               required
             />
             <Button type="submit" variant="primary" size="lg" className="w-full" disabled={loading}>
@@ -83,8 +92,8 @@ export function AdminPage() {
             </Button>
           </form>
 
-          <p className="text-center text-xs text-text/40 mt-6">
-            <a href="/" className="hover:text-primary transition-colors">← Back to site</a>
+          <p className="text-center text-xs text-gray-400 mt-6">
+            <a href="/" className="hover:text-purple-600 transition-colors">← Back to site</a>
           </p>
         </motion.div>
       </div>

@@ -2,6 +2,7 @@
 import type { Essay } from '../../types';
 import { Toggle } from '../../components/ui/Toggle';
 import { Button } from '../../components/ui/Button';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { createEssay, patchEssay, deleteEssay, uploadPhoto, deletePhoto } from '../../api/admin';
 
 interface EssayEditorProps {
@@ -24,6 +25,7 @@ export function EssayEditor({ essays, token, onUpdate }: EssayEditorProps) {
   const [newDescription, setNewDescription] = useState('');
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState<'success' | 'error' | ''>('');
 
   // Per-essay editing state
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -37,6 +39,8 @@ export function EssayEditor({ essays, token, onUpdate }: EssayEditorProps) {
   const [uploadItems, setUploadItems] = useState<UploadItem[]>([]);
   const [uploadingAll, setUploadingAll] = useState(false);
   const [deletingPhotoId, setDeletingPhotoId] = useState<number | null>(null);
+  const [confirmDeletePhoto, setConfirmDeletePhoto] = useState<number | null>(null);
+  const [confirmDeleteEssay, setConfirmDeleteEssay] = useState<Essay | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleOpenUpload = (essayId: number) => {
@@ -50,7 +54,13 @@ export function EssayEditor({ essays, token, onUpdate }: EssayEditorProps) {
   };
 
   const handleDeletePhoto = async (photoId: number) => {
-    if (!window.confirm('¿Eliminar esta foto del ensayo?')) return;
+    setConfirmDeletePhoto(photoId);
+  };
+
+  const confirmDeletePhotoAction = async () => {
+    if (!confirmDeletePhoto) return;
+    const photoId = confirmDeletePhoto;
+    setConfirmDeletePhoto(null);
     setDeletingPhotoId(photoId);
     try {
       await deletePhoto(photoId, token);
@@ -114,15 +124,19 @@ export function EssayEditor({ essays, token, onUpdate }: EssayEditorProps) {
     e.preventDefault();
     setSaving(true);
     setMessage('');
+    setMessageType('');
     try {
       await createEssay({ title: newTitle, description: newDescription, isVisible: true }, token);
       setNewTitle('');
       setNewDescription('');
       setCreating(false);
-      setMessage('Ensayo creado correctamente.');
+      setMessage('✓ Ensayo creado correctamente.');
+      setMessageType('success');
       onUpdate();
+      setTimeout(() => setMessage(''), 3000);
     } catch {
       setMessage('Error al crear. La API puede no estar disponible.');
+      setMessageType('error');
     } finally {
       setSaving(false);
     }
@@ -137,13 +151,17 @@ export function EssayEditor({ essays, token, onUpdate }: EssayEditorProps) {
   const handleSaveEdit = async (essayId: number) => {
     setEditSaving(true);
     setMessage('');
+    setMessageType('');
     try {
       await patchEssay(essayId, { title: editTitle, description: editDescription }, token);
       setEditingId(null);
-      setMessage('Ensayo actualizado.');
+      setMessage('✓ Ensayo actualizado correctamente.');
+      setMessageType('success');
       onUpdate();
+      setTimeout(() => setMessage(''), 3000);
     } catch {
       setMessage('Error al guardar. La API puede no estar disponible.');
+      setMessageType('error');
     } finally {
       setEditSaving(false);
     }
@@ -160,7 +178,13 @@ export function EssayEditor({ essays, token, onUpdate }: EssayEditorProps) {
   };
 
   const handleDelete = async (essay: Essay) => {
-    if (!window.confirm(`¿Eliminar "${essay.title}"? Esta acción no se puede deshacer.`)) return;
+    setConfirmDeleteEssay(essay);
+  };
+
+  const confirmDeleteEssayAction = async () => {
+    if (!confirmDeleteEssay) return;
+    const essay = confirmDeleteEssay;
+    setConfirmDeleteEssay(null);
     setDeletingId(essay.id);
     setMessage('');
     try {
@@ -214,7 +238,18 @@ export function EssayEditor({ essays, token, onUpdate }: EssayEditorProps) {
         </form>
       )}
 
-      {message && <p className="text-sm text-text/60 mb-4">{message}</p>}
+      {message && (
+        <p className={`text-sm px-4 py-2 rounded-lg mb-4 flex items-center gap-1.5 ${
+          messageType === 'success'
+            ? 'text-green-600 bg-green-50'
+            : messageType === 'error'
+            ? 'text-red-600 bg-red-50'
+            : 'text-text/60'
+        }`}>
+          {messageType === 'success' && <span>✓</span>}
+          {message}
+        </p>
+      )}
 
       <div className="space-y-3">
         {essays.map((essay) => (
@@ -410,6 +445,28 @@ export function EssayEditor({ essays, token, onUpdate }: EssayEditorProps) {
           </div>
         ))}
       </div>
+      
+      <ConfirmDialog
+        isOpen={confirmDeletePhoto !== null}
+        title="Eliminar foto"
+        message="¿Estás seguro de que quieres eliminar esta foto del ensayo?\n\nEsta acción no se puede deshacer."
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        variant="danger"
+        onConfirm={confirmDeletePhotoAction}
+        onCancel={() => setConfirmDeletePhoto(null)}
+      />
+      
+      <ConfirmDialog
+        isOpen={confirmDeleteEssay !== null}
+        title="Eliminar ensayo"
+        message={`¿Estás seguro de que quieres eliminar "${confirmDeleteEssay?.title}"?\n\nEsta acción no se puede deshacer.`}
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        variant="danger"
+        onConfirm={confirmDeleteEssayAction}
+        onCancel={() => setConfirmDeleteEssay(null)}
+      />
     </div>
   );
 }

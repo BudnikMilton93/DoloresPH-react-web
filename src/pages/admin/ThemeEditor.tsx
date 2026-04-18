@@ -56,6 +56,7 @@ export function ThemeEditor({ currentTheme, content, token, onUpdate }: ThemeEdi
   const [localTheme, setLocalTheme] = useState<ThemeConfig>(currentTheme);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState<'success' | 'error' | ''>('');
 
   // ── Custom font library ──────────────────────────────────────────────────
   const parseCustomFonts = (c: SiteContent[]) =>
@@ -149,12 +150,16 @@ export function ThemeEditor({ currentTheme, content, token, onUpdate }: ThemeEdi
   const handleSave = async () => {
     setSaving(true);
     setMessage('');
+    setMessageType('');
     try {
       await patchTheme(localTheme, token);
       setMessage('Tema guardado correctamente.');
+      setMessageType('success');
       onUpdate();
+      setTimeout(() => setMessage(''), 3000);
     } catch {
       setMessage('Error al guardar. La API puede no estar disponible.');
+      setMessageType('error');
     } finally {
       setSaving(false);
     }
@@ -329,7 +334,18 @@ export function ThemeEditor({ currentTheme, content, token, onUpdate }: ThemeEdi
         )}
       </div>
 
-      {message && <p className="text-sm text-text/60 mb-4">{message}</p>}
+      {message && (
+        <p className={`text-sm px-4 py-2 rounded-lg mb-4 flex items-center gap-1.5 ${
+          messageType === 'success'
+            ? 'text-green-600 bg-green-50'
+            : messageType === 'error'
+            ? 'text-red-600 bg-red-50'
+            : 'text-text/60'
+        }`}>
+          {messageType === 'success' && <span>✓</span>}
+          {message}
+        </p>
+      )}
 
       <div className="flex gap-3">
         <Button variant="primary" onClick={handleSave} disabled={saving}>

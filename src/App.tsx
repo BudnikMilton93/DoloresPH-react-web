@@ -51,7 +51,7 @@ function MainPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header content={content} />
+      <Header content={content} sections={sections} />
       <Hero isVisible={isSectionVisible('Hero')} content={content} />
       <About isVisible={isSectionVisible('About')} content={content} />
       <Portfolio isVisible={isSectionVisible('Portfolio')} photos={photos} content={content} />

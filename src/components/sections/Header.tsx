@@ -1,26 +1,33 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import type { SiteContent } from '../../types';
+import type { SiteContent, Section } from '../../types';
 import { useLanguage } from '../../i18n/LanguageContext';
 import type { Language } from '../../i18n/translations';
 
 interface HeaderProps {
   content?: SiteContent[];
+  sections?: Section[];
 }
 
-export function Header({ content = [] }: HeaderProps) {
+export function Header({ content = [], sections = [] }: HeaderProps) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const { t } = useLanguage();
   const logoUrl = content.find((c) => c.key === 'logo_url')?.value || '';
 
-  const navLinks = [
-    { label: t.nav.about, href: '#about' },
-    { label: t.nav.portfolio, href: '#portfolio' },
-    { label: t.nav.essays, href: '#essays' },
-    { label: t.nav.services, href: '#services' },
-    { label: t.nav.contact, href: '#contact' },
+  const allNavLinks = [
+    { label: t.nav.about, href: '#about', section: 'About' },
+    { label: t.nav.portfolio, href: '#portfolio', section: 'Portfolio' },
+    { label: t.nav.essays, href: '#essays', section: 'Essays' },
+    { label: t.nav.services, href: '#services', section: 'Services' },
+    { label: t.nav.contact, href: '#contact', section: 'Contact' },
   ];
+
+  // Filtrar links basándose en secciones visibles
+  const navLinks = allNavLinks.filter(link => {
+    const section = sections.find(s => s.name.toLowerCase() === link.section.toLowerCase());
+    return section ? section.isVisible : true;
+  });
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);

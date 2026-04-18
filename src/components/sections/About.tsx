@@ -65,26 +65,40 @@ export function About({ isVisible, content }: AboutProps) {
               </motion.div>
 
               <motion.div
-                className="relative mt-4 md:mt-0"
+                className={`relative mt-4 md:mt-0 ${
+                  content.find((c) => c.key === 'about_photo_orientation')?.value === 'portrait'
+                    ? 'flex justify-center'
+                    : ''
+                }`}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, ease: 'easeOut', delay: 0.2 }}
               >
-                <div className="absolute -top-4 -left-4 w-full h-full rounded-2xl border-2 border-primary/20 hidden md:block" />
-                <img
-                  src={photo}
-                  alt="Photographer at work"
-                  className="relative z-10 rounded-2xl w-full object-cover h-64 md:h-96"
-                />
-                {brandmarkAbout && (
-                  <Brandmark
-                    src={brandmarkAbout}
-                    size="lg"
-                    opacity={45}
-                    className="absolute bottom-4 right-4 z-20"
+                <div className="relative">
+                  <div className={`absolute -top-4 -left-4 rounded-2xl border-2 border-primary/20 hidden md:block ${
+                    content.find((c) => c.key === 'about_photo_orientation')?.value === 'portrait'
+                      ? 'w-72 h-96'
+                      : 'w-full h-full'
+                  }`} />
+                  <img
+                    src={photo}
+                    alt="Photographer at work"
+                    className={`relative z-10 rounded-2xl object-cover ${
+                      content.find((c) => c.key === 'about_photo_orientation')?.value === 'portrait'
+                        ? 'w-72 h-96'
+                        : 'w-full h-64 md:h-96'
+                    }`}
                   />
-                )}
+                  {brandmarkAbout && (
+                    <Brandmark
+                      src={brandmarkAbout}
+                      size="lg"
+                      opacity={45}
+                      className="absolute bottom-4 right-4 z-20"
+                    />
+                  )}
+                </div>
               </motion.div>
             </div>
           </div>

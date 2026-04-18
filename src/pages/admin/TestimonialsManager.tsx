@@ -3,6 +3,7 @@ import type { Testimonial } from '../../types';
 import { createTestimonial, patchTestimonial, deleteTestimonial } from '../../api/admin';
 import { uploadPhotoToCloudinary } from '../../api/cloudinary';
 import { Button } from '../../components/ui/Button';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 
 interface TestimonialsManagerProps {
   testimonials: Testimonial[];
@@ -17,7 +18,9 @@ export function TestimonialsManager({ testimonials, token, onUpdate }: Testimoni
   const [editId, setEditId] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState<number | null>(null);
   const avatarInputRef = useRef<HTMLInputElement>(null);
 
   const sorted = [...testimonials].sort((a, b) => a.sortOrder - b.sortOrder);
@@ -54,9 +57,11 @@ export function TestimonialsManager({ testimonials, token, onUpdate }: Testimoni
     }
     setSaving(true);
     setError(null);
+    setSuccess(null);
     try {
       if (editId !== null) {
         await patchTestimonial(editId, { author: form.author, handle: form.handle, text: form.text, avatarUrl: form.avatarUrl || undefined }, token);
+        setSuccess('✓ Testimonio actualizado correctamente.');
       } else {
         await createTestimonial({
           author: form.author,
@@ -66,10 +71,12 @@ export function TestimonialsManager({ testimonials, token, onUpdate }: Testimoni
           isVisible: true,
           sortOrder: testimonials.length + 1,
         }, token);
+        setSuccess('✓ Testimonio creado correctamente.');
       }
       setForm(EMPTY_FORM);
       setEditId(null);
       onUpdate();
+      setTimeout(() => setSuccess(null), 3000);
     } catch {
       setError('Error al guardar. La API puede no estar disponible aun.');
     } finally {
@@ -78,19 +85,33 @@ export function TestimonialsManager({ testimonials, token, onUpdate }: Testimoni
   }
 
   async function handleToggle(t: Testimonial) {
+    setError(null);
+    setSuccess(null);
     try {
       await patchTestimonial(t.id, { isVisible: !t.isVisible }, token);
+      setSuccess(`✓ Testimonio ${!t.isVisible ? 'activado' : 'desactivado'}.`);
       onUpdate();
+      setTimeout(() => setSuccess(null), 3000);
     } catch {
       setError('Error al actualizar visibilidad.');
     }
   }
 
   async function handleDelete(id: number) {
-    if (!confirm('Eliminar este testimonio?')) return;
+    setConfirmDelete(id);
+  }
+
+  async function confirmDeleteTestimonial() {
+    if (!confirmDelete) return;
+    const id = confirmDelete;
+    setConfirmDelete(null);
+    setError(null);
+    setSuccess(null);
     try {
       await deleteTestimonial(id, token);
+      setSuccess('✓ Testimonio eliminado correctamente.');
       onUpdate();
+      setTimeout(() => setSuccess(null), 3000);
     } catch {
       setError('Error al eliminar.');
     }
@@ -102,7 +123,8 @@ export function TestimonialsManager({ testimonials, token, onUpdate }: Testimoni
         Testimonios de Instagram
       </h2>
 
-      {error && <p className="text-sm text-red-500 bg-red-50 rounded-lg px-4 py-2">{error}</p>}
+      {error && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-4 py-2 mb-4">{error}</p>}
+      {success && <p className="text-sm text-green-600 bg-green-50 rounded-lg px-4 py-2 mb-4">{success}</p>}
 
       {/* Form */}
       <div className="rounded-xl border border-[var(--color-accent)]/20 p-5 space-y-4">
@@ -237,6 +259,17 @@ export function TestimonialsManager({ testimonials, token, onUpdate }: Testimoni
           </div>
         ))}
       </div>
+      
+      <ConfirmDialog
+        isOpen={confirmDelete !== null}
+        title="Eliminar testimonio"
+        message="¿Estás seguro de que quieres eliminar este testimonio?\n\nEsta acción no se puede deshacer."
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        variant="danger"
+        onConfirm={confirmDeleteTestimonial}
+        onCancel={() => setConfirmDelete(null)}
+      />
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import type { SiteContent } from '../../types';
 import { patchContent, uploadMediaAsset } from '../../api/admin';
 import { Button } from '../../components/ui/Button';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 
 interface BrandingManagerProps {
   content: SiteContent[];
@@ -44,6 +45,8 @@ export function BrandingManager({ content, token, onUpdate }: BrandingManagerPro
     brandmark_contact:      { uploading: false, error: null, urlInput: initialUrlInputs.brandmark_contact, saved: false },
     brandmark_footer:       { uploading: false, error: null, urlInput: initialUrlInputs.brandmark_footer, saved: false },
   });
+
+  const [confirmDelete, setConfirmDelete] = useState<{key: SlotKey, label: string} | null>(null);
 
   const refLogoUrl            = useRef<HTMLInputElement>(null);
   const refBrandmarkAbout     = useRef<HTMLInputElement>(null);
@@ -100,6 +103,25 @@ export function BrandingManager({ content, token, onUpdate }: BrandingManagerPro
     }
   }
 
+  async function handleDeleteBrandmark(key: SlotKey, label: string) {
+    setConfirmDelete({ key, label });
+  }
+
+  async function confirmDeleteBrandmark() {
+    if (!confirmDelete) return;
+    const { key, label } = confirmDelete;
+    setConfirmDelete(null);
+    setSlot(key, { uploading: true, error: null, saved: false });
+    try {
+      await patchContent(key, '', token);
+      setSlot(key, { uploading: false, urlInput: '', saved: true });
+      onUpdate();
+      setTimeout(() => setSlot(key, { saved: false }), 3000);
+    } catch (err) {
+      setSlot(key, { uploading: false, error: `Error al eliminar "${label}".` });
+    }
+  }
+
   return (
     <div className="space-y-8">
       <h2 className="text-xl text-primary" style={{ fontFamily: 'var(--font-heading)' }}>
@@ -127,7 +149,7 @@ export function BrandingManager({ content, token, onUpdate }: BrandingManagerPro
               </div>
             )}
 
-            <div className="flex items-center gap-3">
+            <div className="space-y-3">
               <input
                 ref={fileRefs[key]}
                 type="file"
@@ -135,15 +157,31 @@ export function BrandingManager({ content, token, onUpdate }: BrandingManagerPro
                 className="hidden"
                 onChange={(e) => handleFileChange(key, e.target.files?.[0] ?? null)}
               />
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={() => fileRefs[key].current?.click()}
-                disabled={state.uploading}
-              >
-                {state.uploading ? 'Subiendo y guardando...' : 'Cargar PNG'}
-              </Button>
-              <span className="text-xs text-text/40">Se guarda automáticamente al cargar</span>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                <div className="flex items-center gap-3">
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={() => fileRefs[key].current?.click()}
+                    disabled={state.uploading}
+                    className="flex-1 sm:flex-none"
+                  >
+                    {state.uploading ? 'Subiendo y guardando...' : 'Cargar PNG'}
+                  </Button>
+                  {currentUrl && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDeleteBrandmark(key, label)}
+                      disabled={state.uploading}
+                      className="text-red-500 hover:text-red-600 hover:bg-red-50 flex-1 sm:flex-none"
+                    >
+                      Eliminar
+                    </Button>
+                  )}
+                </div>
+                <span className="text-xs text-text/40 text-center sm:text-left">Se guarda automáticamente al cargar</span>
+              </div>
             </div>
 
             {state.saved && (
@@ -158,6 +196,17 @@ export function BrandingManager({ content, token, onUpdate }: BrandingManagerPro
           </div>
         );
       })}
+      
+      <ConfirmDialog
+        isOpen={confirmDelete !== null}
+        title="Eliminar infrasigno"
+        message={`¿Estás seguro de que quieres eliminar "${confirmDelete?.label}"?\n\nEsta acción se puede deshacer cargando el infrasigno nuevamente.`}
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        variant="danger"
+        onConfirm={confirmDeleteBrandmark}
+        onCancel={() => setConfirmDelete(null)}
+      />
     </div>
   );
 }
