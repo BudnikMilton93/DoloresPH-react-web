@@ -73,7 +73,7 @@ export function AdminPage() {
           <form onSubmit={handleLogin} className="space-y-4">
             <input
               type="email"
-              placeholder="Email (lolita@doloresph.com)"
+              placeholder="Email "
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-3 rounded-xl border border-accent/30 bg-background text-text placeholder-text/50 focus:outline-none focus:ring-2 focus:ring-primary/50"
@@ -81,7 +81,7 @@ export function AdminPage() {
             />
             <input
               type="password"
-              placeholder="Password (123456)"
+              placeholder="Password "
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full px-4 py-3 rounded-xl border border-accent/30 bg-background text-text placeholder-text/50 focus:outline-none focus:ring-2 focus:ring-primary/50"
