@@ -11,7 +11,7 @@ const ALLOWED_PHOTO_TYPES = new Set([
 ]);
 const ALLOWED_MEDIA_TYPES = new Set(['image/png', 'image/svg+xml']);
 
-const MAX_PHOTO_SIZE = 80 * 1024 * 1024; // 80 MB
+const MAX_PHOTO_SIZE = 90 * 1024 * 1024; // 90 MB
 const MAX_MEDIA_SIZE = 10 * 1024 * 1024;  // 10 MB
 
 interface CloudinaryRawResponse {
@@ -120,7 +120,7 @@ export async function uploadPhotoToCloudinary(file: File): Promise<CloudinaryPho
     throw new Error('Formato no permitido. Usá JPEG, PNG, WebP, AVIF o TIFF.');
   }
   if (file.size > MAX_PHOTO_SIZE) {
-    throw new Error('El archivo supera el límite de 60 MB.');
+    throw new Error('El archivo supera el límite de 90 MB.');
   }
 
   const resized = await resizeToMaxWidth(file);

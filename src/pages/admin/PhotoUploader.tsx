@@ -64,15 +64,15 @@ export function PhotoUploader({ token, photos, onUpload }: PhotoUploaderProps) {
       onUpload();
     } catch (err) {
       console.error('Error detallado al subir foto:', err);
-      
+
       // Información de diagnóstico para móviles
       const isMobile = window.innerWidth < 768;
       const userAgent = navigator.userAgent;
-      
+
       let errorMessage = '';
       if (err instanceof Error) {
         errorMessage = err.message;
-        
+
         // Error específico de Cloudinary
         if (errorMessage.includes('cloud_name is disabled') || errorMessage.includes('cloud_name')) {
           errorMessage = `Error de configuración de Cloudinary${isMobile ? ' (móvil)' : ''}: ${errorMessage}. 
@@ -85,7 +85,7 @@ Diagnóstico:
       } else {
         errorMessage = 'Error desconocido al subir.';
       }
-      
+
       setUploadMessage(errorMessage);
       setUploadMessageType('error');
     } finally {
@@ -146,7 +146,7 @@ Diagnóstico:
       <h2 className="text-2xl text-text mb-8" style={{ fontFamily: 'var(--font-heading)' }}>
         Gestión de Fotos
       </h2>
-      
+
       <div className="mb-6">
         <p className="text-xs text-text/50 mt-0.5">Acá ves toda la galería de tu sitio, podes subir fotos individuales sin necesidad de crear un ensayo.</p>
       </div>
@@ -168,11 +168,10 @@ Diagnóstico:
             {sortedPhotos.map((photo) => (
               <div
                 key={photo.id}
-                className={`relative rounded-xl overflow-hidden border transition-all ${
-                  photo.isVisible
+                className={`relative rounded-xl overflow-hidden border transition-all ${photo.isVisible
                     ? 'border-accent/30'
                     : 'border-transparent opacity-50'
-                }`}
+                  }`}
               >
                 <img
                   src={photo.url}
@@ -222,11 +221,10 @@ Diagnóstico:
         <p className="text-xs uppercase tracking-[0.2em] text-primary mb-4">Subir nueva foto</p>
 
         <div
-          className={`border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer transition-colors mb-6 ${
-            dragging
+          className={`border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer transition-colors mb-6 ${dragging
               ? 'border-primary bg-primary/5'
               : 'border-accent/40 hover:border-primary'
-          }`}
+            }`}
           onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
           onDragLeave={() => setDragging(false)}
           onDrop={handleDrop}
@@ -271,20 +269,19 @@ Diagnóstico:
             {uploading ? 'Subiendo...' : 'Subir Foto'}
           </Button>
           {uploadMessage && (
-            <p className={`text-sm px-3 py-1.5 rounded-lg flex items-center gap-1.5 ${
-              uploadMessageType === 'success'
+            <p className={`text-sm px-3 py-1.5 rounded-lg flex items-center gap-1.5 ${uploadMessageType === 'success'
                 ? 'text-green-600 bg-green-50'
                 : uploadMessageType === 'error'
-                ? 'text-red-600 bg-red-50'
-                : 'text-text/60'
-            }`}>
+                  ? 'text-red-600 bg-red-50'
+                  : 'text-text/60'
+              }`}>
               {uploadMessageType === 'success' && <span>✓</span>}
               {uploadMessage}
             </p>
           )}
         </form>
       </div>
-      
+
       <ConfirmDialog
         isOpen={confirmDelete !== null}
         title="Eliminar foto"

@@ -267,7 +267,7 @@ export function TestimonialsManager({ testimonials, token, onUpdate }: Testimoni
       <ConfirmDialog
         isOpen={confirmDelete !== null}
         title="Eliminar testimonio"
-        message="¿Estás seguro de que quieres eliminar este testimonio?\n\nEsta acción no se puede deshacer."
+        message="¿Estás seguro de que quieres eliminar este testimonio? Esta acción no se puede deshacer."
         confirmText="Eliminar"
         cancelText="Cancelar"
         variant="danger"
