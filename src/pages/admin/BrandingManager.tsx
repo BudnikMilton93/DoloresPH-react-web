@@ -11,7 +11,7 @@ interface BrandingManagerProps {
 }
 
 const SLOTS = [
-  { key: 'logo_url',               label: 'Logo principal',              hint: 'Aparece en el header y en el footer del sitio.' },
+  { key: 'logo_url',               label: 'Logo principal',              hint: 'Aparece en: pantalla de carga, login, header y por último en el footer del sitio.' },
   { key: 'brandmark_about',        label: 'Infrasigno — About',          hint: 'Se superpone como sello en la esquina de tu foto de perfil.' },
   { key: 'brandmark_portfolio',    label: 'Infrasigno — Portfolio',      hint: 'Aparece ubicado al pie y a la derecha de la galería de fotos.' },
   { key: 'brandmark_essays',       label: 'Infrasigno — Ensayos',        hint: 'Aparece al pie y a la izquierda de la sección de ensayos fotográficos.' },

@@ -13,40 +13,76 @@ interface ContentEditorProps {
 
 type FieldType = 'text' | 'textarea' | 'url' | 'image-upload';
 
-const CONTENT_SCHEMA: { section: string; fields: { key: string; label: string; type: FieldType }[] }[] = [
+const getContentSchema = (savedValues: Record<string, string>) => [
   {
     section: 'Hero',
     fields: [
-      { key: 'hero_eyebrow', label: 'Eyebrow (texto sobre el título)', type: 'text' },
-      { key: 'hero_headline', label: 'Headline', type: 'textarea' },
-      { key: 'hero_subtext', label: 'Subtexto', type: 'textarea' },
+      { key: 'hero_eyebrow', label: 'Eyebrow (texto sobre el título)', type: 'text' as FieldType },
+      { key: 'hero_headline', label: 'Headline', type: 'textarea' as FieldType },
+      { key: 'hero_subtext', label: 'Subtexto', type: 'textarea' as FieldType },
     ],
   },
   {
     section: 'About',
     fields: [
-      { key: 'about_subtitle', label: 'Subtítulo de sección', type: 'text' },
-      { key: 'about_photo', label: 'Foto de perfil', type: 'image-upload' },
-      { key: 'about_bio', label: 'Biografía', type: 'textarea' },
-      { key: 'about_years', label: 'Años de experiencia (número)', type: 'text' },
-      { key: 'about_years_label', label: 'Texto: Años de experiencia', type: 'text' },
-      { key: 'about_sessions', label: 'Sesiones completadas (número)', type: 'text' },
-      { key: 'about_sessions_label', label: 'Texto: Sesiones completadas', type: 'text' },
-      { key: 'about_awards', label: 'Fotografías capturadas (número)', type: 'text' },
-      { key: 'about_awards_label', label: 'Texto: Fotografías capturadas', type: 'text' },
+      { 
+        key: 'about_subtitle', 
+        label: `Subtítulo de sección${savedValues['about_subtitle'] ? ` (${savedValues['about_subtitle']})` : ''}`, 
+        type: 'text' as FieldType 
+      },
+      { key: 'about_photo', label: 'Foto de perfil', type: 'image-upload' as FieldType },
+      { key: 'about_bio', label: 'Biografía', type: 'textarea' as FieldType },
+      { 
+        key: 'about_years', 
+        label: `Años de experiencia${savedValues['about_years'] ? ` (${savedValues['about_years']})` : ' (número)'}`, 
+        type: 'text' as FieldType 
+      },
+      { 
+        key: 'about_years_label', 
+        label: `Texto: ${savedValues['about_years_label'] || 'Años de experiencia'}`, 
+        type: 'text' as FieldType 
+      },
+      { 
+        key: 'about_sessions', 
+        label: `Sesiones completadas${savedValues['about_sessions'] ? ` (${savedValues['about_sessions']})` : ' (número)'}`, 
+        type: 'text' as FieldType 
+      },
+      { 
+        key: 'about_sessions_label', 
+        label: `Texto: ${savedValues['about_sessions_label'] || 'Sesiones completadas'}`, 
+        type: 'text' as FieldType 
+      },
+      { 
+        key: 'about_awards', 
+        label: `Fotografías capturadas${savedValues['about_awards'] ? ` (${savedValues['about_awards']})` : ' (número)'}`, 
+        type: 'text' as FieldType 
+      },
+      { 
+        key: 'about_awards_label', 
+        label: `Texto: ${savedValues['about_awards_label'] || 'Fotografías capturadas'}`, 
+        type: 'text' as FieldType 
+      },
     ],
   },
   {
     section: 'Services',
     fields: [
-      { key: 'services_list', label: 'Servicios (uno por línea)', type: 'textarea' },
+      { key: 'services_list', label: 'Servicios (uno por línea)', type: 'textarea' as FieldType },
     ],
   },
   {
     section: 'Contact',
     fields: [
-      { key: 'contact_email', label: 'Email', type: 'text' },
-      { key: 'contact_instagram', label: 'Instagram', type: 'text' },
+      { 
+        key: 'contact_email', 
+        label: `Email${savedValues['contact_email'] ? ` (${savedValues['contact_email']})` : ''}`, 
+        type: 'text' as FieldType 
+      },
+      { 
+        key: 'contact_instagram', 
+        label: `Instagram${savedValues['contact_instagram'] ? ` (${savedValues['contact_instagram']})` : ''}`, 
+        type: 'text' as FieldType 
+      },
     ],
   },
 ];
@@ -144,7 +180,7 @@ export function ContentEditor({ content, token, onUpdate }: ContentEditorProps) 
       </div>
 
       <div className="space-y-10">
-        {CONTENT_SCHEMA.map(({ section, fields }) => (
+        {getContentSchema(savedValues).map(({ section, fields }) => (
           <div key={section}>
             <p className="text-xs uppercase tracking-[0.2em] text-[var(--color-primary)] mb-4">{section}</p>
             <div className="space-y-4 border-l-2 border-[var(--color-accent)]/20 pl-4">
