@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import type { SiteConfig } from '../../types';
 import { SectionManager } from './SectionManager';
 import { PhotoUploader } from './PhotoUploader';
@@ -30,18 +31,73 @@ interface DashboardProps {
 
 export function Dashboard({ siteConfig, token, onRefetch, onLogout }: DashboardProps) {
   const [activeTab, setActiveTab] = useState<Tab>('Sections');
+  const [logoReady, setLogoReady] = useState(false);
+  const [logoError, setLogoError] = useState(false);
   const { language, setLanguage } = useLanguage();
   const logoUrl = siteConfig.content.find((c) => c.key === 'logo_url')?.value || '';
+
+  // Preload logo to avoid flash of text before logo
+  useEffect(() => {
+    if (!logoUrl) {
+      setLogoReady(true);
+      return;
+    }
+    
+    setLogoReady(false);
+    setLogoError(false);
+    
+    const img = new Image();
+    img.src = logoUrl;
+    img.onload = () => {
+      setLogoReady(true);
+      setLogoError(false);
+    };
+    img.onerror = () => {
+      setLogoReady(true);
+      setLogoError(true);
+    };
+  }, [logoUrl]);
 
   return (
     <div className="min-h-screen bg-background">
       <header className="bg-surface border-b border-accent/20 px-4 sm:px-6 h-16 flex items-center justify-between gap-2 sm:gap-4">
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-          {logoUrl ? (
-            <img src={logoUrl} alt="Dolores PH" className="h-9 w-auto object-contain shrink-0" />
-          ) : (
-            <span className="text-xl text-primary truncate" style={{ fontFamily: 'var(--font-heading)' }}>Dolores PH</span>
-          )}
+          <div className="h-9 flex items-center">
+            <AnimatePresence mode="wait">
+              {logoUrl && logoReady && !logoError ? (
+                <motion.img
+                  key="logo"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ 
+                    duration: 0.3, 
+                    ease: [0.16, 1, 0.3, 1] 
+                  }}
+                  src={logoUrl} 
+                  alt="Dolores PH" 
+                  className="h-9 w-auto object-contain shrink-0" 
+                />
+              ) : logoReady ? (
+                <motion.span
+                  key="text"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="text-xl text-primary truncate" 
+                  style={{ fontFamily: 'var(--font-heading)' }}
+                >
+                  Dolores PH
+                </motion.span>
+              ) : (
+                <div 
+                  key="placeholder"
+                  className="h-9 w-20 bg-accent/10 rounded animate-pulse shrink-0" 
+                />
+              )}
+            </AnimatePresence>
+          </div>
           {/* Nombre largo: ocultar en xs, truncar en sm, mostrar completo en md+ */}
           <span className="hidden xs:inline-block max-w-28 truncate text-xs text-text/40 shrink min-w-0 sm:max-w-48 md:max-w-none md:text-sm md:whitespace-normal md:inline-block">
             Dolores M. Llorens | Fotografía
@@ -102,30 +158,96 @@ export function Dashboard({ siteConfig, token, onRefetch, onLogout }: DashboardP
         </div>
 
         <div className="bg-surface rounded-2xl p-4 md:p-8 shadow-sm">
-          {activeTab === 'Sections' && (
-            <SectionManager sections={siteConfig.sections} token={token} onUpdate={onRefetch} />
-          )}
-          {activeTab === 'Content' && (
-            <ContentEditor content={siteConfig.content} token={token} onUpdate={onRefetch} />
-          )}
-          {activeTab === 'Photos' && (
-            <PhotoUploader token={token} photos={siteConfig.photos} onUpload={onRefetch} />
-          )}
-          {activeTab === 'Essays' && (
-            <EssayEditor essays={siteConfig.essays} token={token} onUpdate={onRefetch} />
-          )}
-          {activeTab === 'Theme' && (
-            <ThemeEditor currentTheme={siteConfig.theme} content={siteConfig.content} token={token} onUpdate={onRefetch} />
-          )}
-          {activeTab === 'Branding' && (
-            <BrandingManager content={siteConfig.content} token={token} onUpdate={onRefetch} />
-          )}
-          {activeTab === 'Testimonials' && (
-            <TestimonialsManager testimonials={siteConfig.testimonials} token={token} onUpdate={onRefetch} />
-          )}
-          {activeTab === 'Cloudinary' && (
-            <CloudinaryManager />
-          )}
+          <AnimatePresence mode="wait">
+            {activeTab === 'Sections' && (
+              <motion.div
+                key="sections"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2, ease: 'easeInOut' }}
+              >
+                <SectionManager sections={siteConfig.sections} token={token} onUpdate={onRefetch} />
+              </motion.div>
+            )}
+            {activeTab === 'Content' && (
+              <motion.div
+                key="content"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2, ease: 'easeInOut' }}
+              >
+                <ContentEditor content={siteConfig.content} token={token} onUpdate={onRefetch} />
+              </motion.div>
+            )}
+            {activeTab === 'Photos' && (
+              <motion.div
+                key="photos"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2, ease: 'easeInOut' }}
+              >
+                <PhotoUploader token={token} photos={siteConfig.photos} onUpload={onRefetch} />
+              </motion.div>
+            )}
+            {activeTab === 'Essays' && (
+              <motion.div
+                key="essays"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2, ease: 'easeInOut' }}
+              >
+                <EssayEditor essays={siteConfig.essays} token={token} onUpdate={onRefetch} />
+              </motion.div>
+            )}
+            {activeTab === 'Theme' && (
+              <motion.div
+                key="theme"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2, ease: 'easeInOut' }}
+              >
+                <ThemeEditor currentTheme={siteConfig.theme} content={siteConfig.content} token={token} onUpdate={onRefetch} />
+              </motion.div>
+            )}
+            {activeTab === 'Branding' && (
+              <motion.div
+                key="branding"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2, ease: 'easeInOut' }}
+              >
+                <BrandingManager content={siteConfig.content} token={token} onUpdate={onRefetch} />
+              </motion.div>
+            )}
+            {activeTab === 'Testimonials' && (
+              <motion.div
+                key="testimonials"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2, ease: 'easeInOut' }}
+              >
+                <TestimonialsManager testimonials={siteConfig.testimonials} token={token} onUpdate={onRefetch} />
+              </motion.div>
+            )}
+            {activeTab === 'Cloudinary' && (
+              <motion.div
+                key="cloudinary"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2, ease: 'easeInOut' }}
+              >
+                <CloudinaryManager />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </div>
