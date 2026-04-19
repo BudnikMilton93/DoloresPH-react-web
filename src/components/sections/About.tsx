@@ -62,12 +62,12 @@ function AnimatedStatistic({ value, label, delay }: AnimatedStatisticProps) {
           current = number;
           clearInterval(timer);
         }
-        
+
         // Mostrar decimales solo si el número final los tiene
-        const displayNumber = hasDecimals ? 
-          Math.min(current, number).toFixed(1) : 
+        const displayNumber = hasDecimals ?
+          Math.min(current, number).toFixed(1) :
           Math.floor(Math.min(current, number)).toString();
-          
+
         setCurrentValue(current);
         setDisplayValue(displayNumber);
       }, duration / steps);
@@ -81,8 +81,8 @@ function AnimatedStatistic({ value, label, delay }: AnimatedStatisticProps) {
       ref={ref as React.RefObject<HTMLDivElement>}
       initial={{ opacity: 0, y: 30, scale: 0.8 }}
       animate={startAnimation ? { opacity: 1, y: 0, scale: 1 } : {}}
-      transition={{ 
-        duration: 0.8, 
+      transition={{
+        duration: 0.8,
         ease: [0.2, 0.65, 0.3, 0.9],
         scale: { delay: 0.2 }
       }}
@@ -99,9 +99,9 @@ function AnimatedStatistic({ value, label, delay }: AnimatedStatisticProps) {
           whileHover={{ translateX: "200%" }}
           transition={{ duration: 0.6 }}
         />
-        
-        <motion.p 
-          className="text-3xl md:text-4xl text-primary relative z-10 font-semibold" 
+
+        <motion.p
+          className="text-3xl md:text-4xl text-primary relative z-10 font-semibold"
           style={{ fontFamily: 'var(--font-heading)' }}
           animate={startAnimation ? { scale: [1, 1.05, 1] } : {}}
           transition={{ duration: 0.5, delay: 1.8 }}
@@ -118,8 +118,8 @@ function AnimatedStatistic({ value, label, delay }: AnimatedStatisticProps) {
           )}
         </motion.p>
       </motion.div>
-      
-      <motion.p 
+
+      <motion.p
         className="text-sm text-text/60 mt-2"
         initial={{ opacity: 0 }}
         animate={startAnimation ? { opacity: 1 } : {}}
@@ -127,7 +127,7 @@ function AnimatedStatistic({ value, label, delay }: AnimatedStatisticProps) {
       >
         {label}
       </motion.p>
-      
+
       {/* Línea decorativa que aparece después de la animación */}
       <motion.div
         className="h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent mt-3 mx-auto"
@@ -147,12 +147,12 @@ export function About({ isVisible, content }: AboutProps) {
   const years = getContent(content, 'about_years', '8+');
   const sessions = getContent(content, 'about_sessions', '500+');
   const awards = getContent(content, 'about_awards', '12');
-  
+
   // Textos personalizables con fallback a las traducciones
   const yearsLabel = getContent(content, 'about_years_label', t.about.yearsLabel);
   const sessionsLabel = getContent(content, 'about_sessions_label', t.about.sessionsLabel);
   const awardsLabel = getContent(content, 'about_awards_label', t.about.awardsLabel);
-  
+
   const brandmarkAbout = content.find((c) => c.key === 'brandmark_about')?.value || '';
 
   return (
@@ -181,30 +181,68 @@ export function About({ isVisible, content }: AboutProps) {
                 <p className="text-text/70 leading-relaxed text-lg mb-8 whitespace-pre-line">
                   {bio}
                 </p>
+
                 
-                {/* Estadísticas Animadas */}
-                <div className="grid grid-cols-3 gap-4 md:gap-8">
-                  <AnimatedStatistic
-                    value={years}
-                    label={yearsLabel}
-                    delay={200}
-                  />
-                  <AnimatedStatistic
-                    value={sessions}
-                    label={sessionsLabel}
-                    delay={400}
-                  />
-                  <AnimatedStatistic
-                    value={awards}
-                    label={awardsLabel}
-                    delay={600}
+              </motion.div>
+
+              <motion.div
+                className={`relative mt-4 md:mt-0 ${content.find((c) => c.key === 'about_photo_orientation')?.value === 'portrait'
+                    ? 'flex justify-center'
+                    : ''
+                  }`}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, ease: 'easeOut', delay: 0.2 }}
+              >
+                <div className="relative">
+                  <div className={`absolute -top-4 -left-4 rounded-2xl border-2 border-primary/20 hidden md:block ${content.find((c) => c.key === 'about_photo_orientation')?.value === 'portrait'
+                      ? 'w-80 h-[450px] lg:w-96 lg:h-[500px]'
+                      : 'w-full h-full'
+                    }`} />
+                  <img
+                    src={photo}
+                    alt="Photographer at work"
+                    className={`relative z-10 rounded-2xl object-cover ${content.find((c) => c.key === 'about_photo_orientation')?.value === 'portrait'
+                        ? 'w-80 h-[450px] lg:w-96 lg:h-[500px]'
+                        : 'w-full h-64 md:h-96'
+                      }`}
                   />
                 </div>
-                
-                {/* Infrasigno debajo de las estadísticas */}
+              </motion.div>
+            </div>
+
+            {/* Estadísticas Animadas debajo de todo */}
+            <motion.div
+              className="mt-12 grid grid-cols-3 gap-4 md:gap-8 max-w-2xl mx-auto"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, ease: 'easeOut', delay: 0.4 }}
+            >
+              <AnimatedStatistic
+                value={years}
+                label={yearsLabel}
+                delay={200}
+              />
+              <AnimatedStatistic
+                value={sessions}
+                label={sessionsLabel}
+                delay={400}
+              />
+              <AnimatedStatistic
+                value={awards}
+                label={awardsLabel}
+                delay={600}
+              />
+            </motion.div>
+          </div>
+
+          <div className="max-w-6xl mx-auto px-4 mt-8"> 
+            {/* Infrasigno debajo del texto */}
                 {brandmarkAbout && (
                   <motion.div
-                    className="mt-8 flex justify-start"
+                    className="flex justify-start"
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
@@ -217,37 +255,6 @@ export function About({ isVisible, content }: AboutProps) {
                     />
                   </motion.div>
                 )}
-              </motion.div>
-
-              <motion.div
-                className={`relative mt-4 md:mt-0 ${
-                  content.find((c) => c.key === 'about_photo_orientation')?.value === 'portrait'
-                    ? 'flex justify-center'
-                    : ''
-                }`}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, ease: 'easeOut', delay: 0.2 }}
-              >
-                <div className="relative">
-                  <div className={`absolute -top-4 -left-4 rounded-2xl border-2 border-primary/20 hidden md:block ${
-                    content.find((c) => c.key === 'about_photo_orientation')?.value === 'portrait'
-                      ? 'w-72 h-96'
-                      : 'w-full h-full'
-                  }`} />
-                  <img
-                    src={photo}
-                    alt="Photographer at work"
-                    className={`relative z-10 rounded-2xl object-cover ${
-                      content.find((c) => c.key === 'about_photo_orientation')?.value === 'portrait'
-                        ? 'w-72 h-96'
-                        : 'w-full h-64 md:h-96'
-                    }`}
-                  />
-                </div>
-              </motion.div>
-            </div>
           </div>
         </motion.section>
       )}
