@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import type { SiteContent } from '../../types';
 import { patchContent, uploadMediaAsset } from '../../api/admin';
+import { patchBrandmarkSize, getBrandmarkSize } from '../../api/siteConfig';
 import { Button } from '../../components/ui/Button';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 
@@ -22,12 +23,22 @@ const SLOTS = [
 ] as const;
 
 type SlotKey = typeof SLOTS[number]['key'];
+const SIZE_OPTIONS = [
+  { value: 'sm', label: 'Pequeño (32px)' },
+  { value: 'md', label: 'Mediano (48px)' },
+  { value: 'lg', label: 'Grande (80px)' },
+  { value: 'xl', label: 'Extra Grande (112px)' }
+] as const;
 
+const BRANDMARK_KEYS = SLOTS.filter(slot => slot.key !== 'logo_url').map(slot => slot.key);
 interface SlotState {
   uploading: boolean;
   error: string | null;
   urlInput: string;
   saved: boolean;
+  size?: string;
+  sizeUploading?: boolean;
+  sizeSaved?: boolean;
 }
 
 export function BrandingManager({ content, token, onUpdate }: BrandingManagerProps) {
@@ -35,15 +46,19 @@ export function BrandingManager({ content, token, onUpdate }: BrandingManagerPro
     SLOTS.map(({ key }) => [key, content.find((c) => c.key === key)?.value || ''])
   ) as Record<SlotKey, string>;
 
+  const initialSizes = Object.fromEntries(
+    BRANDMARK_KEYS.map((key) => [key, getBrandmarkSize(content, key)])
+  ) as Record<SlotKey, string>;
+
   const [slots, setSlots] = useState<Record<SlotKey, SlotState>>({
     logo_url:               { uploading: false, error: null, urlInput: initialUrlInputs.logo_url, saved: false },
-    brandmark_about:        { uploading: false, error: null, urlInput: initialUrlInputs.brandmark_about, saved: false },
-    brandmark_portfolio:    { uploading: false, error: null, urlInput: initialUrlInputs.brandmark_portfolio, saved: false },
-    brandmark_essays:       { uploading: false, error: null, urlInput: initialUrlInputs.brandmark_essays, saved: false },
-    brandmark_services:     { uploading: false, error: null, urlInput: initialUrlInputs.brandmark_services, saved: false },
-    brandmark_testimonials: { uploading: false, error: null, urlInput: initialUrlInputs.brandmark_testimonials, saved: false },
-    brandmark_contact:      { uploading: false, error: null, urlInput: initialUrlInputs.brandmark_contact, saved: false },
-    brandmark_footer:       { uploading: false, error: null, urlInput: initialUrlInputs.brandmark_footer, saved: false },
+    brandmark_about:        { uploading: false, error: null, urlInput: initialUrlInputs.brandmark_about, saved: false, size: initialSizes.brandmark_about, sizeUploading: false, sizeSaved: false },
+    brandmark_portfolio:    { uploading: false, error: null, urlInput: initialUrlInputs.brandmark_portfolio, saved: false, size: initialSizes.brandmark_portfolio, sizeUploading: false, sizeSaved: false },
+    brandmark_essays:       { uploading: false, error: null, urlInput: initialUrlInputs.brandmark_essays, saved: false, size: initialSizes.brandmark_essays, sizeUploading: false, sizeSaved: false },
+    brandmark_services:     { uploading: false, error: null, urlInput: initialUrlInputs.brandmark_services, saved: false, size: initialSizes.brandmark_services, sizeUploading: false, sizeSaved: false },
+    brandmark_testimonials: { uploading: false, error: null, urlInput: initialUrlInputs.brandmark_testimonials, saved: false, size: initialSizes.brandmark_testimonials, sizeUploading: false, sizeSaved: false },
+    brandmark_contact:      { uploading: false, error: null, urlInput: initialUrlInputs.brandmark_contact, saved: false, size: initialSizes.brandmark_contact, sizeUploading: false, sizeSaved: false },
+    brandmark_footer:       { uploading: false, error: null, urlInput: initialUrlInputs.brandmark_footer, saved: false, size: initialSizes.brandmark_footer, sizeUploading: false, sizeSaved: false },
   });
 
   const [confirmDelete, setConfirmDelete] = useState<{key: SlotKey, label: string} | null>(null);
@@ -122,6 +137,18 @@ export function BrandingManager({ content, token, onUpdate }: BrandingManagerPro
     }
   }
 
+  async function handleSizeChange(key: SlotKey, newSize: string) {
+    setSlot(key, { sizeUploading: true, error: null, sizeSaved: false });
+    try {
+      await patchBrandmarkSize(`${key}_size`, newSize, token);
+      setSlot(key, { sizeUploading: false, size: newSize, sizeSaved: true });
+      onUpdate();
+      setTimeout(() => setSlot(key, { sizeSaved: false }), 3000);
+    } catch (err) {
+      setSlot(key, { sizeUploading: false, error: err instanceof Error ? err.message : 'Error al guardar el tamaño.' });
+    }
+  }
+
   return (
     <div className="space-y-8">
       <h2 className="text-xl text-primary" style={{ fontFamily: 'var(--font-heading)' }}>
@@ -133,6 +160,8 @@ export function BrandingManager({ content, token, onUpdate }: BrandingManagerPro
       {SLOTS.map(({ key, label, hint }) => {
         const state = slots[key];
         const currentUrl = content.find((c) => c.key === key)?.value || state.urlInput;
+        const isBrandmark = BRANDMARK_KEYS.includes(key);
+        
         return (
           <div key={key} className="rounded-xl border border-accent/20 p-5 space-y-4">
             <div>
@@ -184,9 +213,30 @@ export function BrandingManager({ content, token, onUpdate }: BrandingManagerPro
                 </div>
                 <span className="text-xs text-text/40 text-center sm:text-left">Se guarda automáticamente al cargar</span>
               </div>
+
+              {isBrandmark && (
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                  <div className="flex items-center gap-3">
+                    <label className="text-sm text-text font-medium">Tamaño:</label>
+                    <select
+                      value={state.size || 'lg'}
+                      onChange={(e) => handleSizeChange(key, e.target.value)}
+                      disabled={state.sizeUploading}
+                      className="px-3 py-1.5 bg-surface border border-accent/20 rounded-lg text-sm text-text focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50"
+                    >
+                      {SIZE_OPTIONS.map(({ value, label }) => (
+                        <option key={value} value={value}>{label}</option>
+                      ))}
+                    </select>
+                  </div>
+                  {state.sizeUploading && (
+                    <span className="text-xs text-text/40">Guardando tamaño...</span>
+                  )}
+                </div>
+              )}
             </div>
 
-            {state.saved && (
+            {(state.saved || state.sizeSaved) && (
               <p className="text-sm text-green-600 bg-green-50 rounded-lg px-3 py-1.5 flex items-center gap-1.5">
                 <span>✓</span> Guardado exitosamente
               </p>

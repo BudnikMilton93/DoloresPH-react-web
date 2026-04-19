@@ -1,5 +1,7 @@
 import type { SiteContent } from '../../types';
 import { useLanguage } from '../../i18n/LanguageContext';
+import { Brandmark } from '../ui/Brandmarks';
+import { getBrandmarkSize } from '../../api/siteConfig';
 
 interface FooterProps {
   content?: SiteContent[];
@@ -22,7 +24,7 @@ export function Footer({ content = [] }: FooterProps) {
         {brandmarkFooter && (
           <div className="flex items-center justify-center gap-3 mb-4">
             <span className="flex-1 max-w-20 h-px bg-surface/20" />
-            <img src={brandmarkFooter} alt="" aria-hidden="true" className="h-8 w-auto object-contain opacity-50" />
+            <Brandmark src={brandmarkFooter} size={getBrandmarkSize(content, 'brandmark_footer', 'sm') as 'sm' | 'md' | 'lg' | 'xl'} opacity={50} />
             <span className="flex-1 max-w-20 h-px bg-surface/20" />
           </div>
         )}

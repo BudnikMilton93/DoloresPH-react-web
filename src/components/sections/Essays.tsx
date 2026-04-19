@@ -5,6 +5,7 @@ import { EssayCard } from '../ui/EssayCard';
 import { Lightbox } from '../ui/Lightbox';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { Brandmark } from '../ui/Brandmarks';
+import { getBrandmarkSize } from '../../api/siteConfig';
 
 interface EssaysProps {
   isVisible: boolean;
@@ -90,7 +91,7 @@ export function Essays({ isVisible, essays, content = [] }: EssaysProps) {
                 viewport={{ once: true }}
                 transition={{ duration: 0.9, delay: 0.3 }}
               >
-                <Brandmark src={brandmarkEssays} size="xl" opacity={20} />
+                <Brandmark src={brandmarkEssays} size={getBrandmarkSize(content, 'brandmark_essays', 'xl') as 'sm' | 'md' | 'lg' | 'xl'} opacity={20} />
               </motion.div>
             )}
           </div>

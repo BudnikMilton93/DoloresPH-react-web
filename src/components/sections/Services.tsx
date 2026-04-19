@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import type { SiteContent } from '../../types';
 import { Brandmark } from '../ui/Brandmarks';
+import { getBrandmarkSize } from '../../api/siteConfig';
 import { useLanguage } from '../../i18n/LanguageContext';
 
 interface ServicesProps {
@@ -68,7 +69,7 @@ export function Services({ isVisible, content }: ServicesProps) {
                 viewport={{ once: true }}
                 transition={{ duration: 0.9, delay: 0.4 }}
               >
-                <Brandmark src={brandmarkServices} size="xl" opacity={22} />
+                <Brandmark src={brandmarkServices} size={getBrandmarkSize(content, 'brandmark_services', 'xl') as 'sm' | 'md' | 'lg' | 'xl'} opacity={22} />
               </motion.div>
             )}
           </div>

@@ -54,3 +54,36 @@ export async function patchTheme(theme: Partial<ThemeConfig>, _token: string): P
   if (error) throw new Error(error.message);
   return mapTheme(row);
 }
+
+export async function patchBrandmarkSize(key: string, size: string, _token: string): Promise<{ key: string; value: string }> {
+  // Validar que sea una clave válida de brandmark y un tamaño válido
+  const validKeys = [
+    'brandmark_about_size', 'brandmark_portfolio_size', 'brandmark_essays_size',
+    'brandmark_services_size', 'brandmark_testimonials_size', 'brandmark_contact_size',
+    'brandmark_footer_size'
+  ];
+  const validSizes = ['sm', 'md', 'lg', 'xl'];
+  
+  if (!validKeys.includes(key)) {
+    throw new Error('Clave de brandmark inválida.');
+  }
+  
+  if (!validSizes.includes(size)) {
+    throw new Error('Tamaño de brandmark inválido. Use: sm, md, lg, xl');
+  }
+
+  const { data: row, error } = await supabase
+    .from('site_content')
+    .upsert({ key, value: size, updated_at: new Date().toISOString() })
+    .select()
+    .single();
+
+  if (error) throw new Error(error.message);
+  return { key: row.key as string, value: row.value as string };
+}
+
+export function getBrandmarkSize(content: Array<{ key: string; value: string }>, brandmarkKey: string, defaultSize: string = 'lg'): string {
+  const sizeKey = `${brandmarkKey}_size`;
+  const sizeConfig = content.find(item => item.key === sizeKey);
+  return sizeConfig?.value ?? defaultSize;
+}

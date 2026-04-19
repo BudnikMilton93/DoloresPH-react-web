@@ -6,6 +6,7 @@ import { Lightbox } from '../ui/Lightbox';
 import { Button } from '../ui/Button';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { Brandmark } from '../ui/Brandmarks';
+import { getBrandmarkSize } from '../../api/siteConfig';
 
 const MOBILE_INITIAL_COUNT = 8;
 
@@ -116,7 +117,7 @@ export function Portfolio({ isVisible, photos, content = [] }: PortfolioProps) {
                 viewport={{ once: true }}
                 transition={{ duration: 0.9, delay: 0.3 }}
               >
-                <Brandmark src={brandmarkPortfolio} size="xl" opacity={20} />
+                <Brandmark src={brandmarkPortfolio} size={getBrandmarkSize(content || [], 'brandmark_portfolio', 'xl') as 'sm' | 'md' | 'lg' | 'xl'} opacity={20} />
               </motion.div>
             )}
           </div>

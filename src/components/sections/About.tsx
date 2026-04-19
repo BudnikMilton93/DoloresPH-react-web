@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useIntersection } from '../../hooks/useIntersection';
 import type { SiteContent } from '../../types';
 import { Brandmark } from '../ui/Brandmarks';
+import { getBrandmarkSize } from '../../api/siteConfig';
 import { useLanguage } from '../../i18n/LanguageContext';
 
 interface AboutProps {
@@ -250,7 +251,7 @@ export function About({ isVisible, content }: AboutProps) {
                   >
                     <Brandmark
                       src={brandmarkAbout}
-                      size="lg"
+                      size={getBrandmarkSize(content, 'brandmark_about', 'lg') as 'sm' | 'md' | 'lg' | 'xl'}
                       opacity={45}
                     />
                   </motion.div>

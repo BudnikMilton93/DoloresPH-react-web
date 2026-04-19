@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import type { Testimonial, SiteContent } from '../../types';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { Brandmark } from '../ui/Brandmarks';
+import { getBrandmarkSize } from '../../api/siteConfig';
 
 interface TestimonialsProps {
   isVisible: boolean;
@@ -107,7 +108,7 @@ export function Testimonials({ isVisible, testimonials, content = [] }: Testimon
             viewport={{ once: true }}
             transition={{ duration: 0.9, delay: 0.3 }}
           >
-            <Brandmark src={brandmarkTestimonials} size="xl" opacity={20} />
+            <Brandmark src={brandmarkTestimonials} size={getBrandmarkSize(content || [], 'brandmark_testimonials', 'xl') as 'sm' | 'md' | 'lg' | 'xl'} opacity={20} />
           </motion.div>
         )}
       </div>

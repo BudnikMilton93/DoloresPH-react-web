@@ -4,6 +4,7 @@ import { Mail } from 'lucide-react';
 import type { SiteContent } from '../../types';
 import { Button } from '../ui/Button';
 import { Brandmark } from '../ui/Brandmarks';
+import { getBrandmarkSize } from '../../api/siteConfig';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { sendContactEmail } from '../../api/contact';
 
@@ -146,7 +147,7 @@ export function Contact({ isVisible, content }: ContactProps) {
                 viewport={{ once: true }}
                 transition={{ duration: 0.9 }}
               >
-                <Brandmark src={brandmarkContact} size="md" opacity={28} />
+                <Brandmark src={brandmarkContact} size={getBrandmarkSize(content, 'brandmark_contact', 'md') as 'sm' | 'md' | 'lg' | 'xl'} opacity={28} />
               </motion.div>
             )}
           </div>
