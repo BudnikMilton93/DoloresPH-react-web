@@ -151,7 +151,7 @@ export function BrandingManager({ content, token, onUpdate }: BrandingManagerPro
 
   return (
     <div className="space-y-8">
-      <h2 className="text-xl text-primary" style={{ fontFamily: 'var(--font-heading)' }}>
+      <h2 className="text-2xl text-text" style={{ fontFamily: 'var(--font-heading)' }}>
         Branding
       </h2>
 
@@ -160,7 +160,7 @@ export function BrandingManager({ content, token, onUpdate }: BrandingManagerPro
       {SLOTS.map(({ key, label, hint }) => {
         const state = slots[key];
         const currentUrl = content.find((c) => c.key === key)?.value || state.urlInput;
-        const isBrandmark = BRANDMARK_KEYS.includes(key);
+        const isBrandmark = BRANDMARK_KEYS.includes(key as typeof BRANDMARK_KEYS[number]);
         
         return (
           <div key={key} className="rounded-xl border border-accent/20 p-5 space-y-4">

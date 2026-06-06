@@ -21,6 +21,8 @@ export interface Essay {
   title: string;
   description: string;
   isVisible: boolean;
+  isPrivate: boolean;
+  accessCode?: string;
   sortOrder: number;
   photos: Photo[];
 }

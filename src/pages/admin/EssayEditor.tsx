@@ -5,6 +5,13 @@ import { Button } from '../../components/ui/Button';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { createEssay, patchEssay, deleteEssay, uploadPhoto, deletePhoto } from '../../api/admin';
 
+function generateAccessCode(): string {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const array = new Uint8Array(8);
+  crypto.getRandomValues(array);
+  return Array.from(array, (b) => chars[b % chars.length]).join('');
+}
+
 interface EssayEditorProps {
   essays: Essay[];
   token: string;
@@ -41,6 +48,7 @@ export function EssayEditor({ essays, token, onUpdate }: EssayEditorProps) {
   const [deletingPhotoId, setDeletingPhotoId] = useState<number | null>(null);
   const [confirmDeletePhoto, setConfirmDeletePhoto] = useState<number | null>(null);
   const [confirmDeleteEssay, setConfirmDeleteEssay] = useState<Essay | null>(null);
+  const [copiedEssayId, setCopiedEssayId] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleOpenUpload = (essayId: number) => {
@@ -177,6 +185,37 @@ export function EssayEditor({ essays, token, onUpdate }: EssayEditorProps) {
     }
   };
 
+  const handleTogglePrivate = async (essay: Essay, isPrivate: boolean) => {
+    setMessage('');
+    try {
+      const update: Partial<Essay> = { isPrivate };
+      if (isPrivate && !essay.accessCode) {
+        update.accessCode = generateAccessCode();
+      }
+      await patchEssay(essay.id, update, token);
+      onUpdate();
+    } catch {
+      setMessage(`No se pudo cambiar el modo privado de "${essay.title}".`);
+    }
+  };
+
+  const handleRegenerateCode = async (essay: Essay) => {
+    setMessage('');
+    try {
+      await patchEssay(essay.id, { accessCode: generateAccessCode() }, token);
+      onUpdate();
+    } catch {
+      setMessage(`No se pudo regenerar el código de "${essay.title}".`);
+    }
+  };
+
+  const handleCopyCode = (essayId: number) => {
+    const url = `${window.location.origin}/book`;
+    navigator.clipboard.writeText(url);
+    setCopiedEssayId(essayId);
+    setTimeout(() => setCopiedEssayId(null), 2500);
+  };
+
   const handleDelete = async (essay: Essay) => {
     setConfirmDeleteEssay(essay);
   };
@@ -212,7 +251,7 @@ export function EssayEditor({ essays, token, onUpdate }: EssayEditorProps) {
       </div>
 
       <div className="mb-6">
-        <p className="text-xs text-text/50 mt-0.5">Crea/edita tus ensayos, y luego asignale las fotos que desees.</p>
+        <p className="text-xs text-text/50 mt-0.5">Crea/edita tus ensayos públicos y privados, luego asignale las fotos que desees.</p>
       </div>
 
       {creating && (
@@ -288,9 +327,16 @@ export function EssayEditor({ essays, token, onUpdate }: EssayEditorProps) {
               </div>
             ) : (
               <div>
-                <div className="flex items-center justify-between p-4">
-                  <div className="flex-1 min-w-0 pr-4">
-                    <p className="font-medium text-text truncate">{essay.title}</p>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 gap-2">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium text-text truncate">{essay.title}</p>
+                      {essay.isPrivate && (
+                        <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 shrink-0">
+                          Privado
+                        </span>
+                      )}
+                    </div>
                     <p className="text-xs text-text/50 mt-0.5">
                       {essay.photos.length} foto{essay.photos.length !== 1 ? 's' : ''}
                     </p>
@@ -324,6 +370,43 @@ export function EssayEditor({ essays, token, onUpdate }: EssayEditorProps) {
                       {deletingId === essay.id ? '...' : 'Eliminar'}
                     </button>
                   </div>
+                </div>
+
+                {/* Panel de acceso privado */}
+                <div className="px-4 pb-3 border-t border-accent/10 pt-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-text/60">Acceso privado (book personal)</span>
+                      <Toggle
+                        checked={essay.isPrivate}
+                        onChange={(checked) => handleTogglePrivate(essay, checked)}
+                      />
+                    </div>
+                  </div>
+                  {essay.isPrivate && essay.accessCode && (
+                    <div className="mt-3 bg-amber-50 border border-amber-200/70 rounded-xl p-3 space-y-2">
+                      <p className="text-xs text-amber-800/80 leading-relaxed">
+                        💌 <span className="font-medium">Compartí este link y el código con tu cliente</span> — con el código van a poder entrar y descargar sus fotos cuando quieran.
+                      </p>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <code className="text-xs bg-white border border-amber-200 rounded-lg px-2.5 py-1.5 font-mono tracking-widest text-text">
+                          {essay.accessCode}
+                        </code>
+                        <button
+                          onClick={() => handleCopyCode(essay.id)}
+                          className="text-xs font-medium text-amber-700 hover:text-amber-900 bg-white border border-amber-300 hover:border-amber-400 px-3 py-1.5 rounded-lg transition-colors"
+                        >
+                          {copiedEssayId === essay.id ? '✓ ¡Link copiado en el portapapeles!' : 'Copiar link'}
+                        </button>
+                        <button
+                          onClick={() => handleRegenerateCode(essay)}
+                          className="text-xs text-text/40 hover:text-text/70 transition-colors"
+                        >
+                          Regenerar código
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Panel de fotos */}

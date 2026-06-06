@@ -31,7 +31,7 @@ export function Header({ content = [], sections = [], essays = [] }: HeaderProps
     
     // Para la sección Essays, también verificar que haya ensayos con fotos
     if (link.section === 'Essays') {
-      const hasEssaysWithPhotos = essays.some(essay => essay.isVisible && essay.photos.length > 0);
+      const hasEssaysWithPhotos = essays.some(essay => essay.isVisible && !essay.isPrivate && essay.photos.length > 0);
       return isSectionVisible && hasEssaysWithPhotos;
     }
     

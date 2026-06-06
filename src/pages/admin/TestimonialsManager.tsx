@@ -119,7 +119,7 @@ export function TestimonialsManager({ testimonials, token, onUpdate }: Testimoni
 
   return (
     <div className="space-y-8">
-      <h2 className="text-xl text-[var(--color-primary)]" style={{ fontFamily: 'var(--font-heading)' }}>
+      <h2 className="text-2xl text-text" style={{ fontFamily: 'var(--font-heading)' }}>
         Testimonios de Instagram
       </h2>
 

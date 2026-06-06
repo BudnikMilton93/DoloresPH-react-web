@@ -90,10 +90,7 @@ export function CloudinaryManager() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h2
-            className="text-xl font-semibold text-text"
-            style={{ fontFamily: 'var(--font-heading)' }}
-          >
+          <h2 className="text-2xl text-text" style={{ fontFamily: 'var(--font-heading)' }}>
             Limpieza de Cloudinary
           </h2>
           <p className="text-sm text-text/60 mt-1">

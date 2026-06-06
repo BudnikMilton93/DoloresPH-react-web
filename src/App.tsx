@@ -13,6 +13,7 @@ import { Services } from './components/sections/Services';
 import { Contact } from './components/sections/Contact';
 import { Footer } from './components/sections/Footer';
 import { AdminPage } from './pages/admin';
+import { ClientBook } from './pages/ClientBook';
 import { Testimonials } from './components/sections/Testimonials';
 
 function MainPage() {
@@ -44,6 +45,9 @@ function MainPage() {
 
   const { sections, photos, essays, content, testimonials } = siteConfig;
 
+  const privateEssayIds = new Set(essays.filter((e) => e.isPrivate).map((e) => e.id));
+  const publicPhotos = photos.filter((p) => !p.essayId || !privateEssayIds.has(p.essayId));
+
   function isSectionVisible(name: string): boolean {
     const section = sections.find((s) => s.name.toLowerCase() === name.toLowerCase());
     return section ? section.isVisible : true;
@@ -54,7 +58,7 @@ function MainPage() {
       <Header content={content} sections={sections} essays={essays} />
       <Hero isVisible={isSectionVisible('Hero')} content={content} />
       <About isVisible={isSectionVisible('About')} content={content} />
-      <Portfolio isVisible={isSectionVisible('Portfolio')} photos={photos} content={content} />
+      <Portfolio isVisible={isSectionVisible('Portfolio')} photos={publicPhotos} content={content} />
       <Essays isVisible={isSectionVisible('Essays')} essays={essays} content={content} />
       <Services isVisible={isSectionVisible('Services')} content={content} />
       <Testimonials isVisible={isSectionVisible('Testimonials')} testimonials={testimonials} content={content} />
@@ -71,6 +75,8 @@ export default function App() {
         <Routes>
           <Route path="/" element={<MainPage />} />
           <Route path="/admin" element={<AdminPage />} />
+          <Route path="/book" element={<ClientBook />} />
+          <Route path="/book/:code" element={<ClientBook />} />
         </Routes>
       </BrowserRouter>
     </LanguageProvider>

@@ -7,6 +7,7 @@ import { Button } from '../ui/Button';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { Brandmark } from '../ui/Brandmarks';
 import { getBrandmarkSize } from '../../api/siteConfig';
+import { useIntersection } from '../../hooks/useIntersection';
 
 const MOBILE_INITIAL_COUNT = 8;
 
@@ -42,6 +43,8 @@ export function Portfolio({ isVisible, photos, content = [] }: PortfolioProps) {
     setActiveCategory(cat);
     setShowAll(false);
   }, []);
+
+  const { ref: gridRef, isIntersecting: gridVisible } = useIntersection({ threshold: 0.05 });
 
   const closeLightbox = () => setLightboxIndex(null);
   const nextPhoto = () => setLightboxIndex((prev) => prev !== null ? (prev + 1) % filtered.length : 0);
@@ -86,15 +89,17 @@ export function Portfolio({ isVisible, photos, content = [] }: PortfolioProps) {
               ))}
             </div>
 
-            <div className="columns-2 sm:columns-2 lg:columns-3 gap-3 sm:gap-4 space-y-3 sm:space-y-4">
+            <div
+              ref={gridRef as React.RefObject<HTMLDivElement>}
+              className="columns-2 sm:columns-2 lg:columns-3 gap-3 sm:gap-4 space-y-3 sm:space-y-4"
+            >
               {filtered.map((photo, index) => (
                 <motion.div
-                  key={photo.id}
+                  key={`${activeCategory}-${photo.id}`}
                   className="break-inside-avoid"
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: index * 0.05 }}
+                  initial={{ opacity: 0, y: 24 }}
+                  animate={gridVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
+                  transition={{ duration: 0.45, delay: Math.min(index, 10) * 0.06, ease: 'easeOut' }}
                 >
                   <ImageCard photo={photo} onClick={() => setLightboxIndex(index)} />
                 </motion.div>

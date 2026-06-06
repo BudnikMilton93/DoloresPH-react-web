@@ -31,6 +31,8 @@ export function mapEssay(row: Row, allPhotos: Photo[]): Essay {
     title: row.title as string,
     description: (row.description as string) ?? '',
     isVisible: row.is_visible as boolean,
+    isPrivate: (row.is_private as boolean) ?? false,
+    accessCode: (row.access_code as string) ?? undefined,
     sortOrder: row.sort_order as number,
     photos: allPhotos.filter((p) => p.essayId === id),
   };

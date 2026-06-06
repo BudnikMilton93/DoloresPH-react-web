@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase';
-import type { SiteConfig, ThemeConfig } from '../types';
+import type { SiteConfig, ThemeConfig, Essay } from '../types';
 import { mapSection, mapPhoto, mapEssay, mapTheme, mapTestimonial } from '../lib/mappers';
 
 export async function fetchSiteConfig(): Promise<SiteConfig> {
@@ -32,6 +32,29 @@ export async function fetchSiteConfig(): Promise<SiteConfig> {
     theme: mapTheme(themeData),
     testimonials: (testimonialsData ?? []).map(mapTestimonial),
   };
+}
+
+export async function fetchEssayByCode(code: string): Promise<Essay | null> {
+  const sanitized = code.trim().toUpperCase();
+
+  const { data: essayRow, error } = await supabase
+    .from('essays')
+    .select('*')
+    .eq('is_private', true)
+    .eq('is_visible', true)
+    .eq('access_code', sanitized)
+    .single();
+
+  if (error || !essayRow) return null;
+
+  const { data: photosData } = await supabase
+    .from('photos')
+    .select('*')
+    .eq('essay_id', essayRow.id)
+    .order('sort_order');
+
+  const photos = (photosData ?? []).map(mapPhoto);
+  return mapEssay(essayRow, photos);
 }
 
 export async function patchTheme(theme: Partial<ThemeConfig>, _token: string): Promise<ThemeConfig> {

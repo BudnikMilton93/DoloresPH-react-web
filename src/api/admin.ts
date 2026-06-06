@@ -110,6 +110,8 @@ export async function createEssay(data: Partial<Essay>, _token: string): Promise
       title: data.title,
       description: data.description ?? '',
       is_visible: data.isVisible ?? true,
+      is_private: data.isPrivate ?? false,
+      access_code: data.accessCode ?? null,
       sort_order: data.sortOrder ?? 0,
     })
     .select()
@@ -124,6 +126,8 @@ export async function patchEssay(id: number, data: Partial<Essay>, _token: strin
   if (data.title !== undefined) update.title = data.title;
   if (data.description !== undefined) update.description = data.description;
   if (data.isVisible !== undefined) update.is_visible = data.isVisible;
+  if (data.isPrivate !== undefined) update.is_private = data.isPrivate;
+  if ('accessCode' in data) update.access_code = data.accessCode ?? null;
   if (data.sortOrder !== undefined) update.sort_order = data.sortOrder;
 
   const { data: row, error } = await supabase
