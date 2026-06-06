@@ -87,48 +87,51 @@ function CodeForm({ onSubmit, logoUrl }: { onSubmit: (code: string) => void; log
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <div className="w-full max-w-sm text-center space-y-8">
-        <div className="space-y-4">
-          {/* Logo animado */}
-          <div className="flex justify-center">
-            {logoUrl ? (
-              <motion.img
-                src={logoUrl}
-                alt="Logo"
-                className="h-20 w-auto object-contain"
-                initial={{ opacity: 0, scale: 0.85 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.6, ease: 'easeOut' }}
-              />
-            ) : (
-              <motion.p
-                className="text-4xl"
-                initial={{ opacity: 0, scale: 0.85 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.6, ease: 'easeOut' }}
-              >
-                📷
-              </motion.p>
-            )}
-          </div>
-          <motion.div
-            className="space-y-2"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
-            <h1 className="text-3xl text-text" style={{ fontFamily: 'var(--font-heading)' }}>
-              Tu book de fotos
-            </h1>
-            <p className="text-sm text-text/60">
-              Acá podes ingresar el código compartido para acceder a tus fotos y descargarlas cuando quieras. Si tenés problemas no dudes en contactarme. ¡Espero que las disfrutes!
-            </p>
-          </motion.div>
+    <div className="min-h-screen flex items-center justify-center bg-background px-6 py-12">
+      <div className="w-full max-w-sm text-center flex flex-col gap-10">
+
+        {/* Logo */}
+        <div className="flex justify-center">
+          {logoUrl ? (
+            <motion.img
+              src={logoUrl}
+              alt="Logo"
+              className="h-24 w-auto object-contain"
+              initial={{ opacity: 0, scale: 0.85 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, ease: 'easeOut' }}
+            />
+          ) : (
+            <motion.p
+              className="text-5xl"
+              initial={{ opacity: 0, scale: 0.85 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, ease: 'easeOut' }}
+            >
+              📷
+            </motion.p>
+          )}
         </div>
+
+        {/* Título y descripción */}
+        <motion.div
+          className="flex flex-col gap-4"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          <h1 className="text-4xl text-text leading-tight" style={{ fontFamily: 'var(--font-heading)' }}>
+            Tu book de fotos
+          </h1>
+          <p className="text-sm text-text/60 leading-relaxed">
+            Acá podés ingresar el código compartido para acceder a tus fotos y descargarlas cuando quieras. Si tenés problemas no dudes en contactarme. ¡Espero que las disfrutes!
+          </p>
+        </motion.div>
+
+        {/* Formulario */}
         <motion.form
           onSubmit={handleSubmit}
-          className="space-y-4"
+          className="flex flex-col gap-4"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.35 }}
@@ -140,7 +143,7 @@ function CodeForm({ onSubmit, logoUrl }: { onSubmit: (code: string) => void; log
             onChange={(e) => setCode(e.target.value.toUpperCase())}
             placeholder="Ej: X4KM9RQA"
             maxLength={12}
-            className="w-full px-4 py-3 rounded-xl border border-accent/30 bg-surface text-text text-center text-xl font-mono tracking-widest focus:outline-none focus:ring-2 focus:ring-primary/50 placeholder:text-text/25 placeholder:text-base placeholder:font-sans placeholder:tracking-normal"
+            className="w-full px-4 py-4 rounded-xl border border-accent/30 bg-surface text-text text-center text-xl font-mono tracking-widest focus:outline-none focus:ring-2 focus:ring-primary/50 placeholder:text-text/25 placeholder:text-base placeholder:font-sans placeholder:tracking-normal"
             autoComplete="off"
             autoCapitalize="characters"
             spellCheck={false}
@@ -148,7 +151,7 @@ function CodeForm({ onSubmit, logoUrl }: { onSubmit: (code: string) => void; log
           <button
             type="submit"
             disabled={code.trim().length < 4}
-            className="w-full py-3 rounded-full bg-[var(--color-primary)] text-white font-medium transition-opacity hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
+            className="w-full py-3.5 rounded-full bg-[var(--color-primary)] text-white font-medium transition-opacity hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Ver mis fotos
           </button>
