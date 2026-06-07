@@ -74,15 +74,27 @@ async function downloadAllAsZip(photos: Photo[], essayTitle: string): Promise<vo
   URL.revokeObjectURL(objectUrl);
 }
 
-function BookFooter({ logoUrl, brandmarkFooter, siteContent = [] }: { logoUrl?: string; brandmarkFooter?: string; siteContent?: SiteContent[] }) {
+function BookFooter({ logoUrl, brandmarkFooter, siteContent = [], contentReady = false }: { logoUrl?: string; brandmarkFooter?: string; siteContent?: SiteContent[]; contentReady?: boolean }) {
   return (
     <footer className="bg-text py-8 mt-auto">
       <div className="max-w-5xl mx-auto px-4 text-center">
-        {logoUrl ? (
-          <img src={logoUrl} alt="Dolores PH" className="h-8 w-auto object-contain mx-auto mb-3 opacity-90" />
-        ) : (
-          <p className="text-base text-surface mb-3" style={{ fontFamily: 'var(--font-heading)' }}>Dolores PH</p>
-        )}
+        <AnimatePresence mode="wait">
+          {contentReady && (
+            <motion.div
+              key={logoUrl ?? 'no-logo'}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+              className="mb-3"
+            >
+              {logoUrl ? (
+                <img src={logoUrl} alt="Dolores PH" className="h-8 w-auto object-contain mx-auto opacity-90" />
+              ) : (
+                <p className="text-base text-surface" style={{ fontFamily: 'var(--font-heading)' }}>Dolores PH</p>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {brandmarkFooter && (
           <div className="flex items-center justify-center gap-3 mb-3">
@@ -292,7 +304,7 @@ function CyclingHeroIcon() {
   );
 }
 
-function CodeForm({ onSubmit, logoUrl, brandmarkFooter, siteContent = [] }: { onSubmit: (code: string) => void; logoUrl?: string; brandmarkFooter?: string; siteContent?: SiteContent[] }) {
+function CodeForm({ onSubmit, logoUrl, brandmarkFooter, siteContent = [], contentReady = false }: { onSubmit: (code: string) => void; logoUrl?: string; brandmarkFooter?: string; siteContent?: SiteContent[]; contentReady?: boolean }) {
   const [code, setCode] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -307,9 +319,9 @@ function CodeForm({ onSubmit, logoUrl, brandmarkFooter, siteContent = [] }: { on
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <div className="flex-1 flex items-center justify-center px-6 py-12">
-      <div className="w-full max-w-sm text-center flex flex-col gap-10">
+    <div className="h-dvh flex flex-col bg-background overflow-hidden">
+      <div className="flex-1 flex items-center justify-center px-6 py-4 overflow-y-auto">
+      <div className="w-full max-w-sm text-center flex flex-col gap-6 sm:gap-8">
 
         {/* Ícono animado (cámara / fotos) */}
         <motion.div
@@ -369,7 +381,7 @@ function CodeForm({ onSubmit, logoUrl, brandmarkFooter, siteContent = [] }: { on
       </div>
 
       {/* Footer */}
-      <BookFooter logoUrl={logoUrl} brandmarkFooter={brandmarkFooter} siteContent={siteContent} />
+      <BookFooter logoUrl={logoUrl} brandmarkFooter={brandmarkFooter} siteContent={siteContent} contentReady={contentReady} />
     </div>
   );
 }
@@ -379,9 +391,10 @@ interface BookGalleryProps {
   logoUrl?: string;
   brandmarkFooter?: string;
   siteContent?: SiteContent[];
+  contentReady?: boolean;
 }
 
-function BookGallery({ essay, logoUrl, brandmarkFooter, siteContent = [] }: BookGalleryProps) {
+function BookGallery({ essay, logoUrl, brandmarkFooter, siteContent = [], contentReady = false }: BookGalleryProps) {
   const [downloadingId, setDownloadingId] = useState<number | null>(null);
   const [zipping, setZipping] = useState(false);
   const [zipDone, setZipDone] = useState(false);
@@ -528,7 +541,7 @@ function BookGallery({ essay, logoUrl, brandmarkFooter, siteContent = [] }: Book
       </div>
 
       {/* Footer */}
-      <BookFooter logoUrl={logoUrl} brandmarkFooter={brandmarkFooter} siteContent={siteContent} />
+      <BookFooter logoUrl={logoUrl} brandmarkFooter={brandmarkFooter} siteContent={siteContent} contentReady={contentReady} />
 
       {lightboxIndex !== null && (
         <Lightbox
@@ -552,6 +565,7 @@ export function ClientBook() {
   const [showError, setShowError] = useState(false);
   const [logoUrl, setLogoUrl] = useState<string | undefined>(undefined);
   const [siteContent, setSiteContent] = useState<SiteContent[]>([]);
+  const [siteContentReady, setSiteContentReady] = useState(false);
 
   useEffect(() => {
     supabase
@@ -564,6 +578,7 @@ export function ClientBook() {
         setSiteContent(rows);
         const logo = rows.find(r => r.key === 'logo_url')?.value;
         if (logo) setLogoUrl(logo);
+        setSiteContentReady(true);
       });
   }, []);
 
@@ -649,6 +664,7 @@ export function ClientBook() {
               logoUrl={logoUrl}
               brandmarkFooter={brandmarkFooter}
               siteContent={siteContent}
+              contentReady={siteContentReady}
             />
           </motion.div>
         )}
@@ -666,6 +682,7 @@ export function ClientBook() {
               logoUrl={logoUrl}
               brandmarkFooter={brandmarkFooter}
               siteContent={siteContent}
+              contentReady={siteContentReady}
             />
           </motion.div>
         )}
