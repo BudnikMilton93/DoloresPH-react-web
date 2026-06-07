@@ -592,27 +592,11 @@ export function ClientBook() {
     }
   };
 
-  if (status === 'loading') {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <span className="animate-spin inline-block w-8 h-8 border-2 border-primary border-t-transparent rounded-full" />
-      </div>
-    );
-  }
-
-  if (status === 'ready' && essay) {
-    return (
-      <BookGallery
-        essay={essay}
-        logoUrl={logoUrl}
-        brandmarkFooter={siteContent.find(r => r.key === 'brandmark_footer')?.value}
-        siteContent={siteContent}
-      />
-    );
-  }
+  const brandmarkFooter = siteContent.find(r => r.key === 'brandmark_footer')?.value;
 
   return (
     <>
+      {/* Error banner */}
       <AnimatePresence>
         {showError && (
           <motion.div
@@ -629,7 +613,60 @@ export function ClientBook() {
           </motion.div>
         )}
       </AnimatePresence>
-      <CodeForm onSubmit={tryCode} logoUrl={logoUrl} brandmarkFooter={siteContent.find(r => r.key === 'brandmark_footer')?.value} siteContent={siteContent} />
+
+      {/* Main scene transitions */}
+      <AnimatePresence mode="wait">
+        {status === 'loading' && (
+          <motion.div
+            key="loading"
+            className="min-h-screen flex items-center justify-center bg-background"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+          >
+            <motion.span
+              className="inline-block w-10 h-10 border-2 border-primary border-t-transparent rounded-full"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 0.9, repeat: Infinity, ease: 'linear' }}
+            />
+          </motion.div>
+        )}
+
+        {status === 'ready' && essay && (
+          <motion.div
+            key="gallery"
+            initial={{ opacity: 0, y: 32 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -16 }}
+            transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <BookGallery
+              essay={essay}
+              logoUrl={logoUrl}
+              brandmarkFooter={brandmarkFooter}
+              siteContent={siteContent}
+            />
+          </motion.div>
+        )}
+
+        {(status === 'idle' || status === 'not-found') && (
+          <motion.div
+            key="form"
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -16 }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <CodeForm
+              onSubmit={tryCode}
+              logoUrl={logoUrl}
+              brandmarkFooter={brandmarkFooter}
+              siteContent={siteContent}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }
