@@ -74,6 +74,183 @@ async function downloadAllAsZip(photos: Photo[], essayTitle: string): Promise<vo
   URL.revokeObjectURL(objectUrl);
 }
 
+function AnimatedCamera() {
+  return (
+    <motion.svg
+      width="96"
+      height="96"
+      viewBox="0 0 100 105"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      animate={{ scale: [1, 1.04, 0.97, 1] }}
+      transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut', times: [0, 0.3, 0.6, 1] }}
+    >
+      {/* Camera body */}
+      <rect x="8" y="32" width="84" height="60" rx="11"
+        fill="var(--color-primary)" fillOpacity="0.08"
+        stroke="var(--color-primary)" strokeWidth="2.5" strokeOpacity="0.5" />
+
+      {/* Viewfinder bump */}
+      <path d="M33 32V23a6 6 0 0 1 6-6h22a6 6 0 0 1 6 6v9"
+        fill="var(--color-primary)" fillOpacity="0.06"
+        stroke="var(--color-primary)" strokeWidth="2.5" strokeOpacity="0.5" />
+
+      {/* Flash */}
+      <rect x="13" y="40" width="15" height="10" rx="3"
+        fill="var(--color-primary)" fillOpacity="0.15"
+        stroke="var(--color-primary)" strokeWidth="1.5" strokeOpacity="0.4" />
+
+      {/* Shutter button */}
+      <circle cx="78" cy="23" r="5"
+        fill="var(--color-primary)" fillOpacity="0.25"
+        stroke="var(--color-primary)" strokeWidth="1.5" strokeOpacity="0.5" />
+
+      {/* Rotating aperture blades */}
+      <motion.g
+        style={{ transformOrigin: '50px 62px' }}
+        animate={{ rotate: 360 }}
+        transition={{ duration: 12, repeat: Infinity, ease: 'linear' }}
+      >
+        {[0, 30, 60, 90, 120, 150].map((angle) => {
+          const rad = (angle * Math.PI) / 180;
+          return (
+            <line
+              key={angle}
+              x1={50 + 13 * Math.cos(rad)} y1={62 + 13 * Math.sin(rad)}
+              x2={50 - 13 * Math.cos(rad)} y2={62 - 13 * Math.sin(rad)}
+              stroke="var(--color-primary)" strokeWidth="1.5" strokeOpacity="0.3"
+            />
+          );
+        })}
+      </motion.g>
+
+      {/* Outer lens ring */}
+      <circle cx="50" cy="62" r="24"
+        fill="var(--color-primary)" fillOpacity="0.06"
+        stroke="var(--color-primary)" strokeWidth="2.5" strokeOpacity="0.5" />
+
+      {/* Middle lens ring */}
+      <circle cx="50" cy="62" r="15"
+        fill="none" stroke="var(--color-primary)" strokeWidth="1.5" strokeOpacity="0.3" />
+
+      {/* Lens highlight */}
+      <circle cx="43" cy="55" r="3" fill="white" fillOpacity="0.3" />
+
+      {/* Center dot */}
+      <circle cx="50" cy="62" r="4"
+        fill="var(--color-primary)" fillOpacity="0.35" />
+    </motion.svg>
+  );
+}
+
+// Polaroid-style cards that fan out and back in a loop
+const POLAROID_CARDS = [
+  { rotate: -14, x: -22, delay: 0 },
+  { rotate: 0,   x: 0,   delay: 0.08 },
+  { rotate: 14,  x: 22,  delay: 0.16 },
+];
+
+function AnimatedPhotos() {
+  return (
+    <div className="relative w-24 h-24 flex items-center justify-center">
+      {POLAROID_CARDS.map((card, i) => (
+        <motion.div
+          key={i}
+          className="absolute"
+          style={{ width: 58, height: 70 }}
+          initial={{ rotate: 0, x: 0, y: 0, opacity: 0 }}
+          animate={{
+            rotate: [0, card.rotate, card.rotate, 0],
+            x:      [0, card.x,      card.x,      0],
+            y:      [0, -4,          -4,           0],
+            opacity:[0, 1,           1,            0.8],
+          }}
+          transition={{
+            duration: 3.2,
+            delay: card.delay,
+            repeat: Infinity,
+            repeatDelay: 0.4,
+            ease: 'easeInOut',
+            times: [0, 0.25, 0.7, 1],
+          }}
+        >
+          {/* Polaroid frame */}
+          <div
+            className="w-full h-full rounded-sm shadow-md flex flex-col overflow-hidden"
+            style={{
+              background: 'var(--color-surface, #fff)',
+              border: '1px solid color-mix(in srgb, var(--color-primary) 20%, transparent)',
+            }}
+          >
+            {/* Photo area */}
+            <div
+              className="flex-1 mx-2 mt-2 rounded-sm"
+              style={{ background: 'color-mix(in srgb, var(--color-primary) 12%, transparent)' }}
+            >
+              {/* tiny landscape lines */}
+              <svg width="100%" height="100%" viewBox="0 0 42 38" preserveAspectRatio="none">
+                <rect width="42" height="38" fill="none" />
+                {/* sky */}
+                <rect x="0" y="0" width="42" height="20"
+                  fill="color-mix(in srgb, var(--color-primary) 8%, transparent)" />
+                {/* hills */}
+                <ellipse cx="12" cy="26" rx="14" ry="10"
+                  fill="color-mix(in srgb, var(--color-primary) 18%, transparent)" />
+                <ellipse cx="34" cy="28" rx="12" ry="9"
+                  fill="color-mix(in srgb, var(--color-primary) 12%, transparent)" />
+                {/* sun */}
+                <circle cx="32" cy="9" r="5"
+                  fill="color-mix(in srgb, var(--color-primary) 30%, transparent)" />
+              </svg>
+            </div>
+            {/* White strip at bottom (polaroid caption area) */}
+            <div className="h-4" />
+          </div>
+        </motion.div>
+      ))}
+    </div>
+  );
+}
+
+function CyclingHeroIcon() {
+  const [scene, setScene] = useState<'camera' | 'photos'>('camera');
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setScene((s) => (s === 'camera' ? 'photos' : 'camera'));
+    }, 3800);
+    return () => clearInterval(id);
+  }, []);
+
+  return (
+    <div className="relative w-24 h-24 flex items-center justify-center">
+      <AnimatePresence mode="wait">
+        {scene === 'camera' ? (
+          <motion.div
+            key="camera"
+            initial={{ opacity: 0, scale: 0.85, rotate: -6 }}
+            animate={{ opacity: 1, scale: 1, rotate: 0 }}
+            exit={{ opacity: 0, scale: 0.85, rotate: 6 }}
+            transition={{ duration: 0.45, ease: 'easeInOut' }}
+          >
+            <AnimatedCamera />
+          </motion.div>
+        ) : (
+          <motion.div
+            key="photos"
+            initial={{ opacity: 0, scale: 0.85, rotate: 6 }}
+            animate={{ opacity: 1, scale: 1, rotate: 0 }}
+            exit={{ opacity: 0, scale: 0.85, rotate: -6 }}
+            transition={{ duration: 0.45, ease: 'easeInOut' }}
+          >
+            <AnimatedPhotos />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 function CodeForm({ onSubmit, logoUrl, brandmarkFooter, siteContent = [] }: { onSubmit: (code: string) => void; logoUrl?: string; brandmarkFooter?: string; siteContent?: SiteContent[] }) {
   const [code, setCode] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -93,28 +270,15 @@ function CodeForm({ onSubmit, logoUrl, brandmarkFooter, siteContent = [] }: { on
       <div className="flex-1 flex items-center justify-center px-6 py-12">
       <div className="w-full max-w-sm text-center flex flex-col gap-10">
 
-        {/* Logo */}
-        <div className="flex justify-center">
-          {logoUrl ? (
-            <motion.img
-              src={logoUrl}
-              alt="Logo"
-              className="h-24 w-auto object-contain"
-              initial={{ opacity: 0, scale: 0.85 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, ease: 'easeOut' }}
-            />
-          ) : (
-            <motion.p
-              className="text-5xl"
-              initial={{ opacity: 0, scale: 0.85 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, ease: 'easeOut' }}
-            >
-              📷
-            </motion.p>
-          )}
-        </div>
+        {/* Ícono animado (cámara / fotos) */}
+        <motion.div
+          className="flex justify-center"
+          initial={{ opacity: 0, scale: 0.85 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, ease: 'easeOut' }}
+        >
+          <CyclingHeroIcon />
+        </motion.div>
 
         {/* Título y descripción */}
         <motion.div
