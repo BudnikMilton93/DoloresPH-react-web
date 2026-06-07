@@ -1,5 +1,5 @@
 ﻿import { useState, useRef } from 'react';
-import type { Photo } from '../../types';
+import type { Photo, Essay } from '../../types';
 import { uploadPhoto, patchPhoto, deletePhoto } from '../../api/admin';
 import { Toggle } from '../../components/ui/Toggle';
 import { Button } from '../../components/ui/Button';
@@ -9,12 +9,14 @@ import { Lightbox } from '../../components/ui/Lightbox';
 interface PhotoUploaderProps {
   token: string;
   photos: Photo[];
+  essays: Essay[];
   onUpload: () => void;
 }
 
 const CATEGORIES = ['Portrait', 'Wedding', 'Landscape', 'Nature', 'Editorial', 'Other'];
 
-export function PhotoUploader({ token, photos, onUpload }: PhotoUploaderProps) {
+export function PhotoUploader({ token, photos, essays, onUpload }: PhotoUploaderProps) {
+  const privateEssayIds = new Set(essays.filter(e => e.isPrivate).map(e => e.id));
   // Upload state
   const [dragging, setDragging] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
@@ -186,7 +188,12 @@ Diagnóstico:
                       {photo.category}
                     </span>
                     {photo.essayId ? (
-                      <span className="text-[10px] text-accent bg-accent/10 px-1.5 py-0.5 rounded-full border border-accent/20">
+                      <span className="text-[10px] text-accent bg-accent/10 px-1.5 py-0.5 rounded-full border border-accent/20 inline-flex items-center gap-1">
+                        {photo.essayId && privateEssayIds.has(photo.essayId) && (
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-2.5 h-2.5 shrink-0">
+                            <path fillRule="evenodd" d="M8 1a3.5 3.5 0 0 0-3.5 3.5V6H4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-.5V4.5A3.5 3.5 0 0 0 8 1Zm2 5V4.5a2 2 0 1 0-4 0V6h4Z" clipRule="evenodd" />
+                          </svg>
+                        )}
                         Ensayo
                       </span>
                     ) : (

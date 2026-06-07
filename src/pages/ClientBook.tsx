@@ -4,8 +4,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import JSZip from 'jszip';
 import { supabase } from '../lib/supabase';
 import { fetchEssayByCode } from '../api/siteConfig';
+import { getBrandmarkSize } from '../api/siteConfig';
 import { Lightbox } from '../components/ui/Lightbox';
-import type { Essay, Photo } from '../types';
+import { Brandmark } from '../components/ui/Brandmarks';
+import type { Essay, Photo, SiteContent } from '../types';
 
 // Build a Cloudinary URL that delivers PNG and forces browser download.
 // The stored URLs use f_webp in their transformation chain — we replace it with f_png.
@@ -72,7 +74,7 @@ async function downloadAllAsZip(photos: Photo[], essayTitle: string): Promise<vo
   URL.revokeObjectURL(objectUrl);
 }
 
-function CodeForm({ onSubmit, logoUrl }: { onSubmit: (code: string) => void; logoUrl?: string }) {
+function CodeForm({ onSubmit, logoUrl, brandmarkFooter, siteContent = [] }: { onSubmit: (code: string) => void; logoUrl?: string; brandmarkFooter?: string; siteContent?: SiteContent[] }) {
   const [code, setCode] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -87,7 +89,8 @@ function CodeForm({ onSubmit, logoUrl }: { onSubmit: (code: string) => void; log
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-6 py-12">
+    <div className="min-h-screen flex flex-col bg-background">
+      <div className="flex-1 flex items-center justify-center px-6 py-12">
       <div className="w-full max-w-sm text-center flex flex-col gap-10">
 
         {/* Logo */}
@@ -156,20 +159,42 @@ function CodeForm({ onSubmit, logoUrl }: { onSubmit: (code: string) => void; log
             Ver mis fotos
           </button>
         </motion.form>
-        <motion.p
-          className="text-xs text-text/30 pt-4"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.55 }}
-        >
-          Dolores PH · Dolores M. Llorens | Fotografía
-        </motion.p>
+        
       </div>
+      </div>
+
+      {/* Footer */}
+      <footer className="bg-text py-6">
+        <div className="max-w-sm mx-auto px-4 text-center">
+          {logoUrl ? (
+            <img src={logoUrl} alt="Dolores PH" className="h-7 w-auto object-contain mx-auto mb-2.5 opacity-90" />
+          ) : (
+            <p className="text-sm text-surface mb-2.5" style={{ fontFamily: 'var(--font-heading)' }}>Dolores PH</p>
+          )}
+          {brandmarkFooter && (
+            <div className="flex items-center justify-center gap-3 mb-2.5">
+              <span className="flex-1 max-w-12 h-px bg-surface/20" />
+              <Brandmark src={brandmarkFooter} size={getBrandmarkSize(siteContent, 'brandmark_footer', 'sm') as 'sm' | 'md' | 'lg' | 'xl'} opacity={40} />
+              <span className="flex-1 max-w-12 h-px bg-surface/20" />
+            </div>
+          )}
+          <p className="text-[11px] text-surface/30">
+            © {new Date().getFullYear()} Dolores M. Llorens | Fotografía  · Todos los derechos reservados.
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }
 
-function BookGallery({ essay }: { essay: Essay }) {
+interface BookGalleryProps {
+  essay: Essay;
+  logoUrl?: string;
+  brandmarkFooter?: string;
+  siteContent?: SiteContent[];
+}
+
+function BookGallery({ essay, logoUrl, brandmarkFooter, siteContent = [] }: BookGalleryProps) {
   const [downloadingId, setDownloadingId] = useState<number | null>(null);
   const [zipping, setZipping] = useState(false);
   const [zipDone, setZipDone] = useState(false);
@@ -201,10 +226,15 @@ function BookGallery({ essay }: { essay: Essay }) {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
           <div className="flex-1 min-w-0">
             <h1
-              className="text-xl sm:text-2xl text-text truncate"
+              className="text-xl sm:text-2xl text-text truncate flex items-center gap-2"
               style={{ fontFamily: 'var(--font-heading)' }}
             >
               {essay.title}
+              {essay.isPrivate && (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-4 h-4 shrink-0 text-amber-500 opacity-70">
+                  <path fillRule="evenodd" d="M8 1a3.5 3.5 0 0 0-3.5 3.5V6H4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-.5V4.5A3.5 3.5 0 0 0 8 1Zm2 5V4.5a2 2 0 1 0-4 0V6h4Z" clipRule="evenodd" />
+                </svg>
+              )}
             </h1>
             <div className="mt-0.5 space-y-0.5">
               {essay.description && (
@@ -311,9 +341,27 @@ function BookGallery({ essay }: { essay: Essay }) {
       </div>
 
       {/* Footer */}
-      <div className="text-center py-6 text-xs text-text/30 border-t border-accent/10">
-        Dolores PH · Dolores M. Llorens | Fotografía
-      </div>
+      <footer className="bg-text py-8 mt-auto">
+        <div className="max-w-5xl mx-auto px-4 text-center">
+          {logoUrl ? (
+            <img src={logoUrl} alt="Dolores PH" className="h-8 w-auto object-contain mx-auto mb-3 opacity-90" />
+          ) : (
+            <p className="text-base text-surface mb-3" style={{ fontFamily: 'var(--font-heading)' }}>Dolores PH</p>
+          )}
+
+          {brandmarkFooter && (
+            <div className="flex items-center justify-center gap-3 mb-3">
+              <span className="flex-1 max-w-16 h-px bg-surface/20" />
+              <Brandmark src={brandmarkFooter} size={getBrandmarkSize(siteContent, 'brandmark_footer', 'sm') as 'sm' | 'md' | 'lg' | 'xl'} opacity={50} />
+              <span className="flex-1 max-w-16 h-px bg-surface/20" />
+            </div>
+          )}
+
+          <p className="text-xs text-surface/40">
+            © {new Date().getFullYear()} Dolores M. Llorens | Fotografía · Todos los derechos reservados.
+          </p>
+        </div>
+      </footer>
 
       {lightboxIndex !== null && (
         <Lightbox
@@ -336,15 +384,19 @@ export function ClientBook() {
   const [status, setStatus] = useState<'idle' | 'loading' | 'not-found' | 'ready'>('idle');
   const [showError, setShowError] = useState(false);
   const [logoUrl, setLogoUrl] = useState<string | undefined>(undefined);
+  const [siteContent, setSiteContent] = useState<SiteContent[]>([]);
 
   useEffect(() => {
     supabase
       .from('site_content')
-      .select('value')
-      .eq('key', 'logo_url')
-      .single()
+      .select('key, value')
+      .in('key', ['logo_url', 'brandmark_footer', 'brandmark_footer_size'])
       .then(({ data }) => {
-        if (data?.value) setLogoUrl(data.value as string);
+        if (!data) return;
+        const rows = data as SiteContent[];
+        setSiteContent(rows);
+        const logo = rows.find(r => r.key === 'logo_url')?.value;
+        if (logo) setLogoUrl(logo);
       });
   }, []);
 
@@ -385,7 +437,14 @@ export function ClientBook() {
   }
 
   if (status === 'ready' && essay) {
-    return <BookGallery essay={essay} />;
+    return (
+      <BookGallery
+        essay={essay}
+        logoUrl={logoUrl}
+        brandmarkFooter={siteContent.find(r => r.key === 'brandmark_footer')?.value}
+        siteContent={siteContent}
+      />
+    );
   }
 
   return (
@@ -406,7 +465,7 @@ export function ClientBook() {
           </motion.div>
         )}
       </AnimatePresence>
-      <CodeForm onSubmit={tryCode} logoUrl={logoUrl} />
+      <CodeForm onSubmit={tryCode} logoUrl={logoUrl} brandmarkFooter={siteContent.find(r => r.key === 'brandmark_footer')?.value} siteContent={siteContent} />
     </>
   );
 }

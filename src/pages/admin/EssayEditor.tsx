@@ -49,6 +49,7 @@ export function EssayEditor({ essays, token, onUpdate }: EssayEditorProps) {
   const [confirmDeletePhoto, setConfirmDeletePhoto] = useState<number | null>(null);
   const [confirmDeleteEssay, setConfirmDeleteEssay] = useState<Essay | null>(null);
   const [copiedEssayId, setCopiedEssayId] = useState<number | null>(null);
+  const [regeneratedEssayId, setRegeneratedEssayId] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleOpenUpload = (essayId: number) => {
@@ -204,6 +205,8 @@ export function EssayEditor({ essays, token, onUpdate }: EssayEditorProps) {
     try {
       await patchEssay(essay.id, { accessCode: generateAccessCode() }, token);
       onUpdate();
+      setRegeneratedEssayId(essay.id);
+      setTimeout(() => setRegeneratedEssayId(null), 2500);
     } catch {
       setMessage(`No se pudo regenerar el código de "${essay.title}".`);
     }
@@ -332,7 +335,10 @@ export function EssayEditor({ essays, token, onUpdate }: EssayEditorProps) {
                     <div className="flex items-center gap-2">
                       <p className="font-medium text-text truncate">{essay.title}</p>
                       {essay.isPrivate && (
-                        <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 shrink-0">
+                        <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 shrink-0 inline-flex items-center gap-1">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-2.5 h-2.5 shrink-0">
+                            <path fillRule="evenodd" d="M8 1a3.5 3.5 0 0 0-3.5 3.5V6H4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-.5V4.5A3.5 3.5 0 0 0 8 1Zm2 5V4.5a2 2 0 1 0-4 0V6h4Z" clipRule="evenodd" />
+                          </svg>
                           Privado
                         </span>
                       )}
@@ -394,15 +400,57 @@ export function EssayEditor({ essays, token, onUpdate }: EssayEditorProps) {
                         </code>
                         <button
                           onClick={() => handleCopyCode(essay.id)}
-                          className="text-xs font-medium text-amber-700 hover:text-amber-900 bg-white border border-amber-300 hover:border-amber-400 px-3 py-1.5 rounded-lg transition-colors"
+                          className={`relative text-xs font-medium bg-white border px-3 py-1.5 rounded-lg transition-colors overflow-hidden ${
+                            copiedEssayId === essay.id
+                              ? 'text-green-700 border-green-300'
+                              : 'text-amber-700 hover:text-amber-900 border-amber-300 hover:border-amber-400'
+                          }`}
                         >
-                          {copiedEssayId === essay.id ? '✓ ¡Link copiado en el portapapeles!' : 'Copiar link'}
+                          <span
+                            className={`block transition-all duration-300 ease-in-out ${
+                              copiedEssayId === essay.id
+                                ? 'opacity-0 -translate-y-2 pointer-events-none'
+                                : 'opacity-100 translate-y-0'
+                            }`}
+                          >
+                            Copiar link
+                          </span>
+                          <span
+                            className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ease-in-out ${
+                              copiedEssayId === essay.id
+                                ? 'opacity-100 translate-y-0'
+                                : 'opacity-0 translate-y-2'
+                            }`}
+                          >
+                            ✓ Copiado
+                          </span>
                         </button>
                         <button
                           onClick={() => handleRegenerateCode(essay)}
-                          className="text-xs text-text/40 hover:text-text/70 transition-colors"
+                          className={`relative text-xs font-medium bg-white border px-3 py-1.5 rounded-lg transition-colors overflow-hidden ${
+                            regeneratedEssayId === essay.id
+                              ? 'text-green-700 border-green-300'
+                              : 'text-red-400 hover:text-red-600 border-red-200 hover:border-red-300'
+                          }`}
                         >
-                          Regenerar código
+                          <span
+                            className={`block transition-all duration-300 ease-in-out ${
+                              regeneratedEssayId === essay.id
+                                ? 'opacity-0 -translate-y-2 pointer-events-none'
+                                : 'opacity-100 translate-y-0'
+                            }`}
+                          >
+                            Regenerar código
+                          </span>
+                          <span
+                            className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ease-in-out ${
+                              regeneratedEssayId === essay.id
+                                ? 'opacity-100 translate-y-0'
+                                : 'opacity-0 translate-y-2'
+                            }`}
+                          >
+                            ✓ ¡Generado!
+                          </span>
                         </button>
                       </div>
                     </div>

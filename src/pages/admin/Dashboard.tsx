@@ -189,7 +189,7 @@ export function Dashboard({ siteConfig, token, onRefetch, onLogout }: DashboardP
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.2, ease: 'easeInOut' }}
               >
-                <PhotoUploader token={token} photos={siteConfig.photos} onUpload={onRefetch} />
+                <PhotoUploader token={token} photos={siteConfig.photos} essays={siteConfig.essays} onUpload={onRefetch} />
               </motion.div>
             )}
             {activeTab === 'Essays' && (
