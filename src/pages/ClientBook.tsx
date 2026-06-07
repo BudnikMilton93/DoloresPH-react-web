@@ -74,6 +74,47 @@ async function downloadAllAsZip(photos: Photo[], essayTitle: string): Promise<vo
   URL.revokeObjectURL(objectUrl);
 }
 
+function BookFooter({ logoUrl, brandmarkFooter, siteContent = [] }: { logoUrl?: string; brandmarkFooter?: string; siteContent?: SiteContent[] }) {
+  return (
+    <footer className="bg-text py-8 mt-auto">
+      <div className="max-w-5xl mx-auto px-4 text-center">
+        {logoUrl ? (
+          <img src={logoUrl} alt="Dolores PH" className="h-8 w-auto object-contain mx-auto mb-3 opacity-90" />
+        ) : (
+          <p className="text-base text-surface mb-3" style={{ fontFamily: 'var(--font-heading)' }}>Dolores PH</p>
+        )}
+
+        {brandmarkFooter && (
+          <div className="flex items-center justify-center gap-3 mb-3">
+            <span className="flex-1 max-w-16 h-px bg-surface/20" />
+            <Brandmark src={brandmarkFooter} size={getBrandmarkSize(siteContent, 'brandmark_footer', 'sm') as 'sm' | 'md' | 'lg' | 'xl'} opacity={50} />
+            <span className="flex-1 max-w-16 h-px bg-surface/20" />
+          </div>
+        )}
+
+        <a
+          href="https://www.doloresph.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group inline-flex items-center gap-2 mb-3 px-3 py-1.5 rounded-full border border-surface/15 bg-surface/5 hover:bg-surface/15 hover:border-surface/30 transition-all duration-300"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5 text-surface/50 group-hover:text-surface/80 transition-colors">
+            <path fillRule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm-.75-4.75a.75.75 0 0 0 1.5 0V8.66l1.95 2.1a.75.75 0 1 0 1.1-1.02l-3.25-3.5a.75.75 0 0 0-1.1 0L6.2 9.74a.75.75 0 1 0 1.1 1.02l1.95-2.1v4.59Z" clipRule="evenodd" />
+          </svg>
+          <span className="text-[11px] font-medium tracking-wide text-surface/55 group-hover:text-surface/85 transition-colors">doloresph.com</span>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-2.5 h-2.5 text-surface/30 group-hover:text-surface/60 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-300">
+            <path fillRule="evenodd" d="M4.22 11.78a.75.75 0 0 1 0-1.06l5.5-5.5H6.75a.75.75 0 0 1 0-1.5h5a.75.75 0 0 1 .75.75v5a.75.75 0 0 1-1.5 0V6.56l-5.5 5.5a.75.75 0 0 1-1.06-.28Z" clipRule="evenodd" />
+          </svg>
+        </a>
+
+        <p className="text-xs text-surface/40">
+          © {new Date().getFullYear()} Dolores M. Llorens | Fotografía · Todos los derechos reservados.
+        </p>
+      </div>
+    </footer>
+  );
+}
+
 function AnimatedCamera() {
   return (
     <motion.svg
@@ -328,25 +369,7 @@ function CodeForm({ onSubmit, logoUrl, brandmarkFooter, siteContent = [] }: { on
       </div>
 
       {/* Footer */}
-      <footer className="bg-text py-6">
-        <div className="max-w-sm mx-auto px-4 text-center">
-          {logoUrl ? (
-            <img src={logoUrl} alt="Dolores PH" className="h-7 w-auto object-contain mx-auto mb-2.5 opacity-90" />
-          ) : (
-            <p className="text-sm text-surface mb-2.5" style={{ fontFamily: 'var(--font-heading)' }}>Dolores PH</p>
-          )}
-          {brandmarkFooter && (
-            <div className="flex items-center justify-center gap-3 mb-2.5">
-              <span className="flex-1 max-w-12 h-px bg-surface/20" />
-              <Brandmark src={brandmarkFooter} size={getBrandmarkSize(siteContent, 'brandmark_footer', 'sm') as 'sm' | 'md' | 'lg' | 'xl'} opacity={40} />
-              <span className="flex-1 max-w-12 h-px bg-surface/20" />
-            </div>
-          )}
-          <p className="text-[11px] text-surface/30">
-            © {new Date().getFullYear()} Dolores M. Llorens | Fotografía  · Todos los derechos reservados.
-          </p>
-        </div>
-      </footer>
+      <BookFooter logoUrl={logoUrl} brandmarkFooter={brandmarkFooter} siteContent={siteContent} />
     </div>
   );
 }
@@ -505,27 +528,7 @@ function BookGallery({ essay, logoUrl, brandmarkFooter, siteContent = [] }: Book
       </div>
 
       {/* Footer */}
-      <footer className="bg-text py-8 mt-auto">
-        <div className="max-w-5xl mx-auto px-4 text-center">
-          {logoUrl ? (
-            <img src={logoUrl} alt="Dolores PH" className="h-8 w-auto object-contain mx-auto mb-3 opacity-90" />
-          ) : (
-            <p className="text-base text-surface mb-3" style={{ fontFamily: 'var(--font-heading)' }}>Dolores PH</p>
-          )}
-
-          {brandmarkFooter && (
-            <div className="flex items-center justify-center gap-3 mb-3">
-              <span className="flex-1 max-w-16 h-px bg-surface/20" />
-              <Brandmark src={brandmarkFooter} size={getBrandmarkSize(siteContent, 'brandmark_footer', 'sm') as 'sm' | 'md' | 'lg' | 'xl'} opacity={50} />
-              <span className="flex-1 max-w-16 h-px bg-surface/20" />
-            </div>
-          )}
-
-          <p className="text-xs text-surface/40">
-            © {new Date().getFullYear()} Dolores M. Llorens | Fotografía · Todos los derechos reservados.
-          </p>
-        </div>
-      </footer>
+      <BookFooter logoUrl={logoUrl} brandmarkFooter={brandmarkFooter} siteContent={siteContent} />
 
       {lightboxIndex !== null && (
         <Lightbox
