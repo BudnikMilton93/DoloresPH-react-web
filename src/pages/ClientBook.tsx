@@ -344,7 +344,10 @@ function CodeForm({ onSubmit, logoUrl, brandmarkFooter, siteContent = [], conten
             Tu book de fotos
           </h1>
           <p className="text-sm text-text/60 leading-relaxed">
-            Acá podés ingresar el código compartido para acceder a tus fotos y descargarlas cuando quieras. Si tenés problemas no dudes en contactarme. ¡Espero que las disfrutes!
+            Acá podés ingresar el código compartido para acceder a tus fotos y descargarlas cuando quieras. Si tenés problemas no dudes en contactarme. 
+          </p>
+          <p className="text-sm text-text/60 leading-relaxed">
+            ¡Espero que las disfrutes!
           </p>
         </motion.div>
 
