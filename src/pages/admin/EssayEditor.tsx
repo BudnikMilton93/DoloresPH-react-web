@@ -392,7 +392,7 @@ export function EssayEditor({ essays, token, onUpdate }: EssayEditorProps) {
                   {essay.isPrivate && essay.accessCode && (
                     <div className="mt-3 bg-amber-50 border border-amber-200/70 rounded-xl p-3 space-y-2">
                       <p className="text-xs text-amber-800/80 leading-relaxed">
-                        💌 <span className="font-medium">Compartí este link y el código con tu cliente</span> — con el código van a poder entrar y descargar sus fotos cuando quieran.
+                        💌 <span className="font-medium">Compartí este link y el código con la persona fotografiada</span> — con el código va a poder entrar y descargar sus fotos cuando quiera.
                       </p>
                       <div className="flex flex-wrap items-center gap-2">
                         <code className="text-xs bg-white border border-amber-200 rounded-lg px-2.5 py-1.5 font-mono tracking-widest text-text">

@@ -78,31 +78,34 @@ function BookFooter({ logoUrl, brandmarkFooter, siteContent = [], contentReady =
   return (
     <footer className="bg-text py-8 mt-auto">
       <div className="max-w-5xl mx-auto px-4 text-center">
-        <AnimatePresence mode="wait">
-          {contentReady && (
-            <motion.div
-              key={logoUrl ?? 'no-logo'}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5 }}
-              className="mb-3"
-            >
-              {logoUrl ? (
-                <img src={logoUrl} alt="Dolores PH" className="h-8 w-auto object-contain mx-auto opacity-90" />
-              ) : (
-                <p className="text-base text-surface" style={{ fontFamily: 'var(--font-heading)' }}>Dolores PH</p>
-              )}
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <div className="mb-3 h-8 flex items-center justify-center">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: contentReady ? 1 : 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            {logoUrl ? (
+              <img src={logoUrl} alt="Dolores PH" className="h-8 w-auto object-contain mx-auto opacity-90" />
+            ) : (
+              <p className="text-base text-surface" style={{ fontFamily: 'var(--font-heading)' }}>Dolores PH</p>
+            )}
+          </motion.div>
+        </div>
 
-        {brandmarkFooter && (
-          <div className="flex items-center justify-center gap-3 mb-3">
-            <span className="flex-1 max-w-16 h-px bg-surface/20" />
-            <Brandmark src={brandmarkFooter} size={getBrandmarkSize(siteContent, 'brandmark_footer', 'sm') as 'sm' | 'md' | 'lg' | 'xl'} opacity={50} />
-            <span className="flex-1 max-w-16 h-px bg-surface/20" />
-          </div>
-        )}
+        <motion.div
+          className="flex items-center justify-center gap-3 mb-3 h-6"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: contentReady && brandmarkFooter ? 1 : 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          {brandmarkFooter && (
+            <>
+              <span className="flex-1 max-w-16 h-px bg-surface/20" />
+              <Brandmark src={brandmarkFooter} size={getBrandmarkSize(siteContent, 'brandmark_footer', 'sm') as 'sm' | 'md' | 'lg' | 'xl'} opacity={50} />
+              <span className="flex-1 max-w-16 h-px bg-surface/20" />
+            </>
+          )}
+        </motion.div>
 
         <a
           href="https://www.doloresph.com"
