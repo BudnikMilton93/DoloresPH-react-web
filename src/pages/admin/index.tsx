@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSiteConfig } from '../../hooks/useSiteConfig';
 import { login as loginApi } from '../../api/auth';
+import { trackAdminLogin } from '../../api/analytics';
 import { Dashboard } from './Dashboard';
 import { Button } from '../../components/ui/Button';
 
@@ -10,6 +11,8 @@ const MOCK_USER = {
   password: '123456',
   token: 'mock_admin_token_dolores',
 };
+
+const ENABLE_MOCK_ADMIN = import.meta.env.DEV && import.meta.env.VITE_ENABLE_MOCK_ADMIN === 'true';
 
 export function AdminPage() {
   const { siteConfig, refetch } = useSiteConfig();
@@ -50,10 +53,13 @@ export function AdminPage() {
     setLoading(true);
     setError('');
 
-    // Hardcoded dev user — replace once real API is live
-    if (email === MOCK_USER.email && password === MOCK_USER.password) {
+    const normalizedEmail = email.trim().toLowerCase();
+
+    // Mock login is only allowed in local dev when explicitly enabled.
+    if (ENABLE_MOCK_ADMIN && email === MOCK_USER.email && password === MOCK_USER.password) {
       sessionStorage.setItem('admin_token', MOCK_USER.token);
       setToken(MOCK_USER.token);
+      void trackAdminLogin({ email: normalizedEmail, status: 'success', source: 'mock' });
       setLoading(false);
       return;
     }
@@ -62,7 +68,9 @@ export function AdminPage() {
       const response = await loginApi(email, password);
       sessionStorage.setItem('admin_token', response.token);
       setToken(response.token);
+      void trackAdminLogin({ email: normalizedEmail, status: 'success', source: 'supabase' });
     } catch {
+      void trackAdminLogin({ email: normalizedEmail, status: 'failed', source: 'supabase' });
       setError('Credenciales incorrectas o servidor no disponible.');
     } finally {
       setLoading(false);

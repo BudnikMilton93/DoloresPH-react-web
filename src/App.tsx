@@ -1,8 +1,9 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { LanguageProvider } from './i18n/LanguageContext';
 import { useSiteConfig } from './hooks/useSiteConfig';
 import { applyTheme, loadCustomFonts } from './utils/theme';
+import { trackPageView } from './api/analytics';
 import { SplashScreen } from './components/ui/SplashScreen';
 import { Header } from './components/sections/Header';
 import { Hero } from './components/sections/Hero';
@@ -15,6 +16,21 @@ import { Footer } from './components/sections/Footer';
 import { AdminPage } from './pages/admin';
 import { ClientBook } from './pages/ClientBook';
 import { Testimonials } from './components/sections/Testimonials';
+
+let lastTrackedPath = '';
+
+function RouteTracker() {
+  const location = useLocation();
+
+  useEffect(() => {
+    const fullPath = `${location.pathname}${location.search}`;
+    if (fullPath === lastTrackedPath) return;
+    lastTrackedPath = fullPath;
+    void trackPageView(fullPath);
+  }, [location.pathname, location.search]);
+
+  return null;
+}
 
 function MainPage() {
   const { siteConfig, loading } = useSiteConfig();
@@ -72,6 +88,7 @@ export default function App() {
   return (
     <LanguageProvider>
       <BrowserRouter>
+        <RouteTracker />
         <Routes>
           <Route path="/" element={<MainPage />} />
           <Route path="/admin" element={<AdminPage />} />
